@@ -1,0 +1,15 @@
+version: '2.0'
+services:
+  data:
+    build: ./data
+  inference:
+    build: ./inference
+  ingestion:
+    build: ./ingestion
+  persistance:
+    build: ./persistance
+
+networks:
+  default: 
+    # Setting the default network to all the defaults initially
+    driver: bridge

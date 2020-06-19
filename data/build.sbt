@@ -1,5 +1,8 @@
 name := "data"
 
-version := "0.1"
+version := "1"
 
-scalaVersion := "2.13.2"
+scalaVersion := "2.10.4"
+
+mainClass in (assembly) := Some("Main")
+assemblyJarName in assembly := "data.jar"

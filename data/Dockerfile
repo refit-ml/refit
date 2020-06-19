@@ -12,8 +12,6 @@ WORKDIR app
 
 ADD ./ /app
 
-RUN ls
+RUN sbt assembly
 
-CMD sbt run
-
-# CMD scala /app/target/scala-2.13/data_2.13-0.1.jar
+CMD java -jar target/scala-2.10/data.jar
