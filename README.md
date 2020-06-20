@@ -35,9 +35,9 @@ In order to write code, unit tests, and run your code in a developer friendly en
         - [IDEA](https://www.jetbrains.com/idea/) (IDEA Ultimate is free for Northwestern students). If you are using IDEA you will want to install the Scala SDK in the packages section [Here](https://docs.scala-lang.org/getting-started/intellij-track/getting-started-with-scala-in-intellij.html) is a tutorial.
         - [VS Code](https://code.visualstudio.com/)
     - NOTE: If you are accustom to GUI tools then IDEA will be preferred, if you prefer command-line development then VS Code might be for you
-- [JDK](https://openjdk.java.net/)
+- [JDK](https://openjdk.java.net/): For compiling scala code
     - right now all of our docker containers are using openjdk 8 (this might change in the future)
-- [SBT](https://www.scala-sbt.org/)
-- Shell
+- [SBT](https://www.scala-sbt.org/): This will let you build, compile, and run your scala code
+- Shell: All of our build/test scripts will be written in shell
     - If you are on a Mac/Linux machine then you will not need to install anything
     - If you are on Windows you will want to install the [Ubuntu Subsystem](https://ubuntu.com/tutorials/tutorial-ubuntu-on-windows#1-overview)
