@@ -8,22 +8,10 @@ RUN apt-get update
 
 RUN apt-get install sbt scala -y
 
-RUN wget http://mirrors.ibiblio.org/apache/tests.spark/tests.spark-3.0.0/tests.spark-3.0.0-bin-hadoop2.7.tgz
-
-RUN tar xvf tests.spark-*
-
-RUN mv tests.spark-3.0.0-bin-hadoop2.7 /opt/tests.spark
-
-ENV PATH="/opt/tests.spark/bin:${PATH}"
-ENV SPARK_HOME="/opt/tests.spark/"
-
 WORKDIR app
 
 ADD ./ /app
 
-RUN sbt package
+RUN sbt assembly
 
-CMD tests.spark-submit \
-  --class "Main" \
-  --master local[4] \
-  target/scala-2.10/inference_2.10-1.0.jar
+CMD sbt run
