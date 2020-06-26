@@ -11,11 +11,16 @@ organization := "CDL"
 
 ThisBuild / scalaVersion := "2.11.12"
 
-val flinkVersion = "1.5.0"
+val flinkVersion = "1.10.1"
 
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
-  "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided")
+  "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided"
+)
+
+//libraryDependencies += "com.sksamuel.pulsar4s" % "pulsar4s-core_2.13" % "2.5.4"
+libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.6.0"
+
 
 lazy val root = (project in file(".")).
   settings(

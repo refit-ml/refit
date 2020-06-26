@@ -1,0 +1,36 @@
+version: '2.0'
+services:
+  # data:
+  #   build: ./data
+  # inference:
+  #   build: ./inference
+
+  standalone:
+    image: apachepulsar/pulsar
+    expose:
+      - 8080
+      - 6650 
+    ports: 
+      - "8080:8080"
+      - "6650:6650"
+    environment:
+      - PULSAR_PREFIX_tlsEnabled=false
+    command: >
+      /bin/bash -c
+      "bin/apply-config-from-env.py conf/standalone.conf
+      && bin/pulsar standalone"
+  dashboard:
+    image: apachepulsar/pulsar-dashboard
+    depends_on:
+      - standalone
+    ports:
+      - "80:80"
+    environment:
+      - SERVICE_URL=http://standalone:8080
+  # persistance:
+  #   build: ./persistance
+
+networks:
+  default: 
+    # Setting the default network to all the defaults initially
+    driver: bridge
