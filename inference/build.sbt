@@ -18,8 +18,8 @@ val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided"
 )
 
-//libraryDependencies += "com.sksamuel.pulsar4s" % "pulsar4s-core_2.13" % "2.5.4"
 libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.6.0"
+//libraryDependencies += "com.sksamuel.pulsar4s" % "pulsar4s-core_2.13" % "2.5.4"
 
 
 lazy val root = (project in file(".")).

@@ -26,15 +26,17 @@ object Main {
 
     implicit val schema: Schema[String] = Schema.STRING
 
-    val topic = Topic("persistent://sample/standalone/ns1/b")
+    val topic = Topic("persistent://sample/standalone/ns1/u")
     val producerConfig = ProducerConfig(topic)
     val producer = client.producer[String](producerConfig)
 
     print("Begin sending messages")
     iter.foreach(x => {
-      print(s"Send message: ${x.id}")
+      print(s"\nSend message: ${x.id}\n")
       producer.send(x.temperature.toString)
     })
+
+
 
 //    val consumerConfig = ConsumerConfig(Subscription("my-sub"), Seq(topic))
 //    val consumer = client.consumer[String](consumerConfig)

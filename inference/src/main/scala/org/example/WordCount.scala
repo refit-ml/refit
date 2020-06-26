@@ -13,24 +13,23 @@ case class SensorData(sensor_id: Int, timestamp: String, temperature: Int, press
 object WordCount {
   def main(args: Array[String]) {
     val env = StreamExecutionEnvironment.createLocalEnvironment()
-    val clientConfigurationData = ClientConfiguration()
-    val builder = PulsarSourceBuilder.builder(new SimpleStringSchema())
-                 .serviceUrl("pulsar://localhost:6650")
-                 .topic("persistent://sample/standalone/ns1/b")
-                 .subscriptionName("inference-1")
-      .pulsarAllClientConf()
 
+
+    val builder = PulsarSourceBuilder.builder(new SimpleStringSchema())
+      .serviceUrl("pulsar://localhost:6650")
+      .topic("persistent://sample/standalone/ns1/u")
+      .subscriptionName("inference-1")
+      .acknowledgementBatchSize(10)
 
 
 
     val src = builder.build();
     val input = env.addSource(src);
 
-    val c = input.map( x => {
+    val c = input.map(x => {
       print("HERE")
       s"Recieved: ${x}"
     }).setParallelism(1)
-
 
 
     env.execute("Test Job")
