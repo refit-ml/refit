@@ -17,17 +17,15 @@ val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided"
 )
-
-libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.6.0"
 //libraryDependencies += "com.sksamuel.pulsar4s" % "pulsar4s-core_2.13" % "2.5.4"
-
+libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.3.2"
 
 lazy val root = (project in file(".")).
   settings(
     libraryDependencies ++= flinkDependencies
   )
 
-assembly / mainClass := Some("org.example.WordCount")
+assembly / mainClass := Some("org.example.Main")
 
 // make run command include the provided dependencies
 Compile / run  := Defaults.runTask(Compile / fullClasspath,
@@ -43,4 +41,8 @@ Global / cancelable := true
 // assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
 
 assemblyJarName in assembly := "inference.jar"
-fork in run := true
+
+assemblyMergeStrategy in assembly := {
+ case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+ case x => MergeStrategy.first
+}

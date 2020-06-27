@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8 as builder
 
 RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
 
@@ -14,4 +14,9 @@ ADD ./ /app
 
 RUN sbt assembly
 
-CMD sbt run
+FROM flink:1.10.0-scala_2.11
+
+WORKDIR /opt/flink/bin
+
+# Copy Click Count Job
+COPY --from=builder /app/target/scala-2.11/inference.jar /opt/inference.jar

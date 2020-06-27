@@ -36,16 +36,6 @@ object Main {
       producer.send(x.temperature.toString)
     })
 
-
-
-//    val consumerConfig = ConsumerConfig(Subscription("my-sub"), Seq(topic))
-//    val consumer = client.consumer[String](consumerConfig)
-//
-//    val message: ConsumerMessage[String] = consumer.receive.get
-//
-//    consumer.acknowledge(message.messageId)
-//    print(s"\nGot a message ${message.data.map(_.toChar).mkString}\n")
-//    consumer.close()
     producer.close()
     client.close()
   }
