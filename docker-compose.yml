@@ -1,23 +1,7 @@
 version: '2.0'
 services:
-  # data:
-  #   build: ./data
-  client:
-    build: ./inference
-    # image: apache/flink-ops-playground:1-FLINK-1.10-scala_2.11
-    command: "flink run -d -p 2 /opt/inference.jar --checkpointing --event-time"
-    depends_on:
-      - jobmanager
-      # - pulsar
-    volumes:
-      - ./conf:/opt/flink/conf
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
   pulsar:
     image: apachepulsar/pulsar
-    expose:
-      - 8080
-      - 6650 
     ports: 
       - "8080:8080"
       - "6650:6650"
@@ -31,31 +15,6 @@ services:
       - "80:80"
     environment:
       - SERVICE_URL=http://pulsar:8080
-  jobmanager:
-    image: flink:1.10.0-scala_2.11
-    command: "jobmanager.sh start-foreground"
-    ports:
-      - 8081:8081
-    volumes:
-      - ./conf:/opt/flink/conf
-      - flink-checkpoints-directory:/tmp/flink-checkpoints-directory
-      - /tmp/flink-savepoints-directory:/tmp/flink-savepoints-directory
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-  taskmanager:
-    image: flink:1.10.0-scala_2.11
-    depends_on:
-      - jobmanager
-    command: "taskmanager.sh start-foreground"
-    volumes:
-      - ./conf:/opt/flink/conf
-      - flink-checkpoints-directory:/tmp/flink-checkpoints-directory
-      - /tmp/flink-savepoints-directory:/tmp/flink-savepoints-directory
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
 networks:
   default: 
     driver: bridge
-
-volumes:
-  flink-checkpoints-directory:
