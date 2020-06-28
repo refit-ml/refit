@@ -1,6 +1,7 @@
+
 ThisBuild / resolvers ++= Seq(
   "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
-//  "BinTray" at "https://dl.bintray.com/streamnative/maven",
+  "BinTray" at "https://dl.bintray.com/streamnative/maven",
   Resolver.mavenLocal
 )
 
@@ -30,18 +31,14 @@ lazy val root = (project in file(".")).
 
 assembly / mainClass := Some("org.example.Main")
 
-// make run command include the provided dependencies
 Compile / run  := Defaults.runTask(Compile / fullClasspath,
   Compile / run / mainClass,
   Compile / run / runner
 ).evaluated
 
-// stays inside the sbt console when we press "ctrl-c" while a Flink programme executes with "run" or "runMain"
 Compile / run / fork := true
 Global / cancelable := true
 
-// exclude Scala library from assembly
-// assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
 
 assemblyJarName in assembly := "inference.jar"
 
@@ -49,3 +46,7 @@ assemblyMergeStrategy in assembly := {
  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
  case x => MergeStrategy.first
 }
+libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % "0.9.6"
+PB.targets in Compile := Seq(
+  scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
+)

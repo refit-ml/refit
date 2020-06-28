@@ -1,0 +1,10 @@
+syntax = "proto3";
+package cdl.iot;
+
+message SensorData  {
+  int32 sensor_id = 1;
+  string timestamp = 2;
+  double temperature = 3;
+  double pressure = 4;
+  double wind = 5;
+}

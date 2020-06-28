@@ -1,65 +1,57 @@
 package org.example
 
-
-import java.util.{Optional, Properties}
-
-import org.apache.flink.api.common.serialization.{SerializationSchema, SimpleStringSchema}
+import cdl.iot.SensorData.SensorData
+import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, FlinkPulsarSink, PulsarSourceBuilder, TopicKeyExtractor}
-import org.apache.pulsar.client.impl.auth.AuthenticationDisabled
-import org.apache.pulsar.shade.org.glassfish.hk2.api.messaging.Topic
+import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
-import org.codehaus.jackson.map.ser.std.StdKeySerializers.StringKeySerializer
-
 
 //sensor_id,timestamp,temperature,pressure,wind
-case class SensorData(sensor_id: Int, timestamp: String, temperature: Int, pressure: Int, wind: Int)
 
 object Main {
   def main(args: Array[String]) {
     Thread.sleep(60000)
     val env = StreamExecutionEnvironment.getExecutionEnvironment()
     val serviceUrl = "pulsar://localhost:6650"
-    val inputTopic = "persistent://sample/standalone/ns1/u"
-    val outputTopic = "persistent://sample/standalone/ns1/o"
+    val inputTopic = "persistent://sample/standalone/ns1/in"
+    val outputTopic = "persistent://sample/standalone/ns1/out"
     val subscribtionName = "scala-sub-1"
 
-    val props = new Properties()
-    props.setProperty("topic", outputTopic)
-
-    val src = PulsarSourceBuilder.builder(new SimpleStringSchema())
+    val src = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
       .topic(inputTopic)
       .subscriptionName(subscribtionName)
       .build()
 
     val input = env.addSource(src)
-    input.print().setParallelism(1)
 
-    val p = new FlinkPulsarProducer[String](
+
+    val p = new FlinkPulsarProducer(
       serviceUrl,
       outputTopic,
-      new StringSerializer,
-      new StringKeyExtractor
+      new SensorDataSerializer,
+      new SensorDataKeyExtractor
     )
 
     input.addSink(p)
-
-
-
-
     env.execute("Test Job")
-
-
   }
 }
 
-class StringSerializer extends SerializationSchema[String] {
-  override def serialize(element: String): Array[Byte] = element.getBytes()
+class SensorDataKeyExtractor extends PulsarKeyExtractor[SensorData] {
+  override def getKey(in: SensorData): String = in.sensorId.toString
 }
 
-class StringKeyExtractor extends PulsarKeyExtractor[String] {
-  override def getKey(in: String): String = in
+class SensorDataSerializer extends SerializationSchema[SensorData] {
+  override def serialize(element: SensorData): Array[Byte] = s"${element.sensorId},${element.pressure},${element.temperature},${element.wind}".getBytes()
+}
+
+class SensorDataSchema extends DeserializationSchema[SensorData] {
+  override def deserialize(message: Array[Byte]): SensorData = SensorData.parseFrom(message)
+
+  override def isEndOfStream(nextElement: SensorData): Boolean = true
+
+  override def getProducedType: TypeInformation[SensorData] = createTypeInformation[SensorData]
 }
