@@ -1,5 +1,6 @@
 ThisBuild / resolvers ++= Seq(
   "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
+//  "BinTray" at "https://dl.bintray.com/streamnative/maven",
   Resolver.mavenLocal
 )
 
@@ -17,8 +18,10 @@ val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided"
 )
-//libraryDependencies += "com.sksamuel.pulsar4s" % "pulsar4s-core_2.13" % "2.5.4"
+
 libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.3.2"
+//libraryDependencies += "io.streamnative.connectors" % "pulsar-flink-connector_2.11" % "2.4.23"
+
 
 lazy val root = (project in file(".")).
   settings(

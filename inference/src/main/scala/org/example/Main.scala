@@ -1,10 +1,17 @@
 package org.example
 
 
-import org.apache.flink.api.common.serialization.SimpleStringSchema
+import java.util.{Optional, Properties}
+
+import org.apache.flink.api.common.serialization.{SerializationSchema, SimpleStringSchema}
+import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
+import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, FlinkPulsarSink, PulsarSourceBuilder, TopicKeyExtractor}
 import org.apache.pulsar.client.impl.auth.AuthenticationDisabled
+import org.apache.pulsar.shade.org.glassfish.hk2.api.messaging.Topic
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
+import org.codehaus.jackson.map.ser.std.StdKeySerializers.StringKeySerializer
 
 
 //sensor_id,timestamp,temperature,pressure,wind
@@ -19,6 +26,9 @@ object Main {
     val outputTopic = "persistent://sample/standalone/ns1/o"
     val subscribtionName = "scala-sub-1"
 
+    val props = new Properties()
+    props.setProperty("topic", outputTopic)
+
     val src = PulsarSourceBuilder.builder(new SimpleStringSchema())
       .serviceUrl(serviceUrl)
       .topic(inputTopic)
@@ -28,22 +38,28 @@ object Main {
     val input = env.addSource(src)
     input.print().setParallelism(1)
 
-
-
-    input.addSink(new FlinkPulsarProducer[String](
+    val p = new FlinkPulsarProducer[String](
       serviceUrl,
       outputTopic,
-      new AuthenticationDisabled(),
-      (x) => x.hashCode()
-    ))
+      new StringSerializer,
+      new StringKeyExtractor
+    )
+
+    input.addSink(p)
+
 
 
 
     env.execute("Test Job")
 
+
   }
 }
 
-class Transporter {
+class StringSerializer extends SerializationSchema[String] {
+  override def serialize(element: String): Array[Byte] = element.getBytes()
+}
 
+class StringKeyExtractor extends PulsarKeyExtractor[String] {
+  override def getKey(in: String): String = in
 }
