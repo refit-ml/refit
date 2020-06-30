@@ -9,12 +9,12 @@ services:
       /bin/bash -c
       "bin/apply-config-from-env.py conf/standalone.conf
       && bin/pulsar standalone"
-  pulsar-dashboard:
-    image: apachepulsar/pulsar-dashboard
-    ports:
-      - "80:80"
-    environment:
-      - SERVICE_URL=http://pulsar:8080
+#  pulsar-dashboard:
+#    image: apachepulsar/pulsar-dashboard
+#    ports:
+#      - "80:80"
+#    environment:
+#      - SERVICE_URL=http://pulsar:8080
 networks:
   default: 
     driver: bridge
