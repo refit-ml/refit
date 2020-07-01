@@ -16,6 +16,7 @@ import cdl.iot.SensorData.{SensorData}
 //}
 object Main {
   def main(args: Array[String]) {
+
     val src = Source.fromFile(s"${System.getProperty("user.dir")}/sensor_data.csv")
     val iter = src.getLines()
       .drop(1)
@@ -23,7 +24,9 @@ object Main {
       .map(x => new SensorData(x(0).toInt, x(1), x(2).toDouble, x(3).toDouble, x(4).toDouble))
 
     val client = PulsarClient("pulsar://localhost:6650")
+    lazy val iter2 = LazyList.continually( () => {
 
+    })
     val schema = Schema.BYTES
 
     val topic = Topic("persistent://sample/standalone/ns1/in")

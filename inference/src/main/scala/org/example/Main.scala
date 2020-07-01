@@ -12,7 +12,6 @@ import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtract
 
 object Main {
   def main(args: Array[String]) {
-    Thread.sleep(60000)
     val env = StreamExecutionEnvironment.getExecutionEnvironment()
     val serviceUrl = "pulsar://localhost:6650"
     val inputTopic = "persistent://sample/standalone/ns1/in"
@@ -49,7 +48,11 @@ class SensorDataSerializer extends SerializationSchema[SensorData] {
 }
 
 class SensorDataSchema extends DeserializationSchema[SensorData] {
-  override def deserialize(message: Array[Byte]): SensorData = SensorData.parseFrom(message)
+  override def deserialize(message: Array[Byte]): SensorData = {
+    val ret = SensorData.parseFrom(message)
+    println(s"Recieved: SID: ${ret.sensorId}, temp: ${ret.temperature}, wind: ${ret.wind}, pressure: ${ret.pressure}")
+    ret
+  }
 
   override def isEndOfStream(nextElement: SensorData): Boolean = true
 
