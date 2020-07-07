@@ -1,0 +1,8 @@
+
+namespace: iot-prototype
+commonLabels:
+  service: cassandra
+
+resources:
+  - service.yaml
+  - stateful-set.yaml

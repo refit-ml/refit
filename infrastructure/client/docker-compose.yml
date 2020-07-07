@@ -1,21 +1,21 @@
-version: '2.0'
+version: '3'
 services:
   # data:
   #   build: ./data
-  client:
-    build: ../inference
-    # image: apache/flink-ops-playground:1-FLINK-1.10-scala_2.11
-    command:  >
-      /bin/bash -c
-      sleep 60 
-      && flink run -d -p 2 /opt/inference.jar --checkpointing --event-time
-    depends_on:
-      - jobmanager
-      # - pulsar
-    volumes:
-      - ./conf:/opt/flink/conf
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+  # client:
+  #   build: ../inference
+  #   # image: apache/flink-ops-playground:1-FLINK-1.10-scala_2.11
+  #   command:  >
+  #     /bin/bash -c
+  #     sleep 60 
+  #     && flink run -d -p 2 /opt/inference.jar --checkpointing --event-time
+  #   depends_on:
+  #     - jobmanager
+  #     # - pulsar
+  #   volumes:
+  #     - ./conf:/opt/flink/conf
+  #   environment:
+  #     - JOB_MANAGER_RPC_ADDRESS=jobmanager
   pulsar:
     image: apachepulsar/pulsar
     expose:

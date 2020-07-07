@@ -1,0 +1,7 @@
+
+commonLabels:
+  service: iot-org
+
+
+resources:
+  - namespace.yaml
