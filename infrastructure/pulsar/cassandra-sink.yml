@@ -1,0 +1,6 @@
+configs:
+  roots: "cassandra:9042"
+  keyspace: "iot-prototype-training"
+  columnFamily: "event-log"
+  keyname: "key"
+  columnName: "col"

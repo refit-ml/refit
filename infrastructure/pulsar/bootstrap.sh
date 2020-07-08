@@ -19,3 +19,6 @@ cd pulsar-helm-chart
 helm install \
     --values examples/values-minikube.yaml \
     pulsar-mini apache/pulsar
+
+
+

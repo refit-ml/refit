@@ -29,7 +29,7 @@ object Main {
     })
     val schema = Schema.BYTES
 
-    val topic = Topic("persistent://sample/standalone/ns1/in")
+    val topic = Topic("persistent://sample/standalone/default/in")
     val producerConfig = ProducerConfig(topic)
     val producer = client.producer[Array[Byte]](producerConfig)(schema)
 

@@ -1,7 +1,7 @@
 version: '2.0'
 services:
   pulsar:
-    image: apachepulsar/pulsar
+    image: apachepulsar/pulsar-all
     ports: 
       - "8080:8080"
       - "6650:6650"
@@ -9,6 +9,13 @@ services:
       /bin/bash -c
       "bin/apply-config-from-env.py conf/standalone.conf
       && bin/pulsar standalone"
+  cassandra:
+    image: cassandra:latest
+    environment:
+      - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
+    ports: 
+      - "7000:7000"
+      - "9042:9042"
   # pulsar-dashboard:
   #   image: apachepulsar/pulsar-dashboard
   #   ports:
