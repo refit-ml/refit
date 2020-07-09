@@ -1,8 +1,10 @@
 import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
 import org.apache.pulsar.client.api.Schema
+import java.time.LocalDateTime
 
+import scala.util.Random
 import scala.io.Source
-import cdl.iot.SensorData.{SensorData}
+import cdl.iot.SensorData.SensorData
 
 //sensor_id,timestamp,temperature,pressure,wind
 //@SerialVersionUID(100L)
@@ -15,6 +17,7 @@ import cdl.iot.SensorData.{SensorData}
 //  val wind: Int = _wind
 //}
 object Main {
+
   def main(args: Array[String]) {
 
     val src = Source.fromFile(s"${System.getProperty("user.dir")}/sensor_data.csv")
@@ -25,10 +28,15 @@ object Main {
 
     val client = PulsarClient("pulsar://localhost:6650")
 
+    val currTime = LocalDateTime.now()
+
     def lst: LazyList[SensorData] = {
-      def loop(v: Int): LazyList[SensorData] = new SensorData(1, v.toString(), 1,1,1) #:: loop(v + 1)
+      def loop(v: Int): LazyList[SensorData] = {
+        new SensorData(Random.between(5000, 5005), (currTime.plusSeconds(v)).toString(), Random.between(30, 101), Random.between(900, 1201), Random.between(0, 70)) #:: loop(v + 5)
+      }
       loop(0)
     }
+
     val schema = Schema.BYTES
 
     val topic = Topic("persistent://sample/standalone/default/in")
@@ -37,7 +45,7 @@ object Main {
 
     print("Begin sending messages")
     lst.foreach(x => {
-      print(s"\nSend message: ${x.sensorId}\n")
+      print(s"\nSend message: ${x.sensorId} ${x.timestamp} ${x.temperature} ${x.pressure} ${x.wind}\n")
       producer.send(x.toByteArray)
       Thread.sleep(5000)
     })
