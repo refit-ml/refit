@@ -6,7 +6,7 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B
 
 RUN apt-get update
 
-RUN apt-get install sbt scala -y
+RUN apt-get install sbt scala wait-for-it -y
 
 WORKDIR app
 
@@ -14,4 +14,4 @@ ADD ./ /app
 
 RUN sbt assembly
 
-CMD java -jar target/scala-2.10/data.jar
+CMD wait-for-it pulsar:8080 -t 300 -s -- wait-for-it pulsar:6650 -t 300 -s -- java -jar target/scala-2.13/data.jar

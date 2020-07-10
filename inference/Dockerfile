@@ -6,17 +6,18 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B
 
 RUN apt-get update
 
-RUN apt-get install sbt scala -y
+RUN apt-get install sbt scala wait-for-it -y
 
 WORKDIR app
 
 ADD ./ /app
 
-RUN sbt assembly
+RUN sbt compile
 
-FROM flink:1.10.0-scala_2.11
+CMD wait-for-it pulsar:6650 -t 300 -s -- wait-for-it cassandra:9042 -t 300 -s -- sbt run
+# FROM flink:1.10.0-scala_2.11
 
-WORKDIR /opt/flink/bin
+# WORKDIR /opt/flink/bin
 
-# Copy Click Count Job
-COPY --from=builder /app/target/scala-2.11/inference.jar /opt/inference.jar
+# # Copy Click Count Job
+# COPY --from=builder /app/target/scala-2.11/inference.jar /opt/inference.jar

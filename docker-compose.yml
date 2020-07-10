@@ -1,4 +1,4 @@
-version: '2.0'
+version: '3.8'
 services:
   pulsar:
     image: apachepulsar/pulsar-all
@@ -9,6 +9,15 @@ services:
       /bin/bash -c
       "bin/apply-config-from-env.py conf/standalone.conf
       && bin/pulsar standalone"
+    healthcheck: 
+      test: ["CMD", "pulsar-admin", "brokers", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      restart_policy:
+        condition: on-failure
 
   cassandra:
     build: ./infrastructure/cassandra/src/
@@ -18,6 +27,33 @@ services:
     ports: 
       - "7000:7000"
       - "9042:9042"
+    healthcheck: 
+      test: ["CMD", "cqlsh", "-e", "'show host'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+  
+  data: 
+    build: ./data/
+    environment:
+      - PULSAR_HOST=pulsar
+      - TOPIC_NAME=in
+      - NAMESPACE_NAME=default
+      - INTERVAL_MILS=5000
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  # inference: 
+  #   build: ./inference/
+  #   environment:
+  #     - PULSAR_HOST=pulsar
+  #     - TOPIC_NAME=in
+  #     - NAMESPACE_NAME=default
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
 networks:
-  default: 
+  default:
     driver: bridge
