@@ -9,19 +9,15 @@ services:
       /bin/bash -c
       "bin/apply-config-from-env.py conf/standalone.conf
       && bin/pulsar standalone"
+
   cassandra:
-    image: cassandra:latest
+    build: ./infrastructure/cassandra/src/
+    # image: cassandra:latest
     environment:
       - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
     ports: 
       - "7000:7000"
       - "9042:9042"
-  # pulsar-dashboard:
-  #   image: apachepulsar/pulsar-dashboard
-  #   ports:
-  #     - "80:80"
-  #   environment:
-  #     - SERVICE_URL=http://pulsar:8080
 networks:
   default: 
     driver: bridge
