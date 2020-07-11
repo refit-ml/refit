@@ -44,16 +44,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-
-  # inference: 
-  #   build: ./inference/
-  #   environment:
-  #     - PULSAR_HOST=pulsar
-  #     - TOPIC_NAME=in
-  #     - NAMESPACE_NAME=default
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
+        
 networks:
   default:
     driver: bridge

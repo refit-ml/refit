@@ -1,0 +1,3 @@
+cluster: 
+  replicaCount: 1
+  seedCount: 1
