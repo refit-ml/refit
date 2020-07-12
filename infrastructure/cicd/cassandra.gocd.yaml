@@ -2,7 +2,7 @@ format_version: 9
 environments:
   cassandra:
     pipelines:
-      - iot-cassandra
+      - cassandra
 pipelines:
   cassandra: # definition of mypipe1 pipeline
     group: iot-persistance # note that the group name can contain only of alphanumeric & underscore characters
