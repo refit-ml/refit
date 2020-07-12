@@ -21,9 +21,6 @@ services:
 
   cassandra:
     build: ./infrastructure/cassandra/src/
-    # image: cassandra:latest
-    environment:
-      - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
     ports: 
       - "7000:7000"
       - "9042:9042"
@@ -33,7 +30,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-  
   data: 
     build: ./data/
     environment:
@@ -44,7 +40,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        
+
 networks:
   default:
     driver: bridge

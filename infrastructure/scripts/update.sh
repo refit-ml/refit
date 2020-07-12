@@ -13,3 +13,9 @@ helm upgrade \
      cassandra \
      bitnami/cassandra \
     --values cassandra/${env}.yaml
+
+
+helm upgrade \
+    --namespace iot-prototype \
+    gocd \
+    stable/gocd

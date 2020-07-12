@@ -1,0 +1,8 @@
+namespace: iot-prototype
+commonLabels:
+  service: cicd
+
+
+resources:
+  - secrets-for-gocd.yaml
+  - role.yaml

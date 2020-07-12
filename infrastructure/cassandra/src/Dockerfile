@@ -1,8 +1,3 @@
-FROM cassandra
+FROM bitnami/cassandra:latest
 
-ADD ./cql/ cql/
-
-RUN chmod -R 777 /cql
-
-ENTRYPOINT ["/cql/entrypoint-wrap.sh"]
-CMD ["cassandra", "-f"]
+ADD ./cql/ docker-entrypoint-initdb.d/

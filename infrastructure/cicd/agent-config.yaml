@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gocd-agent-{{ POD_POSTFIX }}
+  labels:
+    app: cicd
+spec:
+  containers:
+    - name: gocd-agent-container-{{ CONTAINER_POSTFIX }}
+      image: gocddemo/gocd-agent-dind:webinar
+      env:
+        - name: KUBE_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: secrets-for-gocd
+              key: K8S_API_TOKEN
+        - name: DOCKERHUB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: secrets-for-gocd
+              key: DOCKERHUB_USERNAME
+        - name: DOCKERHUB_ORG
+          valueFrom:
+            secretKeyRef:
+              name: secrets-for-gocd
+              key: DOCKERHUB_ORG
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      securityContext:
+        privileged: true
