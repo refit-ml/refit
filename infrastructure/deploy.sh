@@ -22,6 +22,7 @@ kubectl apply -k flink/
 
 if [ "$env" == "local" && "$action" == "install" ]; then
     minikube service gocd-server -n iot-prototype
+    minikube service flink-jobmanager -n iot-prototype
     minikube service pulsar-pulsar-manager -n iot-prototype
 fi
 
