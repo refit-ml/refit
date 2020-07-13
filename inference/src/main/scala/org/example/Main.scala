@@ -5,6 +5,7 @@ import com.datastax.driver.core.Cluster
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
+import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.flink.streaming.api.scala._
@@ -16,15 +17,17 @@ object Main {
 
   def main(args: Array[String]) {
 
-    val env = StreamExecutionEnvironment.getExecutionEnvironment()
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-    val serviceUrl = "pulsar://localhost:6650"
-    val inputTopic = "persistent://sample/standalone/default/in"
-    val outputTopic = "persistent://public/standalone/default/event-log"
-    val subscribtionName = "scala-sub-1"
-    val cassandraHost = "127.0.0.1"
-    val cassandraUsername = "cassandra"
-    val cassandraPassword = "cassandra"
+    val params = ParameterTool.fromArgs(args)
+
+    val serviceUrl =  params.get("pulsarEndpoint", "pulsar://localhost:6650")
+    val inputTopic = params.get("inputTopic", "persistent://sample/standalone/default/in")
+    val outputTopic = params.get("outputTopic", "persistent://public/standalone/default/event-log")
+    val subscribtionName = params.get("subscriptionName", "scala-sub-1")
+    val cassandraHost = params.get("cassandraHost", "127.0.0.1")
+    val cassandraUsername = params.get("cassandraUsername", "cassandra")
+    val cassandraPassword = params.get("cassandraPassword", "cassandra")
 
     val src = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
