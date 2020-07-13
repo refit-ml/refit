@@ -28,11 +28,13 @@ object baseline_model {
       data = data.withColumn("temperature", data("temperature").cast(DoubleType))
       data = data.withColumn("pressure", data("pressure").cast(DoubleType))
       data = data.withColumn("wind", data("wind").cast(DoubleType))
+      // sanity check
+      data = data.withColumn("operable",when(col("temperature")>= 80, 1).otherwise(0))
 
       val ts = to_timestamp(col("timestamp"), "M/dd/yy HH:mm")
       data = data.withColumn("timestamp", ts).sort("timestamp")
 
-      data.show(100)
+      //data.show(100)
 
       // select features
       val assembler = new VectorAssembler()
@@ -73,7 +75,13 @@ object baseline_model {
         .setPredictionCol("prediction")
         .setMetricName("accuracy")
       val accuracy = evaluator.evaluate(predictions)
-      //println("Test Accuracy = " + accuracy)
+      val evaluator2 = new MulticlassClassificationEvaluator()
+        .setLabelCol("label")
+        .setPredictionCol("prediction")
+        .setMetricName("f1")
+      val f1 = evaluator2.evaluate(predictions)
+      println("F1 score = " + f1)
+      println("Test Accuracy = " + accuracy)
       //println("Finish!")
     }
 
