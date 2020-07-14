@@ -9,3 +9,5 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "2.4.5",
   "org.apache.spark" %% "spark-mllib" % "2.4.5"
 )
+
+libraryDependencies += "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0"
