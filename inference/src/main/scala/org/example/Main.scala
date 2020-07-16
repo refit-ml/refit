@@ -39,6 +39,8 @@ object Main {
     val input = env.addSource(src)
 
     val inference = input.map(new SensorDataMapper)
+    
+    //val prediction = input.map( new SensorDataInference())
 
     CassandraSink.addSink(inference)
       .setClusterBuilder(
@@ -62,6 +64,45 @@ object Main {
     env.execute("Test Job")
   }
 }
+
+/*
+public static class SensorDataInference extends RichMapFunction[Value, Prediction], CheckPointedFunction {
+
+  private transient ListState<Model> modelState
+
+  private transient Model model
+
+  override public Prediction map(Value value) throws Exception {
+    return model.predict(value)
+  }
+
+  override public void snapshotState(FunctionSnapshotContext context) throws Exception {
+    // Shouldn't have to do anything here since model is not changing after startup
+  }
+
+  override public void initializeState(FunctionIntitializationContext context) throws Exception {
+
+    ListStateDescriptor<Model> listStateDescriptor = new ListStateDescriptor<>("model", Model.class)
+
+    modelState = context.getOperatorStateStore().getUnionListState(listStateDescriptor)
+
+    if (context.isRestored()) {
+      model = modelState.get().iterator().next()
+    } else {
+      public void open(Configuration parameters) {
+        model = .... // read model from file
+        // May need to Deserialize the model after reading it in
+      }
+      modelState.add(model)
+    }
+
+  }
+}
+
+public static class Model{}
+public static class Value{}
+public static class SensorDataInference{}
+*/
 
 class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple2[String, String]] {
   override def map(value: SensorData): org.apache.flink.api.java.tuple.Tuple2[String, String] = new org.apache.flink.api.java.tuple.Tuple2(s"${value.timestamp}_${value.sensorId}", value.toProtoString)
