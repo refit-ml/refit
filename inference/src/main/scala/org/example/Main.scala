@@ -12,6 +12,7 @@ import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
 
+//import org.apache.flink.configuration.Configuration
 
 object Main {
 
