@@ -52,7 +52,7 @@ object ModelTraining {
     data = data.withColumn("pressure", data("pressure").cast(DoubleType))
     data = data.withColumn("wind", data("wind").cast(DoubleType))
     // sanity check
-    data = data.withColumn("operable", when(col("temperature") >= 80, 1).otherwise(0))
+//    data = data.withColumn("operable", when(col("temperature") >= 80, 1).otherwise(0))
 
     val ts = to_timestamp(col("timestamp"), "M/dd/yy HH:mm")
     data = data.withColumn("timestamp", ts).sort("timestamp")
