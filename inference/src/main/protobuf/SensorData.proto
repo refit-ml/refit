@@ -7,4 +7,5 @@ message SensorData  {
   double temperature = 3;
   double pressure = 4;
   double wind = 5;
+  double prediction = 6;
 }

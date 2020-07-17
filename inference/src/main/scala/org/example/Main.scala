@@ -2,15 +2,19 @@ package org.example
 
 import cdl.iot.SensorData.SensorData
 import com.datastax.driver.core.Cluster
-import org.apache.flink.api.common.functions.MapFunction
+import org.apache.flink.api.common.functions.{MapFunction, RichMapFunction}
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
+import org.apache.flink.api.common.state.ListState
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.utils.ParameterTool
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
+import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
+import org.apache.spark.ml.linalg.Vectors
 
 //import org.apache.flink.configuration.Configuration
 
@@ -22,13 +26,15 @@ object Main {
 
     val params = ParameterTool.fromArgs(args)
 
-    val serviceUrl =  params.get("pulsarEndpoint", "pulsar://localhost:6650")
+    val serviceUrl = params.get("pulsarEndpoint", "pulsar://localhost:6650")
     val inputTopic = params.get("inputTopic", "persistent://sample/standalone/default/in")
     val outputTopic = params.get("outputTopic", "persistent://public/standalone/default/event-log")
     val subscribtionName = params.get("subscriptionName", "scala-sub-1")
     val cassandraHost = params.get("cassandraHost", "127.0.0.1")
     val cassandraUsername = params.get("cassandraUsername", "cassandra")
     val cassandraPassword = params.get("cassandraPassword", "cassandra")
+
+    val model: RandomForestClassificationModel = RandomForestClassificationModel.load(s"${System.getProperty("user.dir")}/out")
 
     val src = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
@@ -38,8 +44,12 @@ object Main {
 
     val input = env.addSource(src)
 
-    val inference = input.map(new SensorDataMapper)
-    
+    val inference = input
+      .map(new MapFunction[SensorData, SensorData] {
+        override def map(v: SensorData): SensorData = new SensorData(v.sensorId, v.timestamp, v.temperature, v.pressure, v.wind, model.predict(Vectors.dense(v.wind, v.pressure, v.temperature)))
+      })
+      .map(new SensorDataMapper)
+
     //val prediction = input.map( new SensorDataInference())
 
     CassandraSink.addSink(inference)
@@ -64,6 +74,7 @@ object Main {
     env.execute("Test Job")
   }
 }
+
 
 /*
 public static class SensorDataInference extends RichMapFunction[Value, Prediction], CheckPointedFunction {

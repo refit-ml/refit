@@ -1,0 +1,5 @@
+cluster: 
+  replicaCount: 2
+  seedCount: 2
+persistence: 
+  enabled: false

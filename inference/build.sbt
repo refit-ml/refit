@@ -21,7 +21,9 @@ val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion % "provided"
 )
 
+
 libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.3.2"
+libraryDependencies += "org.apache.spark" %% "spark-mllib" % "2.4.5"
 
 //libraryDependencies += "io.streamnative.connectors" % "pulsar-flink-connector_2.11" % "2.4.23"
 

@@ -4,6 +4,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.{DoubleType, IntegerType}
 
+import scala.collection.immutable.HashMap
 import scala.util.control.Breaks._
 
 
@@ -20,8 +21,8 @@ object baseline_model {
       spark.sparkContext.setLogLevel("ERROR")
 
       // CHANGE TO YOUR PATH HERE
-      val file_path = "/Users/nancy/Desktop/iot/operable.csv"
-      val time_path = "/Users/nancy/Desktop/iot/time.csv"
+      val file_path = s"${System.getProperty("user.dir")}/operable.csv"
+      val time_path = s"${System.getProperty("user.dir")}/time.csv"
 
       var data = spark.read.format("CSV").option("header","true").load(file_path)
       var time = spark.read.format("CSV").option("header","true").load(time_path)
@@ -50,6 +51,16 @@ object baseline_model {
     val dataindexKey = dataIndex.map{case (k,v) => (v,k)}
     val timeIndex = time.rdd.zipWithIndex
     val timeindexKey = timeIndex.map{case (k,v) => (v,k)}
+
+
+
+
+
+
+    val operableEntries = data.filter(/* Filter to see if they are in the oerable-1 */).map( /* Add operable flag */)
+    val ineropableEntries = data.filter(/* filter to see if they are in the operable-o */).map(/* Add operable flag */)
+
+    val transformedDataSet = operableEntries.union(ineropableEntries)
 
       for (i <- 1 to 2){
         for(j <- 1 to count_time-1) {
