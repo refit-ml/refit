@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SparkML" version="1.5.1"/>
+		<Timestamp>2020-07-17T21:56:36Z</Timestamp>
+	</Header>
+	<DataDictionary>
+		<DataField name="operable" optype="categorical" dataType="integer">
+			<Value value="0"/>
+			<Value value="1"/>
+		</DataField>
+		<DataField name="hour" optype="continuous" dataType="integer"/>
+		<DataField name="temperature" optype="continuous" dataType="double"/>
+		<DataField name="pressure" optype="continuous" dataType="double"/>
+		<DataField name="wind" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<MiningModel functionName="classification">
+		<MiningSchema>
+			<MiningField name="operable" usageType="target"/>
+			<MiningField name="wind"/>
+			<MiningField name="pressure"/>
+			<MiningField name="hour"/>
+			<MiningField name="temperature"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="pmml(prediction)" optype="categorical" dataType="integer" feature="predictedValue"/>
+			<OutputField name="prediction" optype="categorical" dataType="double" feature="transformedValue">
+				<MapValues outputColumn="data:output">
+					<FieldColumnPair field="pmml(prediction)" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>0</data:input>
+							<data:output>0</data:output>
+						</row>
+						<row>
+							<data:input>1</data:input>
+							<data:output>1</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</OutputField>
+			<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+			<OutputField name="probability(1)" optype="continuous" dataType="double" feature="probability" value="1"/>
+		</Output>
+		<Segmentation multipleModelMethod="average">
+			<Segment id="1">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="2140.0">
+							<SimplePredicate field="wind" operator="lessOrEqual" value="1.5"/>
+							<ScoreDistribution value="0" recordCount="1554.0"/>
+							<ScoreDistribution value="1" recordCount="586.0"/>
+						</Node>
+						<Node score="0" recordCount="26894.0">
+							<SimplePredicate field="wind" operator="lessOrEqual" value="26.5"/>
+							<ScoreDistribution value="0" recordCount="18913.0"/>
+							<ScoreDistribution value="1" recordCount="7981.0"/>
+						</Node>
+						<Node score="0" recordCount="32811.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="32811.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="15246.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="656.0"/>
+							<ScoreDistribution value="1" recordCount="14590.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="2">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="22.5"/>
+							<Node score="0" recordCount="47659.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+								<ScoreDistribution value="0" recordCount="47659.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="21394.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="973.0"/>
+								<ScoreDistribution value="1" recordCount="20421.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="5670.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<ScoreDistribution value="0" recordCount="5552.0"/>
+							<ScoreDistribution value="1" recordCount="118.0"/>
+						</Node>
+						<Node score="1" recordCount="2424.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="2424.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="3">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="pressure"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="pressure" operator="lessOrEqual" value="1070.5"/>
+							<Node>
+								<SimplePredicate field="wind" operator="lessOrEqual" value="8.5"/>
+								<Node score="0" recordCount="3829.0">
+									<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+									<ScoreDistribution value="0" recordCount="3829.0"/>
+									<ScoreDistribution value="1" recordCount="0.0"/>
+								</Node>
+								<Node score="1" recordCount="1580.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="85.0"/>
+									<ScoreDistribution value="1" recordCount="1495.0"/>
+								</Node>
+							</Node>
+							<Node score="0" recordCount="37992.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="26818.0"/>
+								<ScoreDistribution value="1" recordCount="11174.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="22633.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="22633.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="10539.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="510.0"/>
+							<ScoreDistribution value="1" recordCount="10029.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="4">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="11.5"/>
+							<Node score="0" recordCount="11005.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+								<ScoreDistribution value="0" recordCount="11005.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="5290.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="213.0"/>
+								<ScoreDistribution value="1" recordCount="5077.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="42251.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="42251.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="19055.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="849.0"/>
+							<ScoreDistribution value="1" recordCount="18206.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="5">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="52959.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="52959.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="23845.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="1065.0"/>
+							<ScoreDistribution value="1" recordCount="22780.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="6">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="22.5"/>
+							<Node score="0" recordCount="41454.0">
+								<SimplePredicate field="hour" operator="lessOrEqual" value="14.5"/>
+								<ScoreDistribution value="0" recordCount="29057.0"/>
+								<ScoreDistribution value="1" recordCount="12397.0"/>
+							</Node>
+							<Node score="0" recordCount="20120.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+								<ScoreDistribution value="0" recordCount="19729.0"/>
+								<ScoreDistribution value="1" recordCount="391.0"/>
+							</Node>
+							<Node score="1" recordCount="7548.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="7548.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="8393.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="5770.0"/>
+							<ScoreDistribution value="1" recordCount="2623.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="7">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="52988.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="52988.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<Node score="1" recordCount="1164.0">
+								<SimplePredicate field="hour" operator="lessOrEqual" value="14.5"/>
+								<ScoreDistribution value="0" recordCount="493.0"/>
+								<ScoreDistribution value="1" recordCount="671.0"/>
+							</Node>
+							<Node score="0" recordCount="1087.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="569.0"/>
+								<ScoreDistribution value="1" recordCount="518.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="22000.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="22000.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="8">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="11.5"/>
+							<Node score="0" recordCount="11135.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+								<ScoreDistribution value="0" recordCount="11135.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="5215.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="207.0"/>
+								<ScoreDistribution value="1" recordCount="5008.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="41885.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="41885.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="18652.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="861.0"/>
+							<ScoreDistribution value="1" recordCount="17791.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="9">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="53556.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="53556.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="23865.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="1048.0"/>
+							<ScoreDistribution value="1" recordCount="22817.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="10">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="pressure"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="pressure" operator="lessOrEqual" value="1002.5"/>
+							<Node score="0" recordCount="18952.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+								<ScoreDistribution value="0" recordCount="18590.0"/>
+								<ScoreDistribution value="1" recordCount="362.0"/>
+							</Node>
+							<Node score="1" recordCount="7269.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="0.0"/>
+								<ScoreDistribution value="1" recordCount="7269.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="34953.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="34953.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="16041.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="721.0"/>
+							<ScoreDistribution value="1" recordCount="15320.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="11">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="53113.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="53113.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<Node score="1" recordCount="1881.0">
+								<SimplePredicate field="wind" operator="lessOrEqual" value="59.5"/>
+								<ScoreDistribution value="0" recordCount="861.0"/>
+								<ScoreDistribution value="1" recordCount="1020.0"/>
+							</Node>
+							<Node score="0" recordCount="308.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="169.0"/>
+								<ScoreDistribution value="1" recordCount="139.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="21733.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="21733.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="12">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+						<MiningField name="pressure"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="11.5"/>
+							<Node score="0" recordCount="10948.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+								<ScoreDistribution value="0" recordCount="10948.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="5186.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="205.0"/>
+								<ScoreDistribution value="1" recordCount="4981.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="11276.0">
+							<SimplePredicate field="pressure" operator="lessOrEqual" value="954.5"/>
+							<ScoreDistribution value="0" recordCount="8075.0"/>
+							<ScoreDistribution value="1" recordCount="3201.0"/>
+						</Node>
+						<Node score="0" recordCount="34024.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="34024.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="15250.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="735.0"/>
+							<ScoreDistribution value="1" recordCount="14515.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="13">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="68834.0">
+							<SimplePredicate field="hour" operator="lessOrEqual" value="22.5"/>
+							<ScoreDistribution value="0" recordCount="48499.0"/>
+							<ScoreDistribution value="1" recordCount="20335.0"/>
+						</Node>
+						<Node score="0" recordCount="7063.0">
+							<SimplePredicate field="wind" operator="lessOrEqual" value="59.5"/>
+							<ScoreDistribution value="0" recordCount="4798.0"/>
+							<ScoreDistribution value="1" recordCount="2265.0"/>
+						</Node>
+						<Node score="0" recordCount="911.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<ScoreDistribution value="0" recordCount="896.0"/>
+							<ScoreDistribution value="1" recordCount="15.0"/>
+						</Node>
+						<Node score="1" recordCount="336.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="336.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="14">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="53020.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="53020.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<Node score="1" recordCount="117.0">
+								<SimplePredicate field="wind" operator="lessOrEqual" value="3.5"/>
+								<ScoreDistribution value="0" recordCount="41.0"/>
+								<ScoreDistribution value="1" recordCount="76.0"/>
+							</Node>
+							<Node score="0" recordCount="2058.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="1030.0"/>
+								<ScoreDistribution value="1" recordCount="1028.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="21704.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="21704.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="15">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="hour" operator="lessOrEqual" value="22.5"/>
+							<Node>
+								<SimplePredicate field="hour" operator="lessOrEqual" value="11.5"/>
+								<Node score="0" recordCount="11062.0">
+									<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+									<ScoreDistribution value="0" recordCount="11062.0"/>
+									<ScoreDistribution value="1" recordCount="0.0"/>
+								</Node>
+								<Node score="1" recordCount="5200.0">
+									<True/>
+									<ScoreDistribution value="0" recordCount="210.0"/>
+									<ScoreDistribution value="1" recordCount="4990.0"/>
+								</Node>
+							</Node>
+							<Node score="0" recordCount="52477.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="37134.0"/>
+								<ScoreDistribution value="1" recordCount="15343.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="5878.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<ScoreDistribution value="0" recordCount="5774.0"/>
+							<ScoreDistribution value="1" recordCount="104.0"/>
+						</Node>
+						<Node score="1" recordCount="2524.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="2524.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="16">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="pressure"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="52823.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="52823.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<Node score="0" recordCount="1227.0">
+								<SimplePredicate field="pressure" operator="lessOrEqual" value="1070.5"/>
+								<ScoreDistribution value="0" recordCount="619.0"/>
+								<ScoreDistribution value="1" recordCount="608.0"/>
+							</Node>
+							<Node score="1" recordCount="965.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="438.0"/>
+								<ScoreDistribution value="1" recordCount="527.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="21697.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="21697.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="17">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="16458.0">
+							<SimplePredicate field="hour" operator="lessOrEqual" value="11.5"/>
+							<ScoreDistribution value="0" recordCount="11380.0"/>
+							<ScoreDistribution value="1" recordCount="5078.0"/>
+						</Node>
+						<Node score="0" recordCount="41816.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="41816.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="18793.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="890.0"/>
+							<ScoreDistribution value="1" recordCount="17903.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="18">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="hour"/>
+						<MiningField name="temperature"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="52825.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="52825.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node>
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<Node score="1" recordCount="760.0">
+								<SimplePredicate field="hour" operator="lessOrEqual" value="12.5"/>
+								<ScoreDistribution value="0" recordCount="335.0"/>
+								<ScoreDistribution value="1" recordCount="425.0"/>
+							</Node>
+							<Node score="0" recordCount="1475.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="767.0"/>
+								<ScoreDistribution value="1" recordCount="708.0"/>
+							</Node>
+						</Node>
+						<Node score="1" recordCount="21876.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="21876.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="19">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node>
+							<SimplePredicate field="wind" operator="lessOrEqual" value="12.5"/>
+							<Node score="0" recordCount="9546.0">
+								<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+								<ScoreDistribution value="0" recordCount="9546.0"/>
+								<ScoreDistribution value="1" recordCount="0.0"/>
+							</Node>
+							<Node score="1" recordCount="4493.0">
+								<True/>
+								<ScoreDistribution value="0" recordCount="173.0"/>
+								<ScoreDistribution value="1" recordCount="4320.0"/>
+							</Node>
+						</Node>
+						<Node score="0" recordCount="45278.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<ScoreDistribution value="0" recordCount="44420.0"/>
+							<ScoreDistribution value="1" recordCount="858.0"/>
+						</Node>
+						<Node score="1" recordCount="17889.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="17889.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="20">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema>
+						<MiningField name="temperature"/>
+						<MiningField name="wind"/>
+					</MiningSchema>
+					<Node>
+						<True/>
+						<Node score="0" recordCount="53189.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="78.5"/>
+							<ScoreDistribution value="0" recordCount="53189.0"/>
+							<ScoreDistribution value="1" recordCount="0.0"/>
+						</Node>
+						<Node score="1" recordCount="4323.0">
+							<SimplePredicate field="wind" operator="lessOrEqual" value="12.5"/>
+							<ScoreDistribution value="0" recordCount="166.0"/>
+							<ScoreDistribution value="1" recordCount="4157.0"/>
+						</Node>
+						<Node score="0" recordCount="1854.0">
+							<SimplePredicate field="temperature" operator="lessOrEqual" value="80.5"/>
+							<ScoreDistribution value="0" recordCount="945.0"/>
+							<ScoreDistribution value="1" recordCount="909.0"/>
+						</Node>
+						<Node score="1" recordCount="17487.0">
+							<True/>
+							<ScoreDistribution value="0" recordCount="0.0"/>
+							<ScoreDistribution value="1" recordCount="17487.0"/>
+						</Node>
+					</Node>
+				</TreeModel>
+			</Segment>
+		</Segmentation>
+	</MiningModel>
+</PMML>

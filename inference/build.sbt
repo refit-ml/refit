@@ -23,7 +23,12 @@ val flinkDependencies = Seq(
 
 
 libraryDependencies += "org.apache.pulsar" % "pulsar-flink" % "2.3.2"
-libraryDependencies += "org.apache.spark" %% "spark-mllib" % "2.4.5"
+libraryDependencies += "org.jpmml" % "pmml-evaluator-extension" % "1.5.1"
+libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.0"
+libraryDependencies += "javax.activation" % "activation" % "1.1"
+libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0"
+libraryDependencies += "joda-time" % "joda-time" % "2.10.6"
+
 
 //libraryDependencies += "io.streamnative.connectors" % "pulsar-flink-connector_2.11" % "2.4.23"
 

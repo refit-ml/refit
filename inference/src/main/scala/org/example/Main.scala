@@ -1,22 +1,26 @@
 package org.example
 
+import java.io.File
+
 import cdl.iot.SensorData.SensorData
 import com.datastax.driver.core.Cluster
-import org.apache.flink.api.common.functions.{MapFunction, RichMapFunction}
+import com.google.protobuf.Timestamp
+import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
-import org.apache.flink.api.common.state.ListState
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
-import org.apache.spark.ml.classification.{RandomForestClassificationModel, RandomForestClassifier}
-import org.apache.spark.ml.linalg.Vectors
+import org.dmg.pmml.{FieldName, Model, PMML}
 
-//import org.apache.flink.configuration.Configuration
+import collection.JavaConverters.mapAsJavaMapConverter
+import org.jpmml.evaluator.{EvaluatorUtil, FieldValueUtil, LoadingModelEvaluatorBuilder}
+import javax.xml._
+import org.apache.flink.api.scala.utils
+import org.joda.time.DateTime
 
 object Main {
 
@@ -34,7 +38,11 @@ object Main {
     val cassandraUsername = params.get("cassandraUsername", "cassandra")
     val cassandraPassword = params.get("cassandraPassword", "cassandra")
 
-    val model: RandomForestClassificationModel = RandomForestClassificationModel.load(s"${System.getProperty("user.dir")}/out")
+    //val model: RandomForestClassificationModel = RandomForestClassificationModel.load(s"${System.getProperty("user.dir")}/out")
+    val evaluator = new LoadingModelEvaluatorBuilder()
+      .load(new File("model.pmml"))
+      .build();
+
 
     val src = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
@@ -46,7 +54,27 @@ object Main {
 
     val inference = input
       .map(new MapFunction[SensorData, SensorData] {
-        override def map(v: SensorData): SensorData = new SensorData(v.sensorId, v.timestamp, v.temperature, v.pressure, v.wind, model.predict(Vectors.dense(v.wind, v.pressure, v.temperature)))
+        override def map(v: SensorData): SensorData = {
+          val map: Map[FieldName, _] = Map(
+            FieldName.create("wind") -> FieldValueUtil.create(v.wind),
+            FieldName.create("pressure") -> FieldValueUtil.create(v.pressure),
+            FieldName.create("timestamp") -> FieldValueUtil.create(v.timestamp),
+            FieldName.create("temperature") -> FieldValueUtil.create(v.temperature),
+            FieldName.create("prediction") -> FieldValueUtil.create(0.toDouble),
+            FieldName.create("hour") -> FieldValueUtil.create(DateTime.parse(v.timestamp).getHourOfDay)
+          )
+          println("Performing Evaluation")
+          val evaluation = evaluator.evaluate(map.asJava)
+          val results = EvaluatorUtil.decodeAll(evaluation)
+          val pred: Double = results.get("probability(1)").toString.toDouble
+          new SensorData(v.sensorId,
+            v.timestamp,
+            v.temperature,
+            v.pressure,
+            v.wind,
+            pred
+          )
+        }
       })
       .map(new SensorDataMapper)
 
@@ -130,7 +158,7 @@ class SensorDataSerializer extends SerializationSchema[SensorData] {
 class SensorDataSchema extends DeserializationSchema[SensorData] {
   override def deserialize(message: Array[Byte]): SensorData = {
     val ret = SensorData.parseFrom(message)
-    println(s"Recieved: SID: ${ret.sensorId}, temp: ${ret.temperature}, wind: ${ret.wind}, pressure: ${ret.pressure}")
+    println(s"Recieved: SID: ${ret.sensorId}, TMSP: ${ret.timestamp},  temp: ${ret.temperature}, wind: ${ret.wind}, pressure: ${ret.pressure}")
     ret
   }
 
