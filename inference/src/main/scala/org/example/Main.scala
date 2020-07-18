@@ -4,7 +4,6 @@ import java.io.File
 
 import cdl.iot.SensorData.SensorData
 import com.datastax.driver.core.Cluster
-import com.google.protobuf.Timestamp
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.TypeInformation
@@ -14,13 +13,11 @@ import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, Pulsar
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
-import org.dmg.pmml.{FieldName, Model, PMML}
+import org.dmg.pmml.FieldName
 
 import collection.JavaConverters.mapAsJavaMapConverter
-import org.jpmml.evaluator.{EvaluatorUtil, FieldValueUtil, LoadingModelEvaluatorBuilder}
-import javax.xml._
-import org.apache.flink.api.scala.utils
-import org.joda.time.DateTime
+import scala.collection.JavaConverters.mapAsScalaMapConverter
+import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder}
 
 object Main {
 
@@ -38,7 +35,6 @@ object Main {
     val cassandraUsername = params.get("cassandraUsername", "cassandra")
     val cassandraPassword = params.get("cassandraPassword", "cassandra")
 
-    //val model: RandomForestClassificationModel = RandomForestClassificationModel.load(s"${System.getProperty("user.dir")}/out")
     val evaluator = new LoadingModelEvaluatorBuilder()
       .load(new File("model.pmml"))
       .build();
@@ -55,30 +51,38 @@ object Main {
     val inference = input
       .map(new MapFunction[SensorData, SensorData] {
         override def map(v: SensorData): SensorData = {
-          val map: Map[FieldName, _] = Map(
-            FieldName.create("wind") -> FieldValueUtil.create(v.wind),
-            FieldName.create("pressure") -> FieldValueUtil.create(v.pressure),
-            FieldName.create("timestamp") -> FieldValueUtil.create(v.timestamp),
-            FieldName.create("temperature") -> FieldValueUtil.create(v.temperature),
-            FieldName.create("prediction") -> FieldValueUtil.create(0.toDouble),
-            FieldName.create("hour") -> FieldValueUtil.create(DateTime.parse(v.timestamp).getHourOfDay)
-          )
-          println("Performing Evaluation")
-          val evaluation = evaluator.evaluate(map.asJava)
-          val results = EvaluatorUtil.decodeAll(evaluation)
-          val pred: Double = results.get("probability(1)").toString.toDouble
-          new SensorData(v.sensorId,
+          val input: Map[FieldName, FieldValue] = v.doubles.map({
+            case (x, d) =>
+              FieldName.create(x) -> FieldValueUtil.create(d)
+          })
+            .++(v.integers.map({
+              case (x, d) =>
+                FieldName.create(x) -> FieldValueUtil.create(d)
+            }))
+            .++(v.strings.map({
+              case (x, d) =>
+                FieldName.create(x) -> FieldValueUtil.create(d)
+            }))
+
+          val evaluation = evaluator.evaluate(input.asJava)
+
+          val results = EvaluatorUtil.decodeAll(evaluation).asScala
+          val prediction: Map[String, String] = results.map(
+            { case (x, d) =>
+              x -> d.toString
+            }).toMap
+          new SensorData(
+            v.sensorId,
             v.timestamp,
-            v.temperature,
-            v.pressure,
-            v.wind,
-            pred
+            v.doubles,
+            v.strings,
+            v.integers,
+            prediction
           )
         }
       })
       .map(new SensorDataMapper)
 
-    //val prediction = input.map( new SensorDataInference())
 
     CassandraSink.addSink(inference)
       .setClusterBuilder(
@@ -89,7 +93,7 @@ object Main {
             .build()
         }
       )
-      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key, value) values (?, ?);")
+      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key, data, prediction) values (?, ?, ?);")
       .build()
 
     input.addSink(new FlinkPulsarProducer(
@@ -103,48 +107,22 @@ object Main {
   }
 }
 
-
-/*
-public static class SensorDataInference extends RichMapFunction[Value, Prediction], CheckPointedFunction {
-
-  private transient ListState<Model> modelState
-
-  private transient Model model
-
-  override public Prediction map(Value value) throws Exception {
-    return model.predict(value)
+class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple3[String, java.util.Map[String, String], java.util.Map[String, String]]] {
+  override def map(v: SensorData): org.apache.flink.api.java.tuple.Tuple3[String, java.util.Map[String, String], java.util.Map[String, String]] = {
+    val data: Map[String, String] = v.integers.map({
+      case (x, d) =>
+        x -> d.toString
+    })
+      .++(v.doubles.map({
+        case (x, d) =>
+          x -> d.toString
+      }))
+      .++(v.strings.map({
+        case (x, d) =>
+          x -> d
+      }))
+    new org.apache.flink.api.java.tuple.Tuple3(s"${v.timestamp}_${v.sensorId}", data.asJava, v.prediction.asJava)
   }
-
-  override public void snapshotState(FunctionSnapshotContext context) throws Exception {
-    // Shouldn't have to do anything here since model is not changing after startup
-  }
-
-  override public void initializeState(FunctionIntitializationContext context) throws Exception {
-
-    ListStateDescriptor<Model> listStateDescriptor = new ListStateDescriptor<>("model", Model.class)
-
-    modelState = context.getOperatorStateStore().getUnionListState(listStateDescriptor)
-
-    if (context.isRestored()) {
-      model = modelState.get().iterator().next()
-    } else {
-      public void open(Configuration parameters) {
-        model = .... // read model from file
-        // May need to Deserialize the model after reading it in
-      }
-      modelState.add(model)
-    }
-
-  }
-}
-
-public static class Model{}
-public static class Value{}
-public static class SensorDataInference{}
-*/
-
-class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple2[String, String]] {
-  override def map(value: SensorData): org.apache.flink.api.java.tuple.Tuple2[String, String] = new org.apache.flink.api.java.tuple.Tuple2(s"${value.timestamp}_${value.sensorId}", value.toProtoString)
 }
 
 class SensorDataKeyExtractor extends PulsarKeyExtractor[SensorData] {
@@ -152,13 +130,13 @@ class SensorDataKeyExtractor extends PulsarKeyExtractor[SensorData] {
 }
 
 class SensorDataSerializer extends SerializationSchema[SensorData] {
-  override def serialize(element: SensorData): Array[Byte] = s"${element.sensorId},${element.pressure},${element.temperature},${element.wind}".getBytes()
+  override def serialize(element: SensorData): Array[Byte] = element.toByteArray
 }
 
 class SensorDataSchema extends DeserializationSchema[SensorData] {
   override def deserialize(message: Array[Byte]): SensorData = {
     val ret = SensorData.parseFrom(message)
-    println(s"Recieved: SID: ${ret.sensorId}, TMSP: ${ret.timestamp},  temp: ${ret.temperature}, wind: ${ret.wind}, pressure: ${ret.pressure}")
+    println(s"Recieved: SID: ${ret.sensorId}, TMSP: ${ret.timestamp},  ${ret.doubles} ${ret.integers} ${ret.strings}")
     ret
   }
 

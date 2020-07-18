@@ -4,7 +4,7 @@ package cdl.iot;
 message SensorData  {
   int32 sensor_id = 1;
   string timestamp = 2;
-  double temperature = 3;
-  double pressure = 4;
-  double wind = 5;
+  map<string, double> doubles = 3;
+  map<string, string> strings = 4;
+  map<string, int32> integers = 5;
 }
