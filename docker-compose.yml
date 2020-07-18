@@ -41,6 +41,19 @@ services:
       restart_policy:
         condition: on-failure
 
+  inference: 
+    build: ./inference/
+    environment:
+      - PULSAR_HOST=pulsar
+      - CASSANDRA_HOST=cassandra
+      - TOPIC_NAME=in
+      - NAMESPACE_NAME=default
+      - INTERVAL_MILS=5000
+      - LOCAL=true
+    deploy:
+      restart_policy:
+        condition: on-failure
+
 networks:
   default:
     driver: bridge

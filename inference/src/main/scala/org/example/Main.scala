@@ -19,22 +19,31 @@ import collection.JavaConverters.mapAsJavaMapConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder}
 
+
 object Main {
+
+  def env_var(name: String, defaultValue: String, params: ParameterTool): String =
+    if (sys.env.contains("LOCAL"))
+      if (sys.env.contains(name)) sys.env(name)
+      else defaultValue
+    else params.get(name, defaultValue)
 
   def main(args: Array[String]) {
 
-    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
     val params = ParameterTool.fromArgs(args)
 
-    val serviceUrl = params.get("pulsarEndpoint", "pulsar://localhost:6650")
-    val inputTopic = params.get("inputTopic", "persistent://sample/standalone/default/in")
-    val outputTopic = params.get("outputTopic", "persistent://public/standalone/default/event-log")
-    val subscribtionName = params.get("subscriptionName", "scala-sub-1")
-    val cassandraHost = params.get("cassandraHost", "127.0.0.1")
-    val cassandraUsername = params.get("cassandraUsername", "cassandra")
-    val cassandraPassword = params.get("cassandraPassword", "cassandra")
 
+    val pulsarHost = env_var("PULSAR_HOST", "localhost", params)
+    val inputTopic = env_var("INPUT_TOPIC", "persistent://sample/standalone/default/in", params)
+    val outputTopic = env_var("OUTPUT_TOPIC", "persistent://public/standalone/default/event-log", params)
+    val subscribtionName = env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
+    val cassandraHost = env_var("CASSANDRA_HOST", "127.0.0.1", params)
+    val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
+    val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
+
+    val serviceUrl = s"pulsar://${pulsarHost}:6650"
     val evaluator = new LoadingModelEvaluatorBuilder()
       .load(new File("model.pmml"))
       .build();
