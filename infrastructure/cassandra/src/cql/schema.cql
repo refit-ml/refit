@@ -4,7 +4,19 @@ USE iot_prototype_training;
 
 CREATE TABLE IF NOT EXISTS sensor_data (
     key text,
+    sensor_id text,
+    timestamp text,
     data map<text, text>,
     prediction map<text, text>, 
     PRIMARY KEY(key)
 );
+
+
+CREATE TABLE IF NOT EXISTS in_operable_entry (
+    key text,
+    sensorId text,
+    start text,
+    end text,
+    PRIMARY KEY(key)
+);
+
