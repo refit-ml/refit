@@ -21,8 +21,8 @@ object ModelTraining {
     val spark = SparkSession.builder.config(conf).getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
-    val file_path = s"${System.getProperty("user.dir")}/operable.csv"
-    val time_path = s"${System.getProperty("user.dir")}/time.csv"
+    val file_path = s"${System.getProperty("user.dir")}/data/operable.csv"
+    val time_path = s"${System.getProperty("user.dir")}/data/time.csv"
 
 
     var data = spark.read.format("CSV").option("header", "true").load(file_path)
