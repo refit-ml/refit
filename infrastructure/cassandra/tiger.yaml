@@ -3,3 +3,6 @@ cluster:
   seedCount: 2
 persistence: 
   enabled: false
+dbUser:
+  user: cassandra
+  password: cassandra

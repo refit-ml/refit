@@ -33,7 +33,4 @@ affinity:
   anti_affinity: true
 
 volumes:
-  persistence: true
-  # configure the components to use local persistent volume
-  # the local provisioner should be installed prior to enable local persistent volume
-  local_storage: false
+  persistence: false

@@ -2,10 +2,10 @@
 
 
 # https://pulsar.apache.org/docs/en/helm-deploy/
-helm upgrade \
-    --values pulsar/${env}.yaml \
-    pulsar \
-    apache/pulsar
+# helm upgrade \
+#     --values pulsar/${env}.yaml \
+#     pulsar \
+#     apache/pulsar
 
 # https://github.com/bitnami/charts/tree/master/bitnami/cassandra/#installing-the-chart
 helm upgrade \
@@ -13,7 +13,6 @@ helm upgrade \
      cassandra \
      bitnami/cassandra \
     --values cassandra/${env}.yaml
-
 
 # helm upgrade \
 #     --namespace iot-prototype \

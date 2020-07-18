@@ -7,14 +7,17 @@ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo update
 
 # https://pulsar.apache.org/docs/en/helm-deploy/
-helm install \
-    --values pulsar/${env}.yaml \
-    pulsar \
-    apache/pulsar
+# helm install \
+#     --values pulsar/${env}.yaml \
+#     --set nodeSelector.coredns=enabled \
+#     pulsar \
+#     apache/pulsar
+
 
 # https://github.com/bitnami/charts/tree/master/bitnami/cassandra/#installing-the-chart
 helm install \
     --namespace iot-prototype \
+    --set nodeSelector.coredns=enabled \
      cassandra \
      bitnami/cassandra \
     --values cassandra/${env}.yaml

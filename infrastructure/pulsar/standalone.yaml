@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: standalone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar
+      component: standalone
+  template:
+    metadata:
+      labels:
+        app: pulsar
+        component: standalone
+    spec:
+      containers:
+      - name: standalone
+        image: apachepulsar/pulsar-all
+        command: ["/bin/bash", "-c", "bin/apply-config-from-env.py conf/standalone.conf && bin/pulsar standalone"]
+        ports:
+        - containerPort: 6650
+          name: pulsar
+        - containerPort: 8080
+          name: api
+      nodeSelector:
+        coredns: enabled
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: standalone
+spec:
+  type: ClusterIP
+  ports:
+  - name: pulsar
+    port: 6650
+  - name: api
+    port: 8080
+  selector:
+    app: pulsar
+    component: standalone

@@ -37,6 +37,7 @@ services:
       - TOPIC_NAME=in
       - NAMESPACE_NAME=default
       - INTERVAL_MILS=5000
+      - CASSANDRA_HOST=cassandra
     deploy:
       restart_policy:
         condition: on-failure

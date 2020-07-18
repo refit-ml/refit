@@ -10,6 +10,7 @@ fi
 kubectl apply -k org/ 
 kubectl apply -k cicd/
 
+kubectl apply -k pulsar/
 chmod +x ./scripts/*
 
 if [ "$action" == "install" ]; then
@@ -19,6 +20,7 @@ else
 fi
 
 kubectl apply -k flink/
+
 
 if [ "$env" == "local" && "$action" == "install" ]; then
     minikube service gocd-server -n iot-prototype
@@ -35,3 +37,10 @@ fi
 # cassandra http://localhost:8001/api/v1/namespaces/iot-prototype/services/cassandra:9042/proxy/
 # gocd http://localhost:8001/api/v1/namespaces/iot-prototype/services/gocd-server:8153/proxy/
 
+if [ false ]; then 
+    kubectl port-forward service/cassandra 9042:9042
+    kubectl port-forward service/flink-jobmanager 8081:8081
+    kubectl port-forward service/pulsar-standalone 6650:6650
+    # To get admin token
+    # kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+fi
