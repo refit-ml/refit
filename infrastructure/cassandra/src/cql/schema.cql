@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS sensor_data (
 
 CREATE TABLE IF NOT EXISTS in_operable_entry (
     key text,
-    sensorId text,
+    sensor_id text,
     start text,
     end text,
     PRIMARY KEY(key)
