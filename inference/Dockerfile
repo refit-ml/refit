@@ -12,7 +12,7 @@ WORKDIR app
 
 ADD ./ /app
 
-RUN sbt compile
+# RUN sbt compile
 
 CMD wait-for-it pulsar:6650 -t 300 -s -- wait-for-it cassandra:9042 -t 300 -s -- sbt run
 # FROM flink:1.10.0-scala_2.11

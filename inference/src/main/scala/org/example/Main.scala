@@ -90,10 +90,9 @@ object Main {
           )
         }
       })
-      .map(new SensorDataMapper)
 
 
-    CassandraSink.addSink(inference)
+    CassandraSink.addSink(inference.map(new SensorDataMapper))
       .setClusterBuilder(
         new ClusterBuilder {
           override def buildCluster(builder: Cluster.Builder): Cluster = builder
@@ -105,7 +104,7 @@ object Main {
       .setQuery("INSERT INTO iot_prototype_training.sensor_data(key, data, prediction) values (?, ?, ?);")
       .build()
 
-    input.addSink(new FlinkPulsarProducer(
+    inference.addSink(new FlinkPulsarProducer(
       serviceUrl,
       outputTopic,
       new SensorDataSerializer,
@@ -139,7 +138,7 @@ class SensorDataKeyExtractor extends PulsarKeyExtractor[SensorData] {
 }
 
 class SensorDataSerializer extends SerializationSchema[SensorData] {
-  override def serialize(element: SensorData): Array[Byte] = element.toByteArray
+  override def serialize(element: SensorData): Array[Byte] = element.toProtoString.getBytes
 }
 
 class SensorDataSchema extends DeserializationSchema[SensorData] {
