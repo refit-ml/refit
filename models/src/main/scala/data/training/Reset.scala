@@ -17,8 +17,8 @@ case class SensorData(
 case class OperableData(
                          key: String,
                          sensor_id: String,
-                         from: String,
-                         to: String
+                         start: String,
+                         end: String
                        )
 
 object Reset {
@@ -76,13 +76,13 @@ object Reset {
     data.show(5)
     time.show(5)
 
-    data
-      .write.format("org.apache.spark.sql.cassandra")
-      .options(
-        Map(
-          "keyspace" -> "iot_prototype_training",
-          "table" -> "sensor_data")
-      ).save()
+//    data
+//      .write.format("org.apache.spark.sql.cassandra")
+//      .options(
+//        Map(
+//          "keyspace" -> "iot_prototype_training",
+//          "table" -> "sensor_data")
+//      ).save()
 
     time
       .write.format("org.apache.spark.sql.cassandra")
