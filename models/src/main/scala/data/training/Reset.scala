@@ -1,10 +1,9 @@
 package data.training
 
-import org.apache.avro.io.Encoder
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Encoders, SparkSession}
 import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import org.joda.time.format.{DateTimeFormat}
 
 case class SensorData(
                        key: String,
