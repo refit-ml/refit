@@ -1,10 +1,8 @@
 package com.cdl.iot.dao
 
-import com.cdl.iot.dto.Model
-import org.skife.jdbi.v2.sqlobject.SqlQuery
-
+import org.skife.jdbi.v2.sqlobject.{Bind, SqlQuery}
 
 trait ModelDao {
-  @SqlQuery("select model from models;")
-  def getModel: java.util.List[Array[Byte]]
+  @SqlQuery("select model from models where key = :version;")
+  def getModel(@Bind("version") version: String): java.util.List[Array[Byte]]
 }

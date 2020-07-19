@@ -17,11 +17,9 @@ import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
 import org.dmg.pmml.FieldName
-
 import collection.JavaConverters.mapAsJavaMapConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder}
-import org.jpmml.model.annotations.Optional
 import org.skife.jdbi.v2.{DBI, Handle}
 import org.skife.jdbi.v2.tweak.HandleCallback
 
@@ -34,7 +32,7 @@ object Main {
       else defaultValue
     else params.get(name, defaultValue)
 
-  def getModel(host: String, user: String, password: String): Model = {
+  def getModel(host: String, user: String, password: String, version: String): Model = {
     val props = new Properties()
     props.setProperty("user", user)
     props.setProperty("password", password)
@@ -43,7 +41,7 @@ object Main {
     jdbi.withHandle[Model](new HandleCallback[Model]() {
       override def withHandle(handle: Handle): Model = {
         val dao = handle.attach(classOf[ModelDao])
-        Model("asdf", dao.getModel.get(0))
+        Model("asdf", dao.getModel(version).get(0))
       }
     })
   }
@@ -62,12 +60,13 @@ object Main {
     val cassandraHost = env_var("CASSANDRA_HOST", "127.0.0.1", params)
     val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
+    val modelVersion = env_var("MODEL_VERSION", "3a893d80-8c87-4ec1-9fd6-4f55c61b3cd1", params)
 
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
 
-
+    // So the general idea is that we will treat this as a state and update it with events from pulsar
     val evaluator = new LoadingModelEvaluatorBuilder()
-      .load(new ByteArrayInputStream(getModel(cassandraHost, cassandraUsername, cassandraPassword).bytes))
+      .load(new ByteArrayInputStream(getModel(cassandraHost, cassandraUsername, cassandraPassword, modelVersion).bytes))
       .build();
 
 

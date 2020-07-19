@@ -1,6 +1,6 @@
 package org.cdl.iot
 
-import java.io.File
+import java.util.UUID
 
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
@@ -10,8 +10,6 @@ import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.DoubleType
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.jpmml.sparkml.PMMLBuilder
 
 case class Model(
@@ -70,7 +68,6 @@ object ModelTraining {
       .withColumn("operable", when(isnull(col("from")), 1).otherwise(0))
 
 
-
     val transformedDataSet = transformed
       .sort("timestamp")
       .withColumn("temperature", col("temperature").cast(DoubleType))
@@ -110,7 +107,6 @@ object ModelTraining {
     val model = pipeline.fit(trainDf)
 
     val predictions = model.transform(testDf)
-    //    predictions.select("sensor_id", "label", "prediction").show(5)
 
     val evaluator = new MulticlassClassificationEvaluator()
       .setLabelCol("label")
@@ -127,16 +123,18 @@ object ModelTraining {
     println("Test Accuracy = " + accuracy)
 
     val schema = transformedDataSet.schema
-    val dto = Model(
-      new DateTime().toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
-      new PMMLBuilder(schema, model).buildByteArray() //.buildFile(new File(s"${System.getProperty("user.dir")}/model.pmml"))
-    )
 
     import spark.implicits._
+    val export = Model(
+      UUID.randomUUID.toString,
+      new PMMLBuilder(schema, model).buildByteArray()
+    )
 
-    val ds = Seq(dto).toDS
-
-    ds
+    println(s"Exporting Model - UUID: '${`export`.key}'")
+    Seq(
+      export
+    )
+      .toDS
       .write
       .format("org.apache.spark.sql.cassandra")
       .options(
@@ -146,7 +144,6 @@ object ModelTraining {
       )
       .mode(SaveMode.Append)
       .save
-
 
   }
 
