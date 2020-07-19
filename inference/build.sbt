@@ -28,7 +28,9 @@ libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.0"
 libraryDependencies += "javax.activation" % "activation" % "1.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0"
 libraryDependencies += "joda-time" % "joda-time" % "2.10.6"
-
+libraryDependencies += "org.jdbi" % "jdbi" % "2.78"
+libraryDependencies += "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5"
+libraryDependencies += "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
 
 //libraryDependencies += "io.streamnative.connectors" % "pulsar-flink-connector_2.11" % "2.4.23"
 
@@ -38,7 +40,7 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= flinkDependencies
   )
 
-assembly / mainClass := Some("org.example.Main")
+assembly / mainClass := Some("com.cdl.iot.Main")
 
 Compile / run  := Defaults.runTask(Compile / fullClasspath,
   Compile / run / mainClass,

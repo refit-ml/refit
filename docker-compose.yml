@@ -24,6 +24,7 @@ services:
     ports: 
       - "7000:7000"
       - "9042:9042"
+      - "9160:9160"
     healthcheck: 
       test: ["CMD", "cqlsh", "-e", "'show host'"]
       interval: 30s

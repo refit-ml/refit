@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_3" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.3">
+	<Header>
+		<Application name="JPMML-SparkML" version="1.5.1"/>
+		<Timestamp>2020-07-19T04:45:09Z</Timestamp>
+	</Header>
+	<DataDictionary>
+		<DataField name="operable" optype="categorical" dataType="integer">
+			<Value value="0"/>
+		</DataField>
+	</DataDictionary>
+	<MiningModel functionName="classification">
+		<MiningSchema>
+			<MiningField name="operable" usageType="target"/>
+		</MiningSchema>
+		<Output>
+			<OutputField name="pmml(prediction)" optype="categorical" dataType="integer" feature="predictedValue"/>
+			<OutputField name="prediction" optype="categorical" dataType="double" feature="transformedValue">
+				<MapValues outputColumn="data:output">
+					<FieldColumnPair field="pmml(prediction)" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>0</data:input>
+							<data:output>0</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</OutputField>
+			<OutputField name="probability(0)" optype="continuous" dataType="double" feature="probability" value="0"/>
+		</Output>
+		<Segmentation multipleModelMethod="average">
+			<Segment id="1">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160270.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160270.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="2">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160448.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160448.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="3">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159090.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159090.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="4">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160829.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160829.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="5">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159459.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159459.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="6">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160310.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160310.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="7">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159716.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159716.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="8">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160542.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160542.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="9">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160467.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160467.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="10">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160072.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160072.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="11">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159385.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159385.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="12">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159760.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159760.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="13">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160546.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160546.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="14">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160095.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160095.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="15">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159924.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159924.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="16">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160110.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160110.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="17">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160256.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160256.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="18">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160308.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160308.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="19">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="160496.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="160496.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+			<Segment id="20">
+				<True/>
+				<TreeModel functionName="classification" missingValueStrategy="nullPrediction" splitCharacteristic="multiSplit">
+					<MiningSchema/>
+					<Node score="0" recordCount="159438.0">
+						<True/>
+						<ScoreDistribution value="0" recordCount="159438.0"/>
+					</Node>
+				</TreeModel>
+			</Segment>
+		</Segmentation>
+	</MiningModel>
+</PMML>

@@ -20,3 +20,9 @@ CREATE TABLE IF NOT EXISTS in_operable_entry (
     PRIMARY KEY(key)
 );
 
+
+CREATE TABLE IF NOT EXISTS models (
+    key text,
+    model blob, 
+    PRIMARY KEY(key)
+);
