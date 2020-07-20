@@ -1,5 +1,5 @@
 syntax = "proto3";
-package cdl.iot;
+package cdl.iot.dto;
 
 message SensorData  {
   int32 sensor_id = 1;

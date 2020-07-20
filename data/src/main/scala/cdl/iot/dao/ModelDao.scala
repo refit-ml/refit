@@ -1,4 +1,4 @@
-package com.cdl.iot.dao
+package cdl.iot.dao
 
 import org.skife.jdbi.v2.sqlobject.{Bind, SqlQuery}
 
