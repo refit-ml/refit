@@ -2,20 +2,30 @@ package org.cdl.iot
 
 import java.util.UUID
 
+import data.training.SensorData
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.DoubleType
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import org.jpmml.sparkml.PMMLBuilder
 
 case class Model(
                   key: String,
                   model: Array[Byte]
                 )
+
+case class CassandraTable(
+                       key: String,
+                       sensor_id: String,
+                       timestamp: String,
+                       data: Map[String, String]
+                     )
 
 object ModelTraining {
 
@@ -32,6 +42,31 @@ object ModelTraining {
 
     spark.sparkContext.setLogLevel("ERROR")
 
+    val tableDf = spark
+      .read
+      .format("org.apache.spark.sql.cassandra")
+      .options(Map( "table" -> "sensor_data", "keyspace" -> "iot_prototype_training"))
+      .load()
+      .map(d => {
+        val sensorId = d(1).toString
+        val timestamp = DateTime.parse(d(2).toString, DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
+        val temperature = d(3).toString
+        val pressure = d(4).toString
+        val wind = d(5).toString
+        CassandraTable(
+          s"${sensorId}_${timestamp.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))}",
+          sensorId,
+          timestamp.toDateTimeISO.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
+          Map(
+            "temperature" -> temperature,
+            "wind" -> wind,
+            "pressure" -> pressure,
+            "hour" -> timestamp.getHourOfDay.toString
+          ))
+        })(Encoders.product[CassandraTable])
+
+    tableDf.show(5)
+
     val file_path = s"${System.getProperty("user.dir")}/data/operable.csv"
     val time_path = s"${System.getProperty("user.dir")}/data/time.csv"
 
@@ -45,6 +80,8 @@ object ModelTraining {
       .withColumn("timestamp", ts)
       .sort("timestamp")
 
+    data.show(5)
+    /*
     val time = spark
       .read
       .format("CSV")
@@ -144,6 +181,7 @@ object ModelTraining {
       )
       .mode(SaveMode.Append)
       .save
+      */
 
   }
 
