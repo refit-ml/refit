@@ -24,6 +24,12 @@ import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingMo
 import org.skife.jdbi.v2.{DBI, Handle}
 import org.skife.jdbi.v2.tweak.HandleCallback
 
+import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapStateDescriptor, ValueState, ValueStateDescriptor}
+import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
+import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.util.Collector
+
 
 object Main {
 
@@ -50,6 +56,9 @@ object Main {
   def main(args: Array[String]) {
 
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    
+        // checkpoint every 60 seconds
+    env.getCheckpointConfig.setCheckpointInterval(60 * 1000)
 
     val params = ParameterTool.fromArgs(args)
 
@@ -80,6 +89,9 @@ object Main {
 
     val inference = input
       .map(new MapFunction[SensorData, SensorData] {
+        
+        private var checkpointedState: ListState[(String, Int)] = _
+        
         override def map(v: SensorData): SensorData = {
           val input: Map[FieldName, FieldValue] = v.doubles.map({
             case (x, d) =>
@@ -109,6 +121,17 @@ object Main {
             v.integers,
             prediction
           )
+        }
+        
+        override def initializeState(initContext: FuntionInitializationContext): Unit = {
+          val descriptor = new ListStateDescriptor[(String, Int)]( "evaluator", TypeInformation.of(new TypeHint[(String, Int)](){}) )
+          checkpointedState = initContext.getOperatorStateStore.getUnionListState(descriptor)
+          evaluator = checkpointedState.get()
+        }
+
+        override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
+          checkpointedState.clear()
+          checkpointedState.add(evaluator)
         }
       })
 
