@@ -17,7 +17,12 @@ object ModelTraining {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setAppName("baselineModel").setMaster("local[2]")
+    val conf = new SparkConf()
+      .setAppName("baselineModel")
+      .set("spark.cassandra.connection.host", "127.0.0.1")
+      .set("spark.cassandra.auth.username", "cassandra")
+      .set("spark.cassandra.auth.password", "cassandra")
+      .setMaster("local[2]")
     val spark = SparkSession.builder.config(conf).getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
