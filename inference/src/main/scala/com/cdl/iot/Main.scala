@@ -1,8 +1,11 @@
-package org.example
+package com.cdl.iot
 
-import java.io.File
+import java.io.{ByteArrayInputStream, File}
+import java.util.{Optional, Properties}
 
 import cdl.iot.SensorData.SensorData
+import com.cdl.iot.dao.ModelDao
+import com.cdl.iot.dto.Model
 import com.datastax.driver.core.Cluster
 import org.apache.flink.api.common.functions.MapFunction
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
@@ -18,6 +21,14 @@ import org.dmg.pmml.FieldName
 import collection.JavaConverters.mapAsJavaMapConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder}
+import org.skife.jdbi.v2.{DBI, Handle}
+import org.skife.jdbi.v2.tweak.HandleCallback
+
+import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapStateDescriptor, ValueState, ValueStateDescriptor}
+import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
+import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.util.Collector
 
 
 object Main {
@@ -28,9 +39,26 @@ object Main {
       else defaultValue
     else params.get(name, defaultValue)
 
+  def getModel(host: String, user: String, password: String, version: String): Model = {
+    val props = new Properties()
+    props.setProperty("user", user)
+    props.setProperty("password", password)
+    val jdbi = new DBI(s"jdbc:cassandra://${host}:9160/iot_prototype_training", props)
+
+    jdbi.withHandle[Model](new HandleCallback[Model]() {
+      override def withHandle(handle: Handle): Model = {
+        val dao = handle.attach(classOf[ModelDao])
+        Model("asdf", dao.getModel(version).get(0))
+      }
+    })
+  }
+
   def main(args: Array[String]) {
 
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    
+        // checkpoint every 60 seconds
+    env.getCheckpointConfig.setCheckpointInterval(60 * 1000)
 
     val params = ParameterTool.fromArgs(args)
 
@@ -42,10 +70,12 @@ object Main {
     val cassandraHost = env_var("CASSANDRA_HOST", "127.0.0.1", params)
     val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
-
+    val modelVersion = env_var("MODEL_VERSION", "21c88617-eb1c-4cfe-98b1-b34345b6e09d", params)
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
+
+    // So the general idea is that we will treat this as a state and update it with events from pulsar
     val evaluator = new LoadingModelEvaluatorBuilder()
-      .load(new File("model.pmml"))
+      .load(new ByteArrayInputStream(getModel(cassandraHost, cassandraUsername, cassandraPassword, modelVersion).bytes))
       .build();
 
 
@@ -59,6 +89,9 @@ object Main {
 
     val inference = input
       .map(new MapFunction[SensorData, SensorData] {
+        
+        private var checkpointedState: ListState[(String, Int)] = _
+        
         override def map(v: SensorData): SensorData = {
           val input: Map[FieldName, FieldValue] = v.doubles.map({
             case (x, d) =>
@@ -89,6 +122,17 @@ object Main {
             prediction
           )
         }
+        
+        override def initializeState(initContext: FuntionInitializationContext): Unit = {
+          val descriptor = new ListStateDescriptor[(String, Int)]( "evaluator", TypeInformation.of(new TypeHint[(String, Int)](){}) )
+          checkpointedState = initContext.getOperatorStateStore.getUnionListState(descriptor)
+          evaluator = checkpointedState.get()
+        }
+
+        override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
+          checkpointedState.clear()
+          checkpointedState.add(evaluator)
+        }
       })
 
 
@@ -101,8 +145,9 @@ object Main {
             .build()
         }
       )
-      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key, data, prediction) values (?, ?, ?);")
+      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
       .build()
+
 
     inference.addSink(new FlinkPulsarProducer(
       serviceUrl,
@@ -115,8 +160,8 @@ object Main {
   }
 }
 
-class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple3[String, java.util.Map[String, String], java.util.Map[String, String]]] {
-  override def map(v: SensorData): org.apache.flink.api.java.tuple.Tuple3[String, java.util.Map[String, String], java.util.Map[String, String]] = {
+class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple5[String, String, String, java.util.Map[String, String], java.util.Map[String, String]]] {
+  override def map(v: SensorData): org.apache.flink.api.java.tuple.Tuple5[String, String, String, java.util.Map[String, String], java.util.Map[String, String]] = {
     val data: Map[String, String] = v.integers.map({
       case (x, d) =>
         x -> d.toString
@@ -129,7 +174,12 @@ class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java
         case (x, d) =>
           x -> d
       }))
-    new org.apache.flink.api.java.tuple.Tuple3(s"${v.timestamp}_${v.sensorId}", data.asJava, v.prediction.asJava)
+    new org.apache.flink.api.java.tuple.Tuple5(
+      s"${v.timestamp}_${v.sensorId}",
+      v.sensorId.toString,
+      v.timestamp,
+      data.asJava,
+      v.prediction.asJava)
   }
 }
 
