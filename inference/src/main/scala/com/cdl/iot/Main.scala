@@ -61,7 +61,7 @@ object Main {
     val cassandraHost = env_var("CASSANDRA_HOST", "127.0.0.1", params)
     val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
-    val modelVersion = env_var("MODEL_VERSION", "21c88617-eb1c-4cfe-98b1-b34345b6e09d", params)
+    val modelVersion = env_var("MODEL_VERSION", "__latest__", params)
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
 
     // So the general idea is that we will treat this as a state and update it with events from pulsar
