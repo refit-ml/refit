@@ -36,6 +36,8 @@ spec:
           value: cassandra
         - name: LOCAL
           value: 'true'
+        - name: MODEL_VERSION
+          value: 21c88617-eb1c-4cfe-98b1-b34345b6e09d
       restartPolicy: Never
       nodeSelector:
         coredns: enabled

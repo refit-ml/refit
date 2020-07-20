@@ -1,7 +1,7 @@
 package com.cdl.iot
 
 import java.io.{ByteArrayInputStream, File}
-import java.util.Properties
+import java.util.{Optional, Properties}
 
 import cdl.iot.SensorData.SensorData
 import com.cdl.iot.dao.ModelDao
@@ -17,6 +17,7 @@ import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.partitioner.PulsarKeyExtractor
 import org.dmg.pmml.FieldName
+
 import collection.JavaConverters.mapAsJavaMapConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder}
@@ -60,8 +61,7 @@ object Main {
     val cassandraHost = env_var("CASSANDRA_HOST", "127.0.0.1", params)
     val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
-    val modelVersion = env_var("MODEL_VERSION", "3a893d80-8c87-4ec1-9fd6-4f55c61b3cd1", params)
-
+    val modelVersion = env_var("MODEL_VERSION", "21c88617-eb1c-4cfe-98b1-b34345b6e09d", params)
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
 
     // So the general idea is that we will treat this as a state and update it with events from pulsar
@@ -124,6 +124,7 @@ object Main {
       )
       .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
       .build()
+
 
     inference.addSink(new FlinkPulsarProducer(
       serviceUrl,
