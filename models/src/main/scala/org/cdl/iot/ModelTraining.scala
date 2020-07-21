@@ -19,28 +19,13 @@ case class Model(
                   model: Array[Byte]
                 )
 
-case class SensorDataRDD(
-                       key: String,
-                       sensor_id: String,
-                       timestamp: String,
-                       data: Map[String, String]
-                     )
-
-case class SensorDataFlatRDD(
-                          key: String,
-                          sensor_id: String,
-                          timestamp: String,
-                          temperature: String,
-                          pressure: String,
-                          wind: String
-                        )
 
 case class OperableDataRDD(
-                         key: String,
-                         sensor_id: String,
-                         start: String,
-                         end: String
-                       )
+                            key: String,
+                            sensor_id: String,
+                            start: String,
+                            end: String
+                          )
 
 object ModelTraining {
 
@@ -57,66 +42,49 @@ object ModelTraining {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val sensorDataDf = spark
-      .read
-      .format("org.apache.spark.sql.cassandra")
-      .options(Map( "table" -> "sensor_data", "keyspace" -> "iot_prototype_training"))
-      .load()
-      (Encoders.product[SensorDataRDD])
-
-
-
-    val operableDataDf = spark
-      .read
-      .format("org.apache.spark.sql.cassandra")
-      .options(Map( "table" -> "in_operable_entry", "keyspace" -> "iot_prototype_training"))
-      .load()
-    (Encoders.product[OperableDataRDD])
-
-    println("class: "+sensorDataDf.getClass)
-
-    sensorDataDfFlat = sensorDataDf.map(row =>
-    SensorDataFlatRDD(
-      row[0].toString()
-    ))(Encoders.product[SensorDataFlatRDD])
-
-    sensorDataDf.show(5)
-    operableDataDf.show(5)
-
-    val file_path = s"${System.getProperty("user.dir")}/data/operable.csv"
-    val time_path = s"${System.getProperty("user.dir")}/data/time.csv"
-
-    val ts = to_timestamp(col("timestamp"), "yy-MM-dd HH:mm")
-
     val data = spark
       .read
-      .format("CSV")
-      .option("header", "true")
-      .load(file_path)
-      .withColumn("timestamp", ts)
-      .sort("timestamp")
+      .format("org.apache.spark.sql.cassandra")
+      .options(Map("table" -> "sensor_data", "keyspace" -> "iot_prototype_training"))
+      .load()
+      .map(d => {
+        val sensorId = d(3).toString
+        val timestamp = d(4).toString
+        val m = d(1).asInstanceOf[Map[String, String]]
+        (
+          UUID.randomUUID().toString,
+          sensorId,
+          timestamp,
+          m("temperature").toDouble,
+          m("pressure").toDouble,
+          m("wind").toDouble
+        )
+
+      })(Encoders.product[(String, String, String, Double, Double, Double)])
+      .toDF(Seq("guid", "sensor_id", "timestamp", "temperature", "pressure", "wind"): _ *)
+
 
     val time = spark
       .read
-      .format("CSV")
-      .option("header", "true")
-      .load(time_path)
-      .withColumn("from", to_timestamp(col("from"), "yy-MM-dd HH:mm")).sort("from")
-      .withColumn("to", to_timestamp(col("to"), "yy-MM-dd HH:mm"))
+      .format("org.apache.spark.sql.cassandra")
+      .options(Map("table" -> "in_operable_entry", "keyspace" -> "iot_prototype_training"))
+      .load()
+    (Encoders.product[OperableDataRDD])
+
 
     data.show(5)
     time.show(5)
 
-    /*
+
     // compare time intervals
     val transformed = data
       .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
       .join(time,
-        col("end_hour") > time("from")
-          && col("end_hour") < time("to"),
+        col("end_hour") > time("start")
+          && col("end_hour") < time("end"),
         "left"
       )
-      .withColumn("operable", when(isnull(col("from")), 1).otherwise(0))
+      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
 
 
     val transformedDataSet = transformed
@@ -124,8 +92,8 @@ object ModelTraining {
       .withColumn("temperature", col("temperature").cast(DoubleType))
       .withColumn("pressure", col("pressure").cast(DoubleType))
       .withColumn("wind", col("wind").cast(DoubleType))
-      .drop("from")
-      .drop("to")
+      .drop("start")
+      .drop("end")
 
     transformed.show(5)
     transformedDataSet.show(5)
@@ -195,7 +163,6 @@ object ModelTraining {
       )
       .mode(SaveMode.Append)
       .save
-      */
 
   }
 
