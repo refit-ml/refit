@@ -67,21 +67,13 @@ object Reset {
         OperableData(
           d(0).toString,
           d(1).toString,
-          DateTime.parse(d(2).toString, DateTimeFormat.forPattern("MM/dd/YYYY HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
-          DateTime.parse(d(3).toString, DateTimeFormat.forPattern("MM/dd/YYYY HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
+          d(2).toString,
+          d(3).toString
         ))(Encoders.product[OperableData])
 
 
     data.show(5)
     time.show(5)
-
-    data
-      .write.format("org.apache.spark.sql.cassandra")
-      .options(
-        Map(
-          "keyspace" -> "iot_prototype_training",
-          "table" -> "sensor_data")
-      ).save()
 
     time
       .write.format("org.apache.spark.sql.cassandra")
@@ -89,6 +81,14 @@ object Reset {
         Map(
           "keyspace" -> "iot_prototype_training",
           "table" -> "in_operable_entry")
+      ).save()
+
+    data
+      .write.format("org.apache.spark.sql.cassandra")
+      .options(
+        Map(
+          "keyspace" -> "iot_prototype_training",
+          "table" -> "sensor_data")
       ).save()
 
   }

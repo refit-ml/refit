@@ -1,7 +1,6 @@
 package org.cdl.iot
 
 import java.util.UUID
-
 import data.training.SensorData
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
@@ -20,12 +19,28 @@ case class Model(
                   model: Array[Byte]
                 )
 
-case class CassandraTable(
+case class SensorDataRDD(
                        key: String,
                        sensor_id: String,
                        timestamp: String,
                        data: Map[String, String]
                      )
+
+case class SensorDataFlatRDD(
+                          key: String,
+                          sensor_id: String,
+                          timestamp: String,
+                          temperature: String,
+                          pressure: String,
+                          wind: String
+                        )
+
+case class OperableDataRDD(
+                         key: String,
+                         sensor_id: String,
+                         start: String,
+                         end: String
+                       )
 
 object ModelTraining {
 
@@ -42,30 +57,31 @@ object ModelTraining {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val tableDf = spark
+    val sensorDataDf = spark
       .read
       .format("org.apache.spark.sql.cassandra")
       .options(Map( "table" -> "sensor_data", "keyspace" -> "iot_prototype_training"))
       .load()
-      .map(d => {
-        val sensorId = d(1).toString
-        val timestamp = DateTime.parse(d(2).toString, DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
-        val temperature = d(3).toString
-        val pressure = d(4).toString
-        val wind = d(5).toString
-        CassandraTable(
-          s"${sensorId}_${timestamp.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))}",
-          sensorId,
-          timestamp.toDateTimeISO.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
-          Map(
-            "temperature" -> temperature,
-            "wind" -> wind,
-            "pressure" -> pressure,
-            "hour" -> timestamp.getHourOfDay.toString
-          ))
-        })(Encoders.product[CassandraTable])
+      (Encoders.product[SensorDataRDD])
 
-    tableDf.show(5)
+
+
+    val operableDataDf = spark
+      .read
+      .format("org.apache.spark.sql.cassandra")
+      .options(Map( "table" -> "in_operable_entry", "keyspace" -> "iot_prototype_training"))
+      .load()
+    (Encoders.product[OperableDataRDD])
+
+    println("class: "+sensorDataDf.getClass)
+
+    sensorDataDfFlat = sensorDataDf.map(row =>
+    SensorDataFlatRDD(
+      row[0].toString()
+    ))(Encoders.product[SensorDataFlatRDD])
+
+    sensorDataDf.show(5)
+    operableDataDf.show(5)
 
     val file_path = s"${System.getProperty("user.dir")}/data/operable.csv"
     val time_path = s"${System.getProperty("user.dir")}/data/time.csv"
@@ -80,8 +96,6 @@ object ModelTraining {
       .withColumn("timestamp", ts)
       .sort("timestamp")
 
-    data.show(5)
-    /*
     val time = spark
       .read
       .format("CSV")
@@ -90,10 +104,10 @@ object ModelTraining {
       .withColumn("from", to_timestamp(col("from"), "yy-MM-dd HH:mm")).sort("from")
       .withColumn("to", to_timestamp(col("to"), "yy-MM-dd HH:mm"))
 
-
     data.show(5)
     time.show(5)
 
+    /*
     // compare time intervals
     val transformed = data
       .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
