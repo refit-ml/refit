@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-training
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+      - name: model-training
+        image: cdliotprototype/model-training:latest
+        env:
+        - name: PULSAR_HOST
+          value: pulsar-standalone
+        - name: CASSANDRA_HOST
+          value: cassandra
+      restartPolicy: Never
+      nodeSelector:
+        coredns: enabled

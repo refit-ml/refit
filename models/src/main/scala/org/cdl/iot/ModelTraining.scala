@@ -1,7 +1,6 @@
 package org.cdl.iot
 
 import java.util.UUID
-import data.training.SensorData
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
@@ -10,8 +9,6 @@ import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.DoubleType
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.jpmml.sparkml.PMMLBuilder
 
 case class Model(
@@ -29,12 +26,15 @@ case class OperableDataRDD(
 
 object ModelTraining {
 
+  def env_var(name: String, defaultValue: String): String =
+    if (sys.env.contains(name)) sys.env(name)
+    else defaultValue
 
   def main(args: Array[String]): Unit = {
 
     val conf = new SparkConf()
       .setAppName("baselineModel")
-      .set("spark.cassandra.connection.host", "127.0.0.1")
+      .set("spark.cassandra.connection.host", env_var("CASSANDRA_HOST", "127.0.0.1"))
       .set("spark.cassandra.auth.username", "cassandra")
       .set("spark.cassandra.auth.password", "cassandra")
       .setMaster("local[2]")
@@ -151,7 +151,8 @@ object ModelTraining {
 
     println(s"Exporting Model - UUID: '${`export`.key}'")
     Seq(
-      export
+      export,
+      Model("__latest__", export.model)
     )
       .toDS
       .write

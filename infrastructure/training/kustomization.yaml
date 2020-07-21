@@ -2,8 +2,8 @@
 namePrefix: demo-
 namespace: iot-prototype
 commonLabels:
-  service: demo
+  service: training
 
 
 resources:
-  - data.yaml
+  - models.yaml
