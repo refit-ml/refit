@@ -25,11 +25,9 @@ object Main {
     props.setProperty("password", password)
     val jdbi = new DBI(s"jdbc:cassandra://${host}:9160/iot_prototype_training", props)
 
-    jdbi.withHandle[Model](new HandleCallback[Model]() {
-      override def withHandle(handle: Handle): Model = {
-        val dao = handle.attach(classOf[ModelDao])
-        Model("asdf", ByteString.copyFrom(dao.getModel(version).get(0)))
-      }
+    jdbi.withHandle[Model]((handle: Handle) => {
+      val dao = handle.attach(classOf[ModelDao])
+      Model("asdf", ByteString.copyFrom(dao.getModel(version).get(0)))
     })
   }
 

@@ -23,10 +23,11 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
 import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingModelEvaluatorBuilder, ModelEvaluator}
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapStateDescriptor, ValueState, ValueStateDescriptor}
 import org.apache.flink.api.java.functions.KeySelector
+import org.apache.flink.configuration.Configuration
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
-import org.apache.flink.streaming.api.functions.co.{BroadcastProcessFunction, CoProcessFunction, KeyedBroadcastProcessFunction}
+import org.apache.flink.streaming.api.functions.co.{BroadcastProcessFunction, CoMapFunction, CoProcessFunction, KeyedBroadcastProcessFunction, KeyedCoProcessFunction}
 import org.apache.flink.util.Collector
 
 
@@ -72,7 +73,7 @@ object Main {
     val cassandraUsername = env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
     val modelVersion = env_var("MODEL_VERSION", "__latest__", params)
-    val modelTopic = env_var("MODEL_TOPIC", "models", params)
+    val modelTopic = env_var("MODEL_TOPIC", "persistent://sample/standalone/default/models", params)
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
 
 
@@ -96,7 +97,7 @@ object Main {
       .addSource(modelsrc)
       .map(new MapFunction[Model, Evaluator] {
         override def map(value: Model): Evaluator = {
-          println(s"Recieved Model: ${value.key}")
+//          println(s"Recieved Model: ${value.key}")
           val evaluator = new LoadingModelEvaluatorBuilder()
             .load(new ByteArrayInputStream(value.bytes.toByteArray))
             .build();
@@ -104,12 +105,10 @@ object Main {
           Evaluator(value.key, evaluator)
         }
       })
-      .keyBy(new KeySelector[Evaluator, String] {
-        override def getKey(value: Evaluator): String = s"${value.key}_${UUID.randomUUID().toString}"
-      })
-      .broadcast(
-        d
-      )
+      //      .keyBy(new KeySelector[Evaluator, String] {
+      //        override def getKey(value: Evaluator): String = s"${value.key}_${UUID.randomUUID().toString}"
+      //      })
+      .broadcast()
 
 
     val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
@@ -122,33 +121,115 @@ object Main {
 
     val inference = input
       .connect(model)
-      .process(
-        new KeyedBroadcastProcessFunction[String, SensorData, Evaluator, SensorData] {
-          override def processElement(value: SensorData, ctx: KeyedBroadcastProcessFunction[String, SensorData, Evaluator, SensorData]#ReadOnlyContext, out: Collector[SensorData]): Unit = {
-            val key = ctx.getCurrentKey
-            val evaluator = ctx.getBroadcastState(d).get(key)
+
+      .process(new BroadcastProcessFunction[SensorData, Evaluator, SensorData] {
+        var evaluator: Evaluator = _
+
+        override def processElement(value: SensorData, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#ReadOnlyContext, out: Collector[SensorData]): Unit = {
+          if (evaluator != null) {
+            println(s"Use model - ${evaluator.key}")
             val p = evaluator.evaluator.evaluate(getVector(value).asJava)
+
             val results = EvaluatorUtil.decodeAll(p).asScala
             val prediction: Map[String, String] = results.map(
               { case (x, d) =>
                 x -> d.toString
               }).toMap
-            new SensorData(
-              value.sensorId,
-              value.timestamp,
-              value.doubles,
-              value.strings,
-              value.integers,
-              prediction
+            out.collect(
+              new SensorData(
+                value.sensorId,
+                value.timestamp,
+                value.doubles,
+                value.strings,
+                value.integers,
+                prediction
+              )
             )
           }
 
-          override def processBroadcastElement(value: Evaluator, ctx: KeyedBroadcastProcessFunction[String, SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
-            ctx.getBroadcastState(d).put(value.key, value)
-          }
         }
-      )
 
+        override def processBroadcastElement(value: Evaluator, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
+          evaluator = value
+        }
+      })
+    //      .process(new CoProcessFunction[SensorData, Evaluator, SensorData] {
+    //        // Current model
+    //        var currentEvaluator: ValueState[Option[Evaluator]] = _
+    //        var newEvaluator: ValueState[Option[Evaluator]] = _
+    //        // New model
+    //
+    //        override def processElement2(model: Evaluator, ctx: CoProcessFunction[SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
+    //          // Ensure that the state is initialized
+    //          if (newEvaluator.value == null) newEvaluator.update(None)
+    //          if (currentEvaluator.value == null) currentEvaluator.update(None)
+    //
+    //          Some(model) match {
+    //            case Some(evaluator) => {
+    //              println(s"Update model ${model.key}")
+    //              newEvaluator.update(Some(model))
+    //            }
+    //            case _ => println(s"Cannot update model ${model.key}")
+    //          }
+    //
+    //        }
+    //
+    //        override def processElement1(value: SensorData, ctx: CoProcessFunction[SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
+    //          println(s"Process prediction ${currentEvaluator.value()}")
+    //          if (newEvaluator.value == null) newEvaluator.update(None)
+    //          if (currentEvaluator.value == null) currentEvaluator.update(None)
+    //          newEvaluator.value.foreach { ev =>
+    //            // close current model first
+    //            // Update model
+    //            currentEvaluator.update(newEvaluator.value())
+    //            newEvaluator.update(None)
+    //          }
+    //
+    //          currentEvaluator.value match {
+    //            case Some(evaluator) => {
+    //              println(s"Use model - ${evaluator.key}")
+    //              val p = evaluator.evaluator.evaluate(getVector(value).asJava)
+    //
+    //              val results = EvaluatorUtil.decodeAll(p).asScala
+    //              val prediction: Map[String, String] = results.map(
+    //                { case (x, d) =>
+    //                  x -> d.toString
+    //                }).toMap
+    //              out.collect(
+    //                new SensorData(
+    //                  value.sensorId,
+    //                  value.timestamp,
+    //                  value.doubles,
+    //                  value.strings,
+    //                  value.integers,
+    //                  prediction
+    //                )
+    //              )
+    //            }
+    //            case _ => {
+    //              println("No model available")
+    //            }
+    //          }
+    //        }
+    //
+    //
+    //        override def open(parameters: Configuration): Unit = {
+    //          val currentEvaluatorStateDesc = new ValueStateDescriptor[Option[Evaluator]](
+    //            "current-evaluator-desc",
+    //            createTypeInformation[Option[Evaluator]]
+    //          )
+    //          currentEvaluatorStateDesc.setQueryable("current-evaluator-query")
+    //          currentEvaluator = getRuntimeContext.getState(currentEvaluatorStateDesc)
+    //
+    //          val newEvaluatorStateDesc = new ValueStateDescriptor[Option[Evaluator]](
+    //            "new-evaluator-desc",
+    //            createTypeInformation[Option[Evaluator]]
+    //          )
+    //          newEvaluatorStateDesc.setQueryable("new-evaluator-query")
+    //          newEvaluator = getRuntimeContext.getState(newEvaluatorStateDesc)
+    //
+    //        }
+    //      })
 
 
     //        override def initializeState(initContext: FuntionInitializationContext): Unit = {
