@@ -24,7 +24,7 @@ import org.jpmml.evaluator.{EvaluatorUtil, FieldValue, FieldValueUtil, LoadingMo
 import org.skife.jdbi.v2.{DBI, Handle}
 import org.skife.jdbi.v2.tweak.HandleCallback
 
-import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, MapStateDescriptor, ValueState, ValueStateDescriptor}
+import org.apache.flink.api.common.state.{ListState, ListStateDescriptor, ValueState, ValueStateDescriptor}
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
@@ -87,55 +87,8 @@ object Main {
 
     val input = env.addSource(src)
 
-    val inference = input
-      .map(new MapFunction[SensorData, SensorData] {
-        
-        private var checkpointedState: ListState[(String, Int)] = _
-        
-        override def map(v: SensorData): SensorData = {
-          val input: Map[FieldName, FieldValue] = v.doubles.map({
-            case (x, d) =>
-              FieldName.create(x) -> FieldValueUtil.create(d)
-          })
-            .++(v.integers.map({
-              case (x, d) =>
-                FieldName.create(x) -> FieldValueUtil.create(d)
-            }))
-            .++(v.strings.map({
-              case (x, d) =>
-                FieldName.create(x) -> FieldValueUtil.create(d)
-            }))
-
-          val evaluation = evaluator.evaluate(input.asJava)
-
-          val results = EvaluatorUtil.decodeAll(evaluation).asScala
-          val prediction: Map[String, String] = results.map(
-            { case (x, d) =>
-              x -> d.toString
-            }).toMap
-          new SensorData(
-            v.sensorId,
-            v.timestamp,
-            v.doubles,
-            v.strings,
-            v.integers,
-            prediction
-          )
-        }
-        
-        override def initializeState(initContext: FuntionInitializationContext): Unit = {
-          val descriptor = new ListStateDescriptor[(String, Int)]( "evaluator", TypeInformation.of(new TypeHint[(String, Int)](){}) )
-          checkpointedState = initContext.getOperatorStateStore.getUnionListState(descriptor)
-          evaluator = checkpointedState.get()
-        }
-
-        override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
-          checkpointedState.clear()
-          checkpointedState.add(evaluator)
-        }
-      })
-
-
+     val inference = input.map(new SensorDataInference[SensorData, SensorData])
+  
     CassandraSink.addSink(inference.map(new SensorDataMapper))
       .setClusterBuilder(
         new ClusterBuilder {
@@ -157,6 +110,73 @@ object Main {
     ))
 
     env.execute("Test Job")
+  }
+}
+
+class SensorDataInference extends MapFunction [SensorData, SensorData] with CheckpointedFunction {
+
+  private var checkpointedState: ListState[(String, Int)] = _
+
+  override def map(v: SensorData): SensorData = {
+    val input: Map[FieldName, FieldValue] = v.doubles.map({
+      case (x, d) =>
+        FieldName.create(x) -> FieldValueUtil.create(d)
+    })
+      .++(v.integers.map({
+        case (x, d) =>
+          FieldName.create(x) -> FieldValueUtil.create(d)
+      }))
+      .++(v.strings.map({
+        case (x, d) =>
+          FieldName.create(x) -> FieldValueUtil.create(d)
+      }))
+
+    val evaluation = evaluator.evaluate(input.asJava)
+
+    val results = EvaluatorUtil.decodeAll(evaluation).asScala
+    val prediction: Map[String, String] = results.map(
+      { case (x, d) =>
+        x -> d.toString
+      }).toMap
+    new SensorData(
+      v.sensorId,
+      v.timestamp,
+      v.doubles,
+      v.strings,
+      v.integers,
+      prediction
+    )
+  }
+
+  override def initializeState(initContext: FuntionInitializationContext): Unit = {
+    
+    // Currently looking into the ListStateDescriptor method, 
+    // Problem with saving state is coming from the following line.
+    val descriptor = new ListStateDescriptor[(String, Int)]( "evaluator", TypeInformation.of(new TypeHint[(String, Int)](){}) )
+    
+    checkpointedState = initContext.getOperatorStateStore.getUnionListState(descriptor)
+
+    if (context.isRestored()){
+      
+      evaluator = checkpointedState.get()
+      
+    } else {
+      
+      checkpointedState.clear
+      
+      // Idea for failsafe, but may not work, 
+      // need to look into passing cassandraHost, cassandraUsername, etc. args to class
+      evaluator = new LoadingModelEvaluatorBuilder()
+        .load(new ByteArrayInputStream(getModel(cassandraHost, cassandraUsername, cassandraPassword, modelVersion).bytes))
+        .build();
+
+      checkpointedState.add(evaluator)
+    }
+  }
+
+  override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
+    checkpointedState.clear()
+    checkpointedState.add(evaluator)
   }
 }
 
