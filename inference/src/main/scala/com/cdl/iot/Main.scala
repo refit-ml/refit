@@ -57,8 +57,8 @@ object Main {
 
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
     
-        // checkpoint every 60 seconds
-    env.getCheckpointConfig.setCheckpointInterval(60 * 1000)
+        // checkpoint every 5 seconds
+    env.getCheckpointConfig.setCheckpointInterval(5 * 1000)
 
     val params = ParameterTool.fromArgs(args)
 
