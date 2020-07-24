@@ -67,8 +67,8 @@ object Reset {
         OperableData(
           d(0).toString,
           d(1).toString,
-          DateTime.parse(d(2).toString, DateTimeFormat.forPattern("MM/dd/YYYY HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
-          DateTime.parse(d(3).toString, DateTimeFormat.forPattern("MM/dd/YYYY HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
+          DateTime.parse(d(2).toString, DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
+          DateTime.parse(d(3).toString, DateTimeFormat.forPattern("YYYY-MM-dd HH:mm")).toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
         ))(Encoders.product[OperableData])
 
 

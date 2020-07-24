@@ -5,9 +5,10 @@ import java.util.UUID
 
 import cdl.iot.dto.Model.Model
 import cdl.iot.dto.SensorData.SensorData
+import com.cdl.iot.Main.getVector
 import com.cdl.iot.models.Evaluator
 import com.datastax.driver.core.Cluster
-import org.apache.flink.api.common.functions.MapFunction
+import org.apache.flink.api.common.functions.{MapFunction, ReduceFunction}
 import org.apache.flink.api.common.serialization.{DeserializationSchema, SerializationSchema}
 import org.apache.flink.api.common.typeinfo.{BasicTypeInfo, TypeHint, TypeInformation}
 import org.apache.flink.api.java.utils.ParameterTool
@@ -28,6 +29,9 @@ import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSn
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.co.{BroadcastProcessFunction, CoMapFunction, CoProcessFunction, KeyedBroadcastProcessFunction, KeyedCoProcessFunction}
+import org.apache.flink.streaming.api.scala.function.ProcessAllWindowFunction
+import org.apache.flink.streaming.api.windowing.time.Time
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 import org.apache.flink.util.Collector
 
 
@@ -74,6 +78,8 @@ object Main {
     val cassandraPassword = env_var("CASSANDRA_PASSWORD", "cassandra", params)
     val modelVersion = env_var("MODEL_VERSION", "__latest__", params)
     val modelTopic = env_var("MODEL_TOPIC", "persistent://sample/standalone/default/models", params)
+    val subscribtionNameModels = env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
+
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
 
 
@@ -84,8 +90,9 @@ object Main {
     val modelsrc = PulsarSourceBuilder.builder(new ModelSchema)
       .serviceUrl(serviceUrl)
       .topic(modelTopic)
-      .subscriptionName(subscribtionName)
+      .subscriptionName(subscribtionNameModels)
       .build()
+
 
     val d = new MapStateDescriptor[String, Evaluator](
       "ModelDescriptor",
@@ -97,18 +104,16 @@ object Main {
       .addSource(modelsrc)
       .map(new MapFunction[Model, Evaluator] {
         override def map(value: Model): Evaluator = {
-//          println(s"Recieved Model: ${value.key}")
+          println(s"Parsing Model: ${value.key}")
           val evaluator = new LoadingModelEvaluatorBuilder()
             .load(new ByteArrayInputStream(value.bytes.toByteArray))
             .build();
+          println(s"Model Parsed ${value.key}")
 
           Evaluator(value.key, evaluator)
         }
       })
-      //      .keyBy(new KeySelector[Evaluator, String] {
-      //        override def getKey(value: Evaluator): String = s"${value.key}_${UUID.randomUUID().toString}"
-      //      })
-      .broadcast()
+      .broadcast(d)
 
 
     val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
@@ -121,38 +126,10 @@ object Main {
 
     val inference = input
       .connect(model)
+      .process(new TestProcessor)
 
-      .process(new BroadcastProcessFunction[SensorData, Evaluator, SensorData] {
-        var evaluator: Evaluator = _
 
-        override def processElement(value: SensorData, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#ReadOnlyContext, out: Collector[SensorData]): Unit = {
-          if (evaluator != null) {
-            println(s"Use model - ${evaluator.key}")
-            val p = evaluator.evaluator.evaluate(getVector(value).asJava)
 
-            val results = EvaluatorUtil.decodeAll(p).asScala
-            val prediction: Map[String, String] = results.map(
-              { case (x, d) =>
-                x -> d.toString
-              }).toMap
-            out.collect(
-              new SensorData(
-                value.sensorId,
-                value.timestamp,
-                value.doubles,
-                value.strings,
-                value.integers,
-                prediction
-              )
-            )
-          }
-
-        }
-
-        override def processBroadcastElement(value: Evaluator, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
-          evaluator = value
-        }
-      })
     //      .process(new CoProcessFunction[SensorData, Evaluator, SensorData] {
     //        // Current model
     //        var currentEvaluator: ValueState[Option[Evaluator]] = _
@@ -268,6 +245,56 @@ object Main {
   }
 }
 
+
+class TestProcessor extends BroadcastProcessFunction[SensorData, Evaluator, SensorData] {
+
+  var model: ValueState[Evaluator] = _
+
+  override def processElement(value: SensorData, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#ReadOnlyContext, out: Collector[SensorData]): Unit = {
+    if (model.value() != null) {
+      println(s"Use model - ${model.value().key}")
+      val p = model.value().evaluator.evaluate(getVector(value).asJava)
+
+      val results = EvaluatorUtil.decodeAll(p).asScala
+      val prediction: Map[String, String] = results.map(
+        { case (x, d) =>
+          x -> d.toString
+        }).toMap
+
+      println(s"Prediction Made: ${prediction}")
+
+      out.collect(
+        new SensorData(
+          value.sensorId,
+          value.timestamp,
+          value.doubles,
+          value.strings,
+          value.integers,
+          prediction
+        )
+      )
+
+    }
+    else {
+      println("No Model in state, skipping")
+    }
+
+  }
+
+  override def processBroadcastElement(value: Evaluator, ctx: BroadcastProcessFunction[SensorData, Evaluator, SensorData]#Context, out: Collector[SensorData]): Unit = {
+    println(s"Model update: ${value.key}")
+    model.update(value)
+  }
+
+  override def open(conf: Configuration): Unit = {
+    model = getRuntimeContext.getState(
+      new ValueStateDescriptor[Evaluator]("model", TypeInformation.of(classOf[Evaluator])))
+    super.open(conf)
+
+  }
+
+}
+
 class SensorDataMapper extends MapFunction[SensorData, org.apache.flink.api.java.tuple.Tuple5[String, String, String, java.util.Map[String, String], java.util.Map[String, String]]] {
   override def map(v: SensorData): org.apache.flink.api.java.tuple.Tuple5[String, String, String, java.util.Map[String, String], java.util.Map[String, String]] = {
     val data: Map[String, String] = v.integers.map({
@@ -302,7 +329,7 @@ class SensorDataSerializer extends SerializationSchema[SensorData] {
 class SensorDataSchema extends DeserializationSchema[SensorData] {
   override def deserialize(message: Array[Byte]): SensorData = {
     val ret = SensorData.parseFrom(message)
-    println(s"Recieved: SID: ${ret.sensorId}, TMSP: ${ret.timestamp},  ${ret.doubles} ${ret.integers} ${ret.strings}")
+    //    println(s"Recieved: SID: ${ret.sensorId}, TMSP: ${ret.timestamp},  ${ret.doubles} ${ret.integers} ${ret.strings}")
     ret
   }
 
@@ -314,7 +341,6 @@ class SensorDataSchema extends DeserializationSchema[SensorData] {
 class ModelSchema extends DeserializationSchema[Model] {
   override def deserialize(message: Array[Byte]): Model = {
     val ret = Model.parseFrom(message)
-    println(s"Recieved Model:")
     ret
   }
 

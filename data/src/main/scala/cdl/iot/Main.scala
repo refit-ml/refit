@@ -53,7 +53,7 @@ object Main {
     val cassandraHost = env("CASSANDRA_HOST", "127.0.0.1")
     val cassandraUsername = env("CASSANDRA_USER", "cassandra")
     val cassandraPassword = env("CASSANDRA_PASSWORD", "cassandra")
-    val modelVersion = env("MODEL_VERSION", "__latest__")
+    val modelVersion = env("MODEL_VERSION", "1766429b-d919-4261-a4b5-23e0d636f78c")
 
 
     val client = PulsarClient(s"pulsar://${hostName}:6650")
