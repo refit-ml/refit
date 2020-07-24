@@ -18,8 +18,7 @@ val flinkVersion = "1.10.1"
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
   "org.apache.flink" %% "flink-streaming-scala" % flinkVersion % "provided",
-  "org.apache.flink" % "flink-connector-cassandra_2.11" % flinkVersion % "provided",
-  "org.apache.pulsar" % "pulsar-flink" % "2.3.2" % "provided"
+//  "org.apache.pulsar" % "pulsar-flink" % "2.3.2" % "provided"
 )
 
 lazy val root = (project in file(".")).
@@ -28,13 +27,13 @@ lazy val root = (project in file(".")).
   )
 
 
-//libraryDependencies += "io.streamnative.connectors" %% "pulsar-flink-connector" % "2.4.23"
-libraryDependencies += "org.apache.flink" % "flink-connector-cassandra_2.11" % flinkVersion
+libraryDependencies += "io.streamnative.connectors" %% "pulsar-flink-connector" % "2.4.23"
 libraryDependencies += "org.jpmml" % "pmml-evaluator-extension" % "1.5.1"
-libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.0"
-libraryDependencies += "javax.activation" % "activation" % "1.1"
+//libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.0"
+//libraryDependencies += "javax.activation" % "activation" % "1.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0"
 libraryDependencies += "joda-time" % "joda-time" % "2.10.6"
+libraryDependencies += "org.apache.flink" % "statefun-sdk" % "2.1.0"
 
 mainClass in assembly := Some("com.cdl.iot.Main")
 
