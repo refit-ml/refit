@@ -11,5 +11,5 @@ class SensorDataSchema extends SerializationSchema[SensorData] with Deserializat
 
   override def isEndOfStream(nextElement: SensorData): Boolean = true
 
-  override def getProducedType: TypeInformation[SensorData] = TypeInformation.of(SensorData.getClass)
+  override def getProducedType: TypeInformation[SensorData] = TypeInformation.of(classOf[SensorData])
 }

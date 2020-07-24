@@ -1,19 +1,17 @@
 package com.cdl.iot
 
-import java.util.Properties
+
+import java.util.Optional
 
 import cdl.iot.dto.Model.Model
+import cdl.iot.dto.SensorData.SensorData
 import com.cdl.iot.schema.{ModelSchema, SensorDataSchema}
-import com.cdl.iot.transform.{EvaluationProcessor, SensorDataKeyExtractor, SensorDataSerializer}
+import com.cdl.iot.transform.{EvaluationProcessor, SensorDataKeyExtractor}
 import com.cdl.iot.util.helpers
-import org.apache.flink.api.common.serialization.{DeserializationSchema, SimpleStringSchema}
-import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource
-//import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.flink.streaming.api.CheckpointingMode
-
+import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarSink, FlinkPulsarSource}
 
 
 object Main {
@@ -38,42 +36,33 @@ object Main {
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     config.setCheckpointInterval(checkpointInterval)
 
-    val props = new Properties()
 
+    val modelProps = new java.util.Properties()
+    modelProps.setProperty("topic", modelTopic)
 
-
-    val modelsrc = new FlinkPulsarSource[Model](
-      serviceUrl, adminUrl, new DeserializationSchema[Model] {
-        override def deserialize(message: Array[Byte]): Model = ???
-
-        override def isEndOfStream(nextElement: Model): Boolean = ???
-
-        override def getProducedType: TypeInformation[Model] = ???
-      },
-      new Properties()
-        .setProperty("topic", modelTopic)
+    val modelSrc = new FlinkPulsarSource[Model](
+      serviceUrl,
+      adminUrl,
+      new ModelSchema,
+      modelProps
     )
 
 
-//      PulsarSourceBuilder.builder(new ModelSchema)
-//      .serviceUrl(serviceUrl)
-//      .topic(modelTopic)
-//      .subscriptionName(subscribtionNameModels)
-//      .build()
-
-
     val model = env
-      .addSource(modelsrc)
+      .addSource(modelSrc)
       .broadcast()
 
     model.print()
 
+    val eventProps = new java.util.Properties()
+    eventProps.setProperty("topic", inputTopic)
 
-//    val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
-//      .serviceUrl(serviceUrl)
-//      .topic(inputTopic)
-//      .subscriptionName(subscribtionName)
-//      .build()
+    val eventSrc = new FlinkPulsarSource[SensorData](
+      serviceUrl,
+      adminUrl,
+      new SensorDataSchema,
+      eventProps
+    )
 
     val input = env.addSource(eventSrc)
 
@@ -81,13 +70,18 @@ object Main {
       .connect(model)
       .process(new EvaluationProcessor)
 
+    val outputProps = new java.util.Properties()
+    outputProps.setProperty("topic", outputTopic)
 
-//    inference.addSink(new FlinkPulsarProducer(
-//      serviceUrl,
-//      outputTopic,
-//      new SensorDataSerializer,
-//      new SensorDataKeyExtractor
-//    ))
+
+    inference.addSink(new FlinkPulsarSink[SensorData](
+      serviceUrl,
+      adminUrl,
+      Optional.of(outputTopic),
+      outputProps,
+      new SensorDataKeyExtractor,
+      classOf[SensorData]
+    ))
 
     env.execute("Test Job")
   }
