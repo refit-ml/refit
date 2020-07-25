@@ -1,3 +1,8 @@
 cluster: 
   replicaCount: 1
   seedCount: 1
+persistence: 
+  enabled: false
+dbUser:
+  user: cassandra
+  password: cassandra

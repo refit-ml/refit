@@ -54,7 +54,7 @@ object Main {
 
 
     val model = env
-      .addSource(modelSrc)
+      .addSource(modelSrc, "Models")
       .broadcast()
 
 
@@ -68,7 +68,7 @@ object Main {
       .build()
 
 
-    val input = env.addSource(eventSrc)
+    val input = env.addSource(eventSrc, "Events")
 
 
     val inference = input
@@ -99,7 +99,7 @@ object Main {
       .build()
 
 
-    env.execute("Test Job")
+    env.execute("CDL IoT - Inference")
   }
 }
 

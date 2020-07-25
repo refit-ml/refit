@@ -22,3 +22,5 @@ PB.targets in Compile := Seq(
 )
 
 PB.protocVersion := "-v3.11.4"
+
+mainClass in (Compile, run) := Some("org.cdl.iot.ModelTraining")
