@@ -1,17 +1,14 @@
 package com.cdl.iot
 
-
-import java.util.Optional
-
-import cdl.iot.dto.Model.Model
-import cdl.iot.dto.SensorData.SensorData
 import com.cdl.iot.schema.{ModelSchema, SensorDataSchema}
-import com.cdl.iot.transform.{EvaluationProcessor, SensorDataKeyExtractor}
+import com.cdl.iot.transform.{EvaluationProcessor, SensorDataKeyExtractor, SensorDataMapper}
 import com.cdl.iot.util.helpers
+import com.datastax.driver.core.Cluster
 import org.apache.flink.api.java.utils.ParameterTool
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.CheckpointingMode
-import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarSink, FlinkPulsarSource}
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
+import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
+import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 
 
 object Main {
@@ -24,28 +21,35 @@ object Main {
 
 
     val pulsarHost = helpers.env_var("PULSAR_HOST", "localhost", params)
-    val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/default/in", params)
-    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://public/standalone/default/event-log", params)
+    val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/in", params)
+    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/event-log", params)
     val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
-    val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/default/models", params)
+    val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
     val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
+
+    val cassandraHost = helpers.env_var("CASSANDRA_HOST", "127.0.0.1", params)
+    val cassandraUsername = helpers.env_var("CASSANDRA_USER", "cassandra", params)
+    val cassandraPassword = helpers.env_var("CASSANDRA_PASSWORD", "cassandra", params)
+
     val serviceUrl = s"pulsar://${pulsarHost}:6650"
     val adminUrl = s"http://${pulsarHost}:8080"
 
-    config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
-    config.setCheckpointInterval(checkpointInterval)
+    println(s"Starting with pulsar host: ${pulsarHost}")
+
+        config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
+        config.setCheckpointInterval(checkpointInterval)
 
 
     val modelProps = new java.util.Properties()
-    modelProps.setProperty("topic", modelTopic)
+    modelProps.setProperty("topic", "persistent://sample/standalone/ns1/models")
 
-    val modelSrc = new FlinkPulsarSource[Model](
-      serviceUrl,
-      adminUrl,
-      new ModelSchema,
-      modelProps
-    )
+    val modelSrc = PulsarSourceBuilder.builder(new ModelSchema)
+      .serviceUrl(serviceUrl)
+      .topic(modelTopic)
+      .subscriptionName(subscribtionNameModels)
+      .build()
+
 
 
     val model = env
@@ -55,33 +59,46 @@ object Main {
     model.print()
 
     val eventProps = new java.util.Properties()
-    eventProps.setProperty("topic", inputTopic)
+    eventProps.setProperty("topic", "persistent://sample/standalone/ns1/in")
 
-    val eventSrc = new FlinkPulsarSource[SensorData](
-      serviceUrl,
-      adminUrl,
-      new SensorDataSchema,
-      eventProps
-    )
+    val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
+      .serviceUrl(serviceUrl)
+      .topic(inputTopic)
+      .subscriptionName(subscribtionName)
+      .build()
+
 
     val input = env.addSource(eventSrc)
+
+    input.print()
 
     val inference = input
       .connect(model)
       .process(new EvaluationProcessor)
 
     val outputProps = new java.util.Properties()
-    outputProps.setProperty("topic", outputTopic)
+    outputProps.setProperty("topic", "persistent://sample/standalone/ns1/events")
 
 
-    inference.addSink(new FlinkPulsarSink[SensorData](
+    inference.addSink(new FlinkPulsarProducer(
       serviceUrl,
-      adminUrl,
-      Optional.of(outputTopic),
-      outputProps,
-      new SensorDataKeyExtractor,
-      classOf[SensorData]
+      outputTopic,
+      new SensorDataSchema,
+      new SensorDataKeyExtractor
     ))
+
+    CassandraSink.addSink(inference.map(new SensorDataMapper))
+      .setClusterBuilder(
+        new ClusterBuilder {
+          override def buildCluster(builder: Cluster.Builder): Cluster = builder
+            .withCredentials(cassandraUsername, cassandraPassword)
+            .addContactPoint(cassandraHost)
+            .build()
+        }
+      )
+      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
+      .build()
+
 
     env.execute("Test Job")
   }

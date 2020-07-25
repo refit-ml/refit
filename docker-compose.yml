@@ -1,20 +1,12 @@
 version: '3.8'
 services:
   pulsar:
-    image: apachepulsar/pulsar-all
+    image: apachepulsar/pulsar:2.6.0
     ports: 
       - "8080:8080"
       - "6650:6650"
     command: >
-      /bin/bash -c
-      "bin/apply-config-from-env.py conf/standalone.conf
-      && bin/pulsar standalone"
-    healthcheck: 
-      test: ["CMD", "pulsar-admin", "brokers", "healthcheck"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+      bin/pulsar standalone
     deploy:
       restart_policy:
         condition: on-failure
@@ -25,36 +17,7 @@ services:
       - "7000:7000"
       - "9042:9042"
       - "9160:9160"
-    healthcheck: 
-      test: ["CMD", "cqlsh", "-e", "'show host'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-  # data: 
-  #   build: ./data/
-  #   environment:
-  #     - PULSAR_HOST=pulsar
-  #     - TOPIC_NAME=in
-  #     - NAMESPACE_NAME=default
-  #     - INTERVAL_MILS=5000
-  #     - CASSANDRA_HOST=cassandra
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
 
-  # inference: 
-  #   build: ./inference/
-  #   environment:
-  #     - PULSAR_HOST=pulsar
-  #     - CASSANDRA_HOST=cassandra
-  #     - TOPIC_NAME=in
-  #     - NAMESPACE_NAME=default
-  #     - INTERVAL_MILS=5000
-  #     - LOCAL=true
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
 
 networks:
   default:

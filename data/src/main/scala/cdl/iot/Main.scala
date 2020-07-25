@@ -49,11 +49,11 @@ object Main {
     val hostName = env("PULSAR_HOST", "localhost")
     val topicName = env("TOPIC_NAME", "in")
     val modelTopic = env("MODEL_TOPIC", "models")
-    val namespace = env("NAMESPACE_NAME", "default")
+    val namespace = env("NAMESPACE_NAME", "ns1")
     val cassandraHost = env("CASSANDRA_HOST", "127.0.0.1")
     val cassandraUsername = env("CASSANDRA_USER", "cassandra")
     val cassandraPassword = env("CASSANDRA_PASSWORD", "cassandra")
-    val modelVersion = env("MODEL_VERSION", "1766429b-d919-4261-a4b5-23e0d636f78c")
+    val modelVersion = env("MODEL_VERSION", "__latest__")
 
 
     val client = PulsarClient(s"pulsar://${hostName}:6650")
@@ -86,6 +86,7 @@ object Main {
     val schema = Schema.BYTES
     val topic = Topic(s"persistent://sample/standalone/${namespace}/${topicName}")
     val producerConfig = ProducerConfig(topic)
+
     val producer = client.producer[Array[Byte]](producerConfig)(schema)
 
     print("Begin sending messages")
