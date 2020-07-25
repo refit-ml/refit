@@ -10,7 +10,6 @@ import com.google.protobuf.ByteString
 import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
 import org.apache.pulsar.client.api.Schema
 import org.skife.jdbi.v2.{DBI, Handle}
-import org.skife.jdbi.v2.tweak.HandleCallback
 
 import scala.util.Random
 
@@ -57,7 +56,7 @@ object Main {
 
 
     val client = PulsarClient(s"pulsar://${hostName}:6650")
-    sendModel(client, cassandraHost, cassandraUsername, cassandraPassword, modelVersion, namespace, modelTopic)
+//    sendModel(client, cassandraHost, cassandraUsername, cassandraPassword, modelVersion, namespace, modelTopic)
 
     val currTime = LocalDateTime.now()
 
@@ -79,7 +78,6 @@ object Main {
           )
         ) #:: loop(v + 5)
       }
-
       loop(0)
     }
 

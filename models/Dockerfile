@@ -12,12 +12,4 @@ WORKDIR app
 
 ADD ./ /app
 
-CMD sbt run
-
-# CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${CASSANDRA_HOST}:9042 -t 300 -s -- sbt run
-# FROM flink:1.10.0-scala_2.11
-
-# WORKDIR /opt/flink/bin
-
-# # Copy Click Count Job
-# COPY --from=builder /app/target/scala-2.11/inference.jar /opt/inference.jar
+CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${CASSANDRA_HOST}:9042 -t 300 -s -- sbt run

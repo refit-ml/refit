@@ -12,6 +12,6 @@ WORKDIR app
 
 ADD ./ /app
 
-RUN sbt assembly
+RUN sbt compile
 
 CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${CASSANDRA_HOST}:9042 -t 300 -s -- java -jar target/scala-2.13/data.jar

@@ -17,27 +17,3 @@ spec:
       restartPolicy: Never
       nodeSelector:
         coredns: enabled
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: data-inference
-spec:
-  ttlSecondsAfterFinished: 100
-  template:
-    spec:
-      containers:
-      - name: data-inference
-        image: cdliotprototype/data-inference:latest
-        env:
-        - name: PULSAR_HOST
-          value: pulsar-standalone
-        - name: CASSANDRA_HOST
-          value: cassandra
-        - name: LOCAL
-          value: 'true'
-        - name: MODEL_VERSION
-          value: __latest__
-      restartPolicy: Never
-      nodeSelector:
-        coredns: enabled

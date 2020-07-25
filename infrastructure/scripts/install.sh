@@ -21,8 +21,3 @@ helm install \
      cassandra \
      bitnami/cassandra \
     --values cassandra/${env}.yaml
-
-# helm install \
-#     --namespace iot-prototype \
-#     gocd \
-#     stable/gocd

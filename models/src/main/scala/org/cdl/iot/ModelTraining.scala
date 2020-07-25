@@ -1,6 +1,9 @@
 package org.cdl.iot
 
 import java.util.UUID
+
+import cdl.iot.dto.Model.Model
+import com.google.protobuf.ByteString
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
@@ -11,11 +14,11 @@ import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.DoubleType
 import org.jpmml.sparkml.PMMLBuilder
 
-case class Model(
-                  key: String,
-                  model: Array[Byte]
-                )
 
+case class ModelDto(
+                     key: String,
+                     model: Array[Byte]
+                   )
 
 case class OperableDataRDD(
                             key: String,
@@ -144,7 +147,7 @@ object ModelTraining {
     val schema = transformedDataSet.schema
 
     import spark.implicits._
-    val export = Model(
+    val export = ModelDto(
       UUID.randomUUID.toString,
       new PMMLBuilder(schema, model).buildByteArray()
     )
@@ -152,7 +155,7 @@ object ModelTraining {
     println(s"Exporting Model - UUID: '${`export`.key}'")
     Seq(
       export,
-      Model("__latest__", export.model)
+      ModelDto("__latest__", export.model)
     )
       .toDS
       .write
@@ -165,7 +168,6 @@ object ModelTraining {
       .mode(SaveMode.Append)
       .save
 
+    actions.Pulsar.sendModel("127.0.0.1", Model(export.key, ByteString.copyFrom(export.model)))
   }
-
-
 }

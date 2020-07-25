@@ -20,20 +20,18 @@ else
 fi
 kubectl apply -k pulsar/
 kubectl apply -k flink/
-kubectl apply -k data/
 
 
-# if [ "$env" == "local" && "$action" == "install" ]; then
-#     minikube service gocd-server -n iot-prototype
-#     minikube service flink-jobmanager -n iot-prototype
-#     minikube service pulsar-pulsar-manager -n iot-prototype
+# kubectl apply -k training/
+# kubectl apply -k data/
+
+
+
+
+# if [ true == false ]; then 
+#     kubectl port-forward service/cassandra 9042:9042
+#     kubectl port-forward service/flink-jobmanager 8081:8081
+#     kubectl port-forward service/pulsar-standalone 6650:6650
+#     # To get admin token
+#     # kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 # fi
-
-
-if [ true == false ]; then 
-    kubectl port-forward service/cassandra 9042:9042
-    kubectl port-forward service/flink-jobmanager 8081:8081
-    kubectl port-forward service/pulsar-standalone 6650:6650
-    # To get admin token
-    # kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
-fi
