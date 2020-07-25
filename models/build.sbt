@@ -19,3 +19,5 @@ libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % "0.9.6"
 PB.targets in Compile := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
 )
+
+mainClass in (Compile, run) := Some("org.cdl.iot.ModelTraining")
