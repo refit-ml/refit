@@ -19,3 +19,30 @@ spec:
       restartPolicy: Never
       nodeSelector:
         coredns: enabled
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: model-ingestion
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: model-ingestion
+            image: cdliotprototype/data-generation:latest
+            env: 
+            - name: PULSAR_HOST
+              value: pulsar-standalone
+            - name: CASSANDRA_HOST
+              value: cassandra
+            - name: ACTION
+              value: model
+            - name: MODEL_VERSION
+              value: 67bb6c55-9d0f-457c-8d8a-67f33de78eba
+          restartPolicy: Never
+          nodeSelector:
+              coredns: enabled
