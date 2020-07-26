@@ -1,7 +1,7 @@
 #!/bin/sh
 
-docker build -t model-training .
+docker build -t data-generation .
 
-docker tag model-training:latest cdliotprototype/model-training:latest
+docker tag data-generation:latest cdliotprototype/data-generation:latest
 
-docker push cdliotprototype/model-training:latest
+docker push cdliotprototype/data-generation:latest
