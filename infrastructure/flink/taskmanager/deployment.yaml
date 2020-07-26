@@ -19,9 +19,9 @@ spec:
         image: flink:1.10.1-scala_2.11
         resources: 
           limits: 
-            memory: "2000Mi"
+            memory: "5000Mi"
           requests: 
-            memory: "500Mi"
+            memory: "2000Mi"
         workingDir: /opt/flink
         command: ["/bin/bash", "-c", "$FLINK_HOME/bin/taskmanager.sh start; \
           while :;

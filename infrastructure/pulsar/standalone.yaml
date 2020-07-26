@@ -19,9 +19,9 @@ spec:
         image: apachepulsar/pulsar:2.6.0
         resources: 
           limits: 
-            memory: "4000Mi"
+            memory: "10000Mi"
           requests: 
-            memory: "1000Mi"
+            memory: "3000Mi"
         command: ["/bin/bash", "-c", "bin/pulsar standalone"]
         ports:
         - containerPort: 6650

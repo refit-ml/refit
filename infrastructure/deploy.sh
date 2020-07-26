@@ -10,7 +10,6 @@ if [ "$env" == "local" ]; then
 fi
 
 kubectl apply -k org/ 
-kubectl apply -k cicd/
 
 
 chmod +x ./scripts/*
