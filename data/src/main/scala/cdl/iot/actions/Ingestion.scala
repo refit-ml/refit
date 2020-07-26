@@ -21,7 +21,7 @@ object Ingestion {
           Map(
             "wind" -> Random.between(30, 101).toDouble,
             "pressure" -> Random.between(900, 1201).toDouble,
-            "temperature" -> Random.between(0, 70).toDouble
+            "temperature" -> Random.between(0, 105).toDouble
           ),
           Map(
             "timestamp" -> timestamp.toString

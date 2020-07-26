@@ -89,6 +89,11 @@ object ModelTraining {
       )
       .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
 
+    // Interesting data (this will train the model to flag entries over 70 degrees in temp - For DEMO)
+//    val transformed = data
+//      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+//      .withColumn("operable", when(col("temperature") > 70, 0).otherwise(1))
+
 
     val transformedDataSet = transformed
       .sort("timestamp")
@@ -98,8 +103,16 @@ object ModelTraining {
       .drop("start")
       .drop("end")
 
-    transformed.show(5)
+    val operable = transformedDataSet.filter(col("operable") === 1 )
+    val inoperable = transformedDataSet.filter(col("operable") === 0 )
+
+    println("Data set")
     transformedDataSet.show(5)
+
+    println("Operable")
+    operable.show(10)
+    println("Inoperable")
+    inoperable.show(10)
 
     // select features
     val assembler = new VectorAssembler()

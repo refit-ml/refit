@@ -1,6 +1,6 @@
 package cdl.iot
 
-import cdl.iot.actions.{Ingestion, Models}
+import cdl.iot.actions.{Ingestion, Interesting, Models}
 import com.sksamuel.pulsar4s.PulsarClient
 
 object Main {
@@ -36,6 +36,10 @@ object Main {
         modelVersion,
         namespace,
         modelTopic)
+      case "interesting" => Interesting.simulate(client,
+        namespace,
+        topicName,
+        sleepIntervalMils)
       case _ => println("No action specified")
     }
 

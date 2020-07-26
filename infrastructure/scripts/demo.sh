@@ -17,3 +17,10 @@ kubectl port-forward service/pulsar-standalone 6650:6650 &
 echo "=== Listen to output ==="
 sleep 10
 pulsar-client consume persistent://sample/standalone/ns1/event-log -n 0 -s tst-consumer
+
+
+# Interesting model ( > 70 degrees) abed1e0f-c525-45ff-a81b-84cc734ba171
+    # data -- ACTION=model MODEL_VERSION=abed1e0f-c525-45ff-a81b-84cc734ba171 sbt run
+# Random model (:shrug)  67bb6c55-9d0f-457c-8d8a-67f33de78eba
+    # data -- ACTION=model MODEL_VERSION=a67bb6c55-9d0f-457c-8d8a-67f33de78eba sbt run
+# 
