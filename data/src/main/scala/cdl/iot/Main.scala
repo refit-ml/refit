@@ -56,7 +56,7 @@ object Main {
 
 
     val client = PulsarClient(s"pulsar://${hostName}:6650")
-//    sendModel(client, cassandraHost, cassandraUsername, cassandraPassword, modelVersion, namespace, modelTopic)
+    sendModel(client, cassandraHost, cassandraUsername, cassandraPassword, modelVersion, namespace, modelTopic)
 
     val currTime = LocalDateTime.now()
 

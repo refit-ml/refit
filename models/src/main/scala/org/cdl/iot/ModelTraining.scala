@@ -168,6 +168,6 @@ object ModelTraining {
       .mode(SaveMode.Append)
       .save
 
-    actions.Pulsar.sendModel("127.0.0.1", Model(export.key, ByteString.copyFrom(export.model)))
+    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), Model(export.key, ByteString.copyFrom(export.model)))
   }
 }

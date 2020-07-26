@@ -6,19 +6,14 @@ cd ../
 
 # kubectl delete -k data/
 
-echo "=== Wait for things to term ==="
-sleep 10
+echo "=== Proxy ==="
 
-kubectl apply -k data/
 
-echo "=== Wait for our bits to start up ==="
-
-sleep 30
-
-echo "=== Open ports 9042, 6650 ==="
-kubectl port-forward service/cassandra 9042:9042 &
+kubectl port-forward service/cassandra 9000:9042 &
+kubectl port-forward service/flink-jobmanager 8081:8081 &
 kubectl port-forward service/pulsar-standalone 6650:6650 &
+
 
 echo "=== Listen to output ==="
 sleep 10
-pulsar-client consume persistent://public/standalone/default/event-log -n 0 -s tst-consumer
+pulsar-client consume persistent://sample/standalone/ns1/event-log -n 0 -s tst-consumer

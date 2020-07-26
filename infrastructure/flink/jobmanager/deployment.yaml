@@ -17,6 +17,11 @@ spec:
       containers:
       - name: jobmanager
         image: flink:1.10.1-scala_2.11
+        # resources: 
+        #   limits: 
+        #     memory: "500Mi"
+        #   requests: 
+        #     memory: "200Mi"
         workingDir: /opt/flink
         command: ["/bin/bash", "-c", "$FLINK_HOME/bin/jobmanager.sh start;\
           while :;

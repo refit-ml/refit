@@ -1,7 +1,8 @@
 package com.cdl.iot
 
-import com.cdl.iot.schema.{ModelSchema, SensorDataSchema}
-import com.cdl.iot.transform.{EvaluationProcessor, SensorDataKeyExtractor, SensorDataMapper}
+import cdl.iot.dto.Prediction.Prediction
+import com.cdl.iot.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
+import com.cdl.iot.transform.{EvaluationProcessor, PredictionKeyExtractor, PredictionPropertiesExtractor, SensorDataMapper}
 import com.cdl.iot.util.helpers
 import com.datastax.driver.core.Cluster
 import org.apache.flink.api.java.utils.ParameterTool
@@ -9,6 +10,8 @@ import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
+import org.apache.pulsar.client.api.Authentication
+import org.apache.pulsar.client.impl.conf.{ClientConfigurationData, ProducerConfigurationData}
 
 
 object Main {
@@ -38,8 +41,8 @@ object Main {
     println(s"pulsar host: ${pulsarHost}")
     println(s"cassandra host: ${cassandraHost}")
 
-        config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
-        config.setCheckpointInterval(checkpointInterval)
+    config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
+    config.setCheckpointInterval(checkpointInterval)
 
 
     val modelProps = new java.util.Properties()
@@ -50,7 +53,6 @@ object Main {
       .topic(modelTopic)
       .subscriptionName(subscribtionNameModels)
       .build()
-
 
 
     val model = env
@@ -75,18 +77,27 @@ object Main {
       .connect(model)
       .process(new EvaluationProcessor)
 
-    val outputProps = new java.util.Properties()
-    outputProps.setProperty("topic", "persistent://sample/standalone/ns1/events")
+    val ccd = new ClientConfigurationData()
+
+    ccd.setServiceUrl(serviceUrl)
+
+    val pcd = new ProducerConfigurationData()
+
+    pcd.setTopicName(outputTopic)
+    pcd.setProducerName("Inference Producer")
 
 
-    inference.addSink(new FlinkPulsarProducer(
-      serviceUrl,
-      outputTopic,
-      new SensorDataSchema,
-      new SensorDataKeyExtractor
+    inference.addSink(new FlinkPulsarProducer[Prediction](
+      ccd,
+      pcd,
+      new PredictionSchema,
+      new PredictionKeyExtractor,
+      new PredictionPropertiesExtractor
     ))
 
-    CassandraSink.addSink(inference.map(new SensorDataMapper))
+    val eventTuple = inference.map(new SensorDataMapper)
+
+    CassandraSink.addSink(eventTuple)
       .setClusterBuilder(
         new ClusterBuilder {
           override def buildCluster(builder: Cluster.Builder): Cluster = builder

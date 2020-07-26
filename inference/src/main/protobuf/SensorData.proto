@@ -7,5 +7,4 @@ message SensorData  {
   map<string, double> doubles = 3;
   map<string, string> strings = 4;
   map<string, int32> integers = 5;
-  map<string, string> prediction = 6;
 }

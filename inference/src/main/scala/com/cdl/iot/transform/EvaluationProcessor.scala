@@ -1,8 +1,10 @@
 package com.cdl.iot.transform
 
 import java.io.ByteArrayInputStream
+import java.util.concurrent.locks.{Lock, ReadWriteLock}
 
 import cdl.iot.dto.Model.Model
+import cdl.iot.dto.Prediction.Prediction
 import cdl.iot.dto.SensorData.SensorData
 import com.cdl.iot.util.helpers
 import org.apache.flink.configuration.Configuration
@@ -13,11 +15,13 @@ import org.jpmml.evaluator.{EvaluatorUtil, LoadingModelEvaluatorBuilder, ModelEv
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import collection.JavaConverters.mapAsJavaMapConverter
 
-class EvaluationProcessor extends CoProcessFunction[SensorData, Model, SensorData] {
+class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Prediction] {
 
+  private var readWriteLock: ReadWriteLock = _
   private var evaluator: ModelEvaluator[_] = _
+  private var modelGuid: String = "__NONE__"
 
-  override def processElement1(value: SensorData, ctx: CoProcessFunction[SensorData, Model, SensorData]#Context, out: Collector[SensorData]): Unit = {
+  override def processElement1(value: SensorData, ctx: CoProcessFunction[SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     if (evaluator != null) {
       val p = evaluator.evaluate(helpers.getVector(value).asJava)
       val results = EvaluatorUtil.decodeAll(p).asScala
@@ -26,12 +30,13 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, SensorDat
           x -> d.toString
         }).toMap
 
-      println(s"Prediction Made: ${prediction}")
+      println(s"Prediction Made (modelGuid: ${modelGuid}): ${prediction}")
 
       out.collect(
-        new SensorData(
+        new Prediction(
           value.sensorId,
           value.timestamp,
+          modelGuid,
           value.doubles,
           value.strings,
           value.integers,
@@ -41,13 +46,25 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, SensorDat
 
     }
     else {
-      println("No Model in state, skipping")
+      println("No Model in state, empty prediction")
+      out.collect(
+        new Prediction(
+          value.sensorId,
+          value.timestamp,
+          modelGuid,
+          value.doubles,
+          value.strings,
+          value.integers,
+          Map.empty[String, String]
+        )
+      )
     }
 
   }
 
-  override def processElement2(model: Model, ctx: CoProcessFunction[SensorData, Model, SensorData]#Context, out: Collector[SensorData]): Unit = {
+  override def processElement2(model: Model, ctx: CoProcessFunction[SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     println(s"Model update: ${model.key}")
+    modelGuid = model.key
     evaluator = new LoadingModelEvaluatorBuilder()
       .load(new ByteArrayInputStream(model.bytes.toByteArray))
       .build();
@@ -55,6 +72,11 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, SensorDat
 
   override def open(conf: Configuration): Unit = {
     evaluator = null
+    readWriteLock = new ReadWriteLock {
+      override def readLock(): Lock = ???
+
+      override def writeLock(): Lock = ???
+    }
 
   }
 

@@ -6,3 +6,9 @@ persistence:
 dbUser:
   user: cassandra
   password: cassandra
+
+resources: 
+  limits: 
+    memory: "4000Mi"
+  requests: 
+    memory: "1000Mi"

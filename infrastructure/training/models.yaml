@@ -9,6 +9,11 @@ spec:
       containers:
       - name: model-training
         image: cdliotprototype/model-training:latest
+        resources: 
+          limits: 
+            memory: "4000Mi"
+          requests: 
+            memory: "2000Mi"
         env:
         - name: PULSAR_HOST
           value: pulsar-standalone
