@@ -1,6 +1,6 @@
 cluster: 
-  replicaCount: 3
-  seedCount: 3
+  replicaCount: 4
+  seedCount: 4
 persistence: 
   enabled: false
 dbUser:

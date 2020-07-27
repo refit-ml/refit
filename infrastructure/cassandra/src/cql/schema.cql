@@ -1,4 +1,4 @@
-CREATE KEYSPACE IF NOT EXISTS iot_prototype_training WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
+CREATE KEYSPACE IF NOT EXISTS iot_prototype_training WITH replication = {'class':'SimpleStrategy', 'replication_factor':3};
 
 USE iot_prototype_training;
 
