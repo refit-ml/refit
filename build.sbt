@@ -9,6 +9,13 @@ Compile / run / fork := true
 Global / cancelable := true
 
 val flinkVersion = "1.10.1"
+val pmmlVersion = "1.5.1"
+val sparkVersion = "2.4.5"
+val pulsar4sVersion = "2.4.0"
+
+val commonDependencies = Seq(
+  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+)
 
 lazy val settings = Seq(
   scalacOptions ++= Seq(
@@ -27,48 +34,15 @@ lazy val settings = Seq(
     "BinTray" at "https://dl.bintray.com/streamnative/maven",
     Resolver.mavenLocal
   )
-
 )
 
-lazy val inferenceDependencies = Seq(
-  "org.apache.flink" %% "flink-scala" % flinkVersion,
-  "org.apache.flink" %% "flink-streaming-scala" % flinkVersion,
-  "org.apache.pulsar" % "pulsar-flink" % "2.5.2",
-//  "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion,
-  "org.jpmml" % "pmml-evaluator-extension" % "1.5.1",
-  "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
-  "joda-time" % "joda-time" % "2.10.6",
-  "com.thesamet.scalapb" %% "scalapb-runtime" % "0.9.6"
-)
 
-lazy val dataDependencies = Seq(
-  "com.sksamuel.pulsar4s" %% "pulsar4s-core" % "2.4.0",
-  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-  "org.jdbi" % "jdbi" % "2.78",
-  "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5",
-  "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
-)
-
-lazy val protocolDependencies = Seq(
-  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-)
-
-lazy val trainingDependencies = Seq(
-  "org.apache.spark" %% "spark-core" % "2.4.5",
-  "org.apache.spark" %% "spark-sql" % "2.4.5",
-  "org.apache.spark" %% "spark-mllib" % "2.4.5",
-  "com.sksamuel.pulsar4s" %% "pulsar4s-core" % "2.4.0",
-  "org.jpmml" % "jpmml-sparkml" % "1.5.1",
-  "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
-  "org.deeplearning4j" %% "dl4j-spark" % "1.0.0-beta7",
-  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
-)
 
 
 lazy val protocol = (project in file("protocol"))
   .settings(
     settings,
+    libraryDependencies ++= commonDependencies,
     PB.targets in Compile := Seq(
       scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
     ),
@@ -81,7 +55,17 @@ lazy val protocol = (project in file("protocol"))
 lazy val inference = (project in file("inference"))
   .settings(
     settings,
-    libraryDependencies ++= inferenceDependencies,
+    libraryDependencies ++= commonDependencies,
+    libraryDependencies ++=  Seq(
+      "org.apache.flink" %% "flink-scala" % flinkVersion,
+      "org.apache.flink" %% "flink-streaming-scala" % flinkVersion,
+      "org.apache.pulsar" % "pulsar-flink" % "2.5.2",
+      "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion,
+      "org.jpmml" % "pmml-evaluator-extension" % pmmlVersion,
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
+      "joda-time" % "joda-time" % "2.10.6",
+
+    ),
     mainClass in assembly := Some("com.cdl.iot.Main"),
     Compile / run := Defaults.runTask(Compile / fullClasspath,
       Compile / run / mainClass,
@@ -106,24 +90,45 @@ lazy val inference = (project in file("inference"))
 lazy val training = (project in file("training"))
   .settings(
     settings,
-    libraryDependencies ++= trainingDependencies,
+    libraryDependencies ++= commonDependencies,
+    libraryDependencies ++= Seq(
+      "org.apache.spark" %% "spark-core" % sparkVersion,
+      "org.apache.spark" %% "spark-sql" % sparkVersion,
+      "org.apache.spark" %% "spark-mllib" % sparkVersion,
+      "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
+      "org.jpmml" % "jpmml-sparkml" % pmmlVersion,
+      "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
+      "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
+    ),
     assembly := null,
   ).dependsOn(protocol)
 
 lazy val db = (project in file("db"))
   .settings(
     settings,
-    assembly := null,
-    libraryDependencies ++= trainingDependencies,
-    assemblyJarName in assembly := "data.jar"
+    libraryDependencies ++= commonDependencies,
+    libraryDependencies ++= Seq(
+      "org.apache.spark" %% "spark-core" % "2.4.5",
+      "org.apache.spark" %% "spark-sql" % "2.4.5",
+      "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
+      "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
+    ),
+    assemblyJarName in assembly := "data.jar",
+    assembly := null
   ).dependsOn(protocol)
 
 
 lazy val ingestion = (project in file("ingestion"))
   .settings(
     settings,
-    assembly := null,
-    libraryDependencies ++= dataDependencies,
+    libraryDependencies ++= commonDependencies,
+    libraryDependencies ++= Seq(
+      "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
+      "org.jdbi" % "jdbi" % "2.78",
+      "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5",
+      "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
+    ),
     assemblyJarName in assembly := "ingestion.jar",
-    mainClass in run := Some("edu.cdl.iot.ingestion.Main")
+    mainClass in run := Some("edu.cdl.iot.ingestion.Main"),
+    assembly := null
   ).dependsOn(protocol)

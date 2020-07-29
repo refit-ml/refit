@@ -1,14 +1,14 @@
 package edu.cdl.iot.inference
 
+import com.datastax.driver.core.Cluster
 import edu.cdl.iot.inference.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
 import edu.cdl.iot.inference.transform.{EvaluationProcessor, PredictionKeyExtractor, SensorDataMapper}
 import edu.cdl.iot.inference.util.helpers
-//import com.datastax.driver.core.Cluster
+import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-//import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.pulsar.client.impl.conf.{ClientConfigurationData, ProducerConfigurationData}
 
@@ -28,7 +28,7 @@ object Main {
     val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
     val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
-    val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (10 * 60).toString, params).toInt
+    val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
 
     val cassandraHost = helpers.env_var("CASSANDRA_HOST", "127.0.0.1", params)
     val cassandraUsername = helpers.env_var("CASSANDRA_USER", "cassandra", params)
@@ -40,7 +40,7 @@ object Main {
     println(s"pulsar host: ${pulsarHost}")
     println(s"cassandra host: ${cassandraHost}")
 
-    config.setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE)
+    config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     config.setCheckpointInterval(checkpointInterval)
 
 
@@ -91,22 +91,21 @@ object Main {
       pcd,
       new PredictionSchema,
       new PredictionKeyExtractor
-//      new PredictionPropertiesExtractor
     ))
 
     val eventTuple = inference.map(new SensorDataMapper)
 
-//    CassandraSink.addSink(eventTuple)
-//      .setClusterBuilder(
-//        new ClusterBuilder {
-//          override def buildCluster(builder: Cluster.Builder): Cluster = builder
-//            .withCredentials(cassandraUsername, cassandraPassword)
-//            .addContactPoint(cassandraHost)
-//            .build()
-//        }
-//      )
-//      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
-//      .build()
+    CassandraSink.addSink(eventTuple)
+      .setClusterBuilder(
+        new ClusterBuilder {
+          override def buildCluster(builder: Cluster.Builder): Cluster = builder
+            .withCredentials(cassandraUsername, cassandraPassword)
+            .addContactPoint(cassandraHost)
+            .build()
+        }
+      )
+      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
+      .build()
 
 
     env.execute("CDL IoT - Inference")

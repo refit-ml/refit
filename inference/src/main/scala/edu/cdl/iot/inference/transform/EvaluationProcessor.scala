@@ -22,7 +22,6 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Predictio
 
   override def processElement1(value: SensorData, ctx: CoProcessFunction[SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     if (evaluator != null) {
-      println("try make prediction")
       val p = evaluator.evaluate(helpers.getVector(value).asJava)
       val results = EvaluatorUtil.decodeAll(p).asScala
       val prediction: Map[String, String] = results.map(
@@ -30,7 +29,7 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Predictio
           x -> d.toString
         }).toMap
 
-      println(s"Prediction Made (modelGuid: ${modelGuid}): ${prediction}")
+      println(s"Prediction Made (modelGuid: ${modelGuid}): ${prediction} ${value}")
 
       out.collect(
         new Prediction(
