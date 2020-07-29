@@ -1,8 +1,0 @@
-#!/bin/sh
-
-sbt package
-
-spark-submit \
-  --class "Main" \
-  --master local[4] \
-  target/scala-2.10/inference_2.10-1.0.jar

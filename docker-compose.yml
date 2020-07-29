@@ -2,7 +2,7 @@ version: '3.8'
 services:
   pulsar:
     image: apachepulsar/pulsar:2.6.0
-    ports: 
+    ports:
       - "8080:8080"
       - "6650:6650"
     command: >

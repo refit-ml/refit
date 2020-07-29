@@ -1,0 +1,7 @@
+syntax = "proto3";
+package edu.cdl.iot.protocol;
+
+message Model  {
+  string key = 1;
+  bytes bytes = 2;
+}

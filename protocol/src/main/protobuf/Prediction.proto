@@ -1,0 +1,12 @@
+syntax = "proto3";
+package edu.cdl.iot.protocol;
+
+message Prediction  {
+  int32 sensor_id = 1;
+  string timestamp = 2;
+  string modelGuid = 3;
+  map<string, double> doubles = 4;
+  map<string, string> strings = 5;
+  map<string, int32> integers = 6;
+  map<string, string> prediction = 7;
+}
