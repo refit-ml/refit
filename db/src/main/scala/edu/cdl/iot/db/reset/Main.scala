@@ -1,5 +1,6 @@
 package edu.cdl.iot.db.reset
 
+import edu.cdl.iot.db.reset.schema.definitions.Prototype
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Encoders, SparkSession}
 import org.joda.time.DateTime
@@ -31,12 +32,16 @@ object Main {
     val spark = SparkSession.builder.config(conf).getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
-    val file_path = s"${System.getProperty("user.dir")}/db/data/operable.csv"
+    val schema = Prototype.dummy
+
+    val file_path = s"${System.getProperty("user.dir")}/db/data/${schema.name}.csv"
     val time_path = s"${System.getProperty("user.dir")}/db/data/time.csv"
+
+    val containsHeader = true
     val data = spark
       .read
       .format("CSV")
-      .option("header", "true")
+      .option("header", containsHeader)
       .load(file_path)
       .map(d => {
         val sensorId = d(1).toString
