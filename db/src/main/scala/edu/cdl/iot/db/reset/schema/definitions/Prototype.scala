@@ -17,7 +17,8 @@ object Prototype {
     List(
       Feature("Session-ID", FeatureType.Integer, FeatureClassification.Key),
       Feature("Timestamp", FeatureType.String, FeatureClassification.Timestamp),
-      Feature("Label", FeatureType.Double, FeatureClassification.Label)
+      Feature("Target", FeatureType.Double, FeatureClassification.Label)
+
       // TODO Add more
     )
   )

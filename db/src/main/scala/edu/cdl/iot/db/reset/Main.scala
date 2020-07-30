@@ -2,13 +2,10 @@ package edu.cdl.iot.db.reset
 
 import edu.cdl.iot.db.reset.schema.definitions.Prototype
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{Encoders, SparkSession}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 
 case class SensorData(
                        key: String,
-                       sensor_id: String,
                        timestamp: String,
                        data: Map[String, String],
                        prediction: Map[String, String]
@@ -44,22 +41,15 @@ object Main {
       .option("header", containsHeader)
       .load(file_path)
       .map(d => {
-        val sensorId = d(1).toString
-        val timestamp = DateTime.parse(d(2).toString, DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))
-        val temperature = d(3).toString
-        val pressure = d(4).toString
-        val wind = d(5).toString
+        val key = schema.getKey(d)
+        val timestamp = schema.getTimestamp(d)
+        val features = schema.getFeatures(d)
+        val labels = schema.getLabels(d)
         SensorData(
-          s"${sensorId}_${timestamp.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss"))}",
-          sensorId,
-          timestamp.toDateTimeISO.toString(DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss")),
-          Map(
-            "temperature" -> temperature,
-            "wind" -> wind,
-            "pressure" -> pressure,
-            "hour" -> timestamp.getHourOfDay.toString
-          ),
-          Map()
+          key,
+          timestamp,
+          features,
+          labels
         )
       })(Encoders.product[SensorData])
 
@@ -86,7 +76,9 @@ object Main {
         Map(
           "keyspace" -> "iot_prototype_training",
           "table" -> "in_operable_entry")
-      ).save()
+      )
+      .mode(SaveMode.Append)
+      .save
 
     data
       .write.format("org.apache.spark.sql.cassandra")
@@ -94,7 +86,9 @@ object Main {
         Map(
           "keyspace" -> "iot_prototype_training",
           "table" -> "sensor_data")
-      ).save()
+      )
+      .mode(SaveMode.Append)
+      .save
 
   }
 }

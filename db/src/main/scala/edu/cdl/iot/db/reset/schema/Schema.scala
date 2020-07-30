@@ -20,23 +20,32 @@ case class Feature(name: String,
                    classification: FeatureClassification)
 
 
-class Schema(val name: String, val values: List[Feature]) {
+class Schema(val name: String, val values: List[Feature]) extends java.io.Serializable {
 
-  def getKey(row: Row): String = values
-    .filter(p => p.classification == FeatureClassification.Key)
-    .map(x => row(values.indexOf(x)))
-    .mkString("_")
+  def getKey(row: Row): String =
+    getClassifications(FeatureClassification.Key)
+      .zipWithIndex
+      .map(tuple => row(tuple._2))
+      .mkString("_")
 
-  def getTimestamp(row: Row): String = values
-    .filter(p => p.classification == FeatureClassification.Timestamp)
-    .map(x => row(values.indexOf(x)))
-    .mkString("")
+  def getTimestamp(row: Row): String =
+    getClassifications(FeatureClassification.Timestamp)
+      .zipWithIndex
+      .map(tuple => row(tuple._2))
+      .mkString("")
 
-  private def getFeatureList = values.filter(p => p.classification == FeatureClassification.Feature)
+  private def getClassifications(featureClassification: FeatureClassification) = values.filter(p => p.classification == featureClassification)
 
   def getFeatures(row: Row): Map[String, String] =
-    getFeatureList.zipWithIndex
-      .map(tuple => (tuple._1.name, row(tuple._2).toString))
+    getClassifications(FeatureClassification.Feature)
+      .zipWithIndex
+      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
+      .toMap
+
+  def getLabels(row: Row): Map[String, String] =
+    getClassifications(FeatureClassification.Label)
+      .zipWithIndex
+      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
       .toMap
 
   // TODO We will want to create actual type checks for this
