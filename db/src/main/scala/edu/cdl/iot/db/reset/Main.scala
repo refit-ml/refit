@@ -1,22 +1,10 @@
 package edu.cdl.iot.db.reset
 
+import edu.cdl.iot.db.reset.dto.{OperableData, SensorData}
 import edu.cdl.iot.db.reset.schema.definitions.Prototype
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 
-case class SensorData(
-                       key: String,
-                       timestamp: String,
-                       data: Map[String, String],
-                       prediction: Map[String, String]
-                     )
-
-case class OperableData(
-                         key: String,
-                         sensor_id: String,
-                         start: String,
-                         end: String
-                       )
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -29,7 +17,7 @@ object Main {
     val spark = SparkSession.builder.config(conf).getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
-    val schema = Prototype.dummy
+    val schema = Prototype.baxter
 
     val file_path = s"${System.getProperty("user.dir")}/db/data/${schema.name}.csv"
     val time_path = s"${System.getProperty("user.dir")}/db/data/time.csv"

@@ -20,7 +20,9 @@ case class Feature(name: String,
                    classification: FeatureClassification)
 
 
-class Schema(val name: String, val values: List[Feature]) extends java.io.Serializable {
+class Schema(val name: String,
+             val values: List[Feature],
+             val includesHeader: Boolean = false) extends java.io.Serializable {
 
   def getKey(row: Row): String =
     getClassifications(FeatureClassification.Key)
