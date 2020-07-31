@@ -12,7 +12,8 @@ object SensorDataImport {
     .load(s"${System.getProperty("user.dir")}/db/data/${schema.name}.csv")
     .map(d => {
       val key = schema.getKey(d)
-      val timestamp = schema.getTimestamp(d)
+      val timestampParts  = schema.getTimestamp(d).split("\t")
+      val timestamp = timestampParts(0)
       val features = schema.getFeatures(d)
       val labels = schema.getLabels(d)
       SensorData(
