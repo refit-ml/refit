@@ -1,7 +1,9 @@
-package edu.cdl.iot.db.reset.schema
+package edu.cdl.iot.db.fixtures.schema
 
-import edu.cdl.iot.db.reset.schema.FeatureClassification.FeatureClassification
-import edu.cdl.iot.db.reset.schema.FeatureType.FeatureType
+import java.util.UUID
+
+import edu.cdl.iot.db.fixtures.schema.FeatureClassification.FeatureClassification
+import edu.cdl.iot.db.fixtures.schema.FeatureType.FeatureType
 import org.apache.spark.sql.Row
 
 
@@ -21,32 +23,31 @@ case class Feature(name: String,
 
 
 class Schema(val name: String,
+             val projectGuid: UUID,
              val values: List[Feature],
              val includesHeader: Boolean = false) extends java.io.Serializable {
 
+
   def getKey(row: Row): String =
-    getClassifications(FeatureClassification.Key)
-      .zipWithIndex
+    getClassifications(values.zipWithIndex, FeatureClassification.Key)
       .map(tuple => row(tuple._2))
       .mkString("_")
 
   def getTimestamp(row: Row): String =
-    getClassifications(FeatureClassification.Timestamp)
-      .zipWithIndex
+    getClassifications(values.zipWithIndex, FeatureClassification.Timestamp)
       .map(tuple => row(tuple._2))
       .mkString("")
 
-  private def getClassifications(featureClassification: FeatureClassification) = values.filter(p => p.classification == featureClassification)
+
+  private def getClassifications(lst: List[(Feature, Int)], featureClassification: FeatureClassification) = lst.filter(p => p._1.classification == featureClassification)
 
   def getFeatures(row: Row): Map[String, String] =
-    getClassifications(FeatureClassification.Feature)
-      .zipWithIndex
+    getClassifications(values.zipWithIndex, FeatureClassification.Feature)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
       .toMap
 
   def getLabels(row: Row): Map[String, String] =
-    getClassifications(FeatureClassification.Label)
-      .zipWithIndex
+    getClassifications(values.zipWithIndex, FeatureClassification.Label)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
       .toMap
 

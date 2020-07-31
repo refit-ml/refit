@@ -22,6 +22,7 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Predictio
 
   override def processElement1(value: SensorData, ctx: CoProcessFunction[SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     if (evaluator != null) {
+      println("Try make ")
       val p = evaluator.evaluate(helpers.getVector(value).asJava)
       val results = EvaluatorUtil.decodeAll(p).asScala
       val prediction: Map[String, String] = results.map(
@@ -33,6 +34,7 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Predictio
 
       out.collect(
         new Prediction(
+          value.projectGuid,
           value.sensorId,
           value.timestamp,
           modelGuid,
@@ -48,6 +50,7 @@ class EvaluationProcessor extends CoProcessFunction[SensorData, Model, Predictio
       println("No Model in state, empty prediction")
       out.collect(
         new Prediction(
+          value.projectGuid,
           value.sensorId,
           value.timestamp,
           modelGuid,

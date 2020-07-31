@@ -100,8 +100,17 @@ lazy val training = (project in file("training"))
       "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
       "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
     ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("org.slf4j", "slf4j-log4j12")
+    ),
+    dependencyOverrides ++= {
+      Seq(
+        "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.1",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.1",
+      )
+    },
     assembly := null,
-  ).dependsOn(protocol)
+  ).dependsOn(protocol, db)
 
 lazy val db = (project in file("db"))
   .settings(
@@ -110,9 +119,23 @@ lazy val db = (project in file("db"))
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % "2.4.5",
       "org.apache.spark" %% "spark-sql" % "2.4.5",
+      "org.apache.spark" %% "spark-mllib" % sparkVersion,
+      "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
       "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
+      "org.jdbi" % "jdbi" % "2.78",
+      "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5",
+      "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
     ),
+    excludeDependencies ++= Seq(
+      ExclusionRule("org.slf4j", "slf4j-log4j12")
+    ),
+    dependencyOverrides ++= {
+      Seq(
+        "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.1",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.1",
+      )
+    },
     assemblyJarName in assembly := "data.jar",
     assembly := null
   ).dependsOn(protocol)
@@ -131,4 +154,4 @@ lazy val ingestion = (project in file("ingestion"))
     assemblyJarName in assembly := "ingestion.jar",
     mainClass in run := Some("edu.cdl.iot.ingestion.Main"),
     assembly := null
-  ).dependsOn(protocol)
+  ).dependsOn(protocol, db)

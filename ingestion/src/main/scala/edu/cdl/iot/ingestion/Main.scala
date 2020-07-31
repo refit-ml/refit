@@ -11,7 +11,7 @@ object Main {
   def main(args: Array[String]) {
     val sleepIntervalMils = env("INTERVAL_MILS", "5000").toInt
     val hostName = env("PULSAR_HOST", "127.0.0.1")
-    val topicName = env("TOPIC_NAME", "in")
+    val topicName = env("TOPIC_NAME", "sensors")
     val modelTopic = env("MODEL_TOPIC", "models")
     val namespace = env("NAMESPACE_NAME", "ns1")
     val cassandraHost = env("CASSANDRA_HOST", "127.0.0.1")
@@ -21,7 +21,6 @@ object Main {
     val action = env("ACTION", "ingest")
 
     println(s"Run with action: ${action}")
-
     val client = PulsarClient(s"pulsar://${hostName}:6650")
 
     action match {

@@ -23,8 +23,8 @@ object Main {
 
 
     val pulsarHost = helpers.env_var("PULSAR_HOST", "127.0.0.1", params)
-    val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/in", params)
-    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/event-log", params)
+    val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
+    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
     val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
     val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
@@ -44,8 +44,7 @@ object Main {
     config.setCheckpointInterval(checkpointInterval)
 
 
-    val modelProps = new java.util.Properties()
-    modelProps.setProperty("topic", "persistent://sample/standalone/ns1/models")
+
 
     val modelSrc = PulsarSourceBuilder.builder(new ModelSchema)
       .serviceUrl(serviceUrl)
@@ -57,10 +56,6 @@ object Main {
     val model = env
       .addSource(modelSrc, "Models")
       .broadcast()
-
-
-    val eventProps = new java.util.Properties()
-    eventProps.setProperty("topic", "persistent://sample/standalone/ns1/in")
 
     val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
@@ -104,7 +99,7 @@ object Main {
             .build()
         }
       )
-      .setQuery("INSERT INTO iot_prototype_training.sensor_data(key,sensor_id, timestamp, data, prediction) values (?, ?, ?, ?, ?);")
+      .setQuery("INSERT INTO cdl_refit.sensor_data(project_guid, sensor_id, partition_key, timestamp, data, prediction ) values (?, ?, ?, ?, ?, ?);")
       .build()
 
 

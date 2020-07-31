@@ -1,9 +1,13 @@
-package edu.cdl.iot.db.reset.schema.definitions
+package edu.cdl.iot.db.fixtures.schema.definitions
 
-import edu.cdl.iot.db.reset.schema.{Feature, FeatureClassification, FeatureType, Schema}
+import java.util.UUID
+
+import edu.cdl.iot.db.fixtures.schema.{Feature, FeatureClassification, FeatureType, Schema}
 
 object Prototype {
-  val dummy: Schema = new Schema("dummy",
+  val dummy: Schema = new Schema(
+    "dummy",
+    UUID.fromString("b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"),
     List(
       Feature("Auto-Increment", FeatureType.Integer, FeatureClassification.ThrowAway),
       Feature("Sensor ID", FeatureType.Integer, FeatureClassification.Key),
@@ -15,7 +19,9 @@ object Prototype {
     true
   )
 
-  val baxter: Schema = new Schema("baxter",
+  val baxter: Schema = new Schema(
+    "baxter",
+    UUID.fromString("e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"),
     List(
       Feature("Session-ID", FeatureType.Integer, FeatureClassification.Key),
       Feature("Timestamp", FeatureType.String, FeatureClassification.Timestamp),
