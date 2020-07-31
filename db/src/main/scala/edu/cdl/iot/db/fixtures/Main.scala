@@ -13,7 +13,7 @@ object Main {
     val cassandraPassword = "cassandra"
     val cassandraKeyspace = "cdl_refit"
     val loadTrainingWindow = false
-    val loadSensorData = false
+    val loadSensorData = true
 
     val conf = new SparkConf()
       .setAppName("baselineModel")
