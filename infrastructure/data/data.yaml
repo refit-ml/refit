@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: data-generation
-        image: cdliotprototype/data-generation:latest
+        image: cdliotprototype/cdl-refit:latest
         env:
         - name: PULSAR_HOST
           value: pulsar-standalone
@@ -16,6 +16,8 @@ spec:
           value: cassandra
         - name: ACTION
           value: ingest
+        - name: PROJECT
+          value: ingestion
       restartPolicy: Never
       nodeSelector:
         coredns: enabled
@@ -33,7 +35,7 @@ spec:
         spec:
           containers:
           - name: model-ingestion
-            image: cdliotprototype/data-generation:latest
+            image: cdliotprototype/cdl-refit:latest
             env: 
             - name: PULSAR_HOST
               value: pulsar-standalone
@@ -42,7 +44,10 @@ spec:
             - name: ACTION
               value: model
             - name: MODEL_VERSION
-              value: 67bb6c55-9d0f-457c-8d8a-67f33de78eba
+              value: 7fd8c924-7b21-440c-a53e-a5b54819c15c
+            - name: PROJECT
+              value: ingestion
+  
           restartPolicy: Never
           nodeSelector:
               coredns: enabled

@@ -1,14 +1,10 @@
 package edu.cdl.iot.db.fixtures
 
-import java.sql.Timestamp
-import java.time.Instant
-import java.util.{Properties, UUID}
+import java.util.Properties
 
 import edu.cdl.iot.db.fixtures.dao.FixtureDao
 import edu.cdl.iot.db.fixtures.data.Demo
 import edu.cdl.iot.db.fixtures.dto.{Org, Project}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import org.skife.jdbi.v2.DBI
 
 object Fixtures {

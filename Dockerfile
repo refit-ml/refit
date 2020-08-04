@@ -12,4 +12,4 @@ WORKDIR app
 
 ADD ./ /app
 
-CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${CASSANDRA_HOST}:9042 -t 300 -s -- sbt ${Project}/run
+CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${CASSANDRA_HOST}:9042 -t 300 -s -- sbt ${PROJECT}/run

@@ -69,7 +69,7 @@ lazy val inference = (project in file("inference"))
       "org.jpmml" % "pmml-evaluator-extension" % pmmlVersion,
       "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
     ),
-    mainClass in assembly := Some("com.cdl.iot.Main"),
+    mainClass in assembly := Some("edu.cdl.iot.inference.Main"),
     assemblyJarName in assembly := "inference.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("javax", xs@_*) => MergeStrategy.first
