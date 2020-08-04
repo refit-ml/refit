@@ -110,6 +110,16 @@ lazy val training = (project in file("training"))
     assembly := null,
   ).dependsOn(protocol, db)
 
+lazy val common = (project in file("common"))
+  .settings(
+    settings,
+    libraryDependencies ++= Seq(
+      "commons-codec" % "commons-codec" % "1.14",
+      "org.scalatest" %% "scalatest" % "3.2.0" % Test
+    ),
+    assembly := null,
+  )
+
 lazy val db = (project in file("db"))
   .settings(
     settings,
