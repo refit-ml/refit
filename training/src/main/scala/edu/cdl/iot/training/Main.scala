@@ -1,9 +1,13 @@
 package edu.cdl.iot.training
 
 import java.util.UUID
+import java.util.UUID
 
 import com.google.protobuf.ByteString
+import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
 import edu.cdl.iot.protocol.Model.Model
+import edu.cdl.iot.training.dto.ModelDto
+import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
@@ -12,20 +16,9 @@ import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 import org.apache.spark.sql.functions.{to_timestamp, _}
 import org.apache.spark.sql.types.DoubleType
+import org.joda.time.DateTime
 import org.jpmml.sparkml.PMMLBuilder
 
-
-case class ModelDto(
-                     key: String,
-                     model: Array[Byte]
-                   )
-
-case class OperableDataRDD(
-                            key: String,
-                            sensor_id: String,
-                            start: String,
-                            end: String
-                          )
 
 object Main {
 
@@ -45,34 +38,10 @@ object Main {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val data = spark
-      .read
-      .format("org.apache.spark.sql.cassandra")
-      .options(Map("table" -> "sensor_data", "keyspace" -> "iot_prototype_training"))
-      .load()
-      .map(d => {
-        val sensorId = d(3).toString
-        val timestamp = d(4).toString
-        val m = d(1).asInstanceOf[Map[String, String]]
-        (
-          UUID.randomUUID().toString,
-          sensorId,
-          timestamp,
-          m("temperature").toDouble,
-          m("pressure").toDouble,
-          m("wind").toDouble
-        )
+    val schema = Prototype.dummy
 
-      })(Encoders.product[(String, String, String, Double, Double, Double)])
-      .toDF(Seq("guid", "sensor_id", "timestamp", "temperature", "pressure", "wind"): _ *)
-
-
-    val time = spark
-      .read
-      .format("org.apache.spark.sql.cassandra")
-      .options(Map("table" -> "in_operable_entry", "keyspace" -> "iot_prototype_training"))
-      .load()
-    (Encoders.product[OperableDataRDD])
+    val data = SensorData.load(spark)
+    val time = TrainingWindow.load(spark)
 
 
     data.show(5)
@@ -157,30 +126,32 @@ object Main {
     println("F1 score = " + f1)
     println("Test Accuracy = " + accuracy)
 
-    val schema = transformedDataSet.schema
+    val modelSchema = transformedDataSet.schema
 
     import spark.implicits._
     val export = ModelDto(
+      schema.projectGuid.toString,
       UUID.randomUUID.toString,
-      new PMMLBuilder(schema, model).buildByteArray()
+      DateTime.now.getMillis,
+      new PMMLBuilder(modelSchema, model).buildByteArray()
     )
 
-    println(s"Exporting Model - UUID: '${`export`.key}'")
+    println(s"Exporting Model - UUID: '${`export`.model_guid}'")
     Seq(
       export,
-      ModelDto("__latest__", export.model)
+      ModelDto(export.project_guid, "__latest__", export.timestamp, export.model)
     )
       .toDS
       .write
       .format("org.apache.spark.sql.cassandra")
       .options(
         Map(
-          "keyspace" -> "iot_prototype_training",
+          "keyspace" -> "cdl_refit",
           "table" -> "models")
       )
       .mode(SaveMode.Append)
       .save
 
-    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), Model(export.key, ByteString.copyFrom(export.model)))
+    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), Model(export.project_guid, export.model_guid, ByteString.copyFrom(export.model)))
   }
 }

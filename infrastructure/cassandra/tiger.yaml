@@ -3,10 +3,10 @@ cluster:
   seedCount: 4
 persistence: 
   enabled: false
+  # storageClass: glusterfs
 dbUser:
   user: cassandra
   password: cassandra
-
 
 resources: 
   limits: 

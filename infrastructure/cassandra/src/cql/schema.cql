@@ -1,28 +1,59 @@
-CREATE KEYSPACE IF NOT EXISTS iot_prototype_training WITH replication = {'class':'SimpleStrategy', 'replication_factor':3};
+CREATE KEYSPACE IF NOT EXISTS cdl_refit WITH replication = {
+    'class':'SimpleStrategy',
+    'replication_factor':1
+    };
 
-USE iot_prototype_training;
+USE cdl_refit;
 
-CREATE TABLE IF NOT EXISTS sensor_data (
-    key text,
-    sensor_id text,
-    timestamp text,
-    data map<text, text>,
-    prediction map<text, text>, 
-    PRIMARY KEY(key)
+CREATE TABLE IF NOT EXISTS org
+(
+    org_guid  text,
+    name      text,
+    timestamp timestamp,
+    PRIMARY KEY (org_guid)
+);
+
+CREATE TABLE IF NOT EXISTS project
+(
+    org_guid         text,
+    project_guid     text,
+    name             text,
+    partition_scheme text,
+    description      text,
+    tags             map<text, text>,
+    timestamp        timestamp,
+    primary key (org_guid, project_guid)
 );
 
 
-CREATE TABLE IF NOT EXISTS in_operable_entry (
-    key text,
-    sensor_id text,
-    start text,
-    end text,
-    PRIMARY KEY(key)
+CREATE TABLE IF NOT EXISTS sensor_data
+(
+    project_guid  text,
+    sensor_id     text,
+    partition_key text,
+    timestamp     timestamp,
+    data          map<text, text>,
+    prediction    map<text, text>,
+    PRIMARY KEY ((project_guid, sensor_id, partition_key), timestamp)
 );
 
 
-CREATE TABLE IF NOT EXISTS models (
-    key text,
-    model blob, 
-    PRIMARY KEY(key)
+CREATE TABLE IF NOT EXISTS training_window
+(
+    project_guid  text,
+    sensor_id     text,
+    partition_key text,
+    start         timestamp,
+    end           timestamp,
+    PRIMARY KEY ((project_guid, sensor_id, partition_key), start, end)
+);
+
+
+CREATE TABLE IF NOT EXISTS models
+(
+    project_guid text,
+    model_guid   text,
+    model        blob,
+    timestamp    timestamp,
+    PRIMARY KEY (project_guid, model_guid)
 );
