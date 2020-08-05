@@ -36,9 +36,6 @@ lazy val settings = Seq(
   )
 )
 
-
-
-
 lazy val protocol = (project in file("protocol"))
   .settings(
     settings,
@@ -49,8 +46,17 @@ lazy val protocol = (project in file("protocol"))
     PB.protocVersion := "-v3.11.4",
   )
 
-
-
+lazy val camel = (project in file("camel"))
+  .settings(
+    settings,
+    libraryDependencies ++= commonDependencies,
+    libraryDependencies ++=  Seq(
+      "org.apache.camel" % "camel-scala" % "2.10.1",
+      "org.apache.camel" % "camel-core" % "2.20.0",
+      "org.apache.camel" % "camel-stream" % "2.20.0",
+    ),
+    mainClass in run := Some("edu.cdl.iot.camel.Main")
+  )
 
 lazy val inference = (project in file("inference"))
   .settings(

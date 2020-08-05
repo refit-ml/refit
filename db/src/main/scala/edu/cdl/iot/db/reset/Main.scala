@@ -17,7 +17,7 @@ object Main {
     val spark = SparkSession.builder.config(conf).getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
 
-    val schema = Prototype.baxter
+    val schema = Prototype.dummy
 
     val file_path = s"${System.getProperty("user.dir")}/db/data/${schema.name}.csv"
     val time_path = s"${System.getProperty("user.dir")}/db/data/time.csv"
