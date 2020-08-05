@@ -1,7 +1,9 @@
 package edu.cdl.iot.db.reset
 
-import edu.cdl.iot.db.reset.dto.{OperableData, SensorData}
-import edu.cdl.iot.db.reset.schema.definitions.Prototype
+//import edu.cdl.iot.db.reset.dto.{OperableData, SensorData}
+//import edu.cdl.iot.db.reset.schema.definitions.Prototype
+import edu.cdl.iot.db.fixtures.dto.{SensorData, TrainingWindow}
+import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
 
@@ -34,6 +36,8 @@ object Main {
         val features = schema.getFeatures(d)
         val labels = schema.getLabels(d)
         SensorData(
+          schema.projectGuid.toString(),
+          key,
           key,
           timestamp,
           features,
@@ -47,12 +51,13 @@ object Main {
       .option("header", "true")
       .load(time_path)
       .map(d =>
-        OperableData(
+        TrainingWindow(
+          schema.projectGuid.toString(),
           d(0).toString,
           d(1).toString,
           d(2).toString,
           d(3).toString
-        ))(Encoders.product[OperableData])
+        ))(Encoders.product[TrainingWindow])
 
 
     data.show(5)

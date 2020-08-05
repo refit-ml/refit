@@ -61,6 +61,7 @@ lazy val camel = (project in file("camel"))
     libraryDependencies ++=  Seq(
       "org.apache.camel" % "camel-scala" % "2.10.1",
       "org.apache.camel" % "camel-core" % "2.20.0",
+      "org.apache.camel" % "camel-pulsar" % "2.24.0",
       "org.apache.camel" % "camel-stream" % "2.20.0",
     ),
     mainClass in run := Some("edu.cdl.iot.camel.Main")
