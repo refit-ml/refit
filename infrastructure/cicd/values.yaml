@@ -1,0 +1,5 @@
+
+nodeSelector: 
+  coredns: enabled
+persistence:
+  enabled: false
