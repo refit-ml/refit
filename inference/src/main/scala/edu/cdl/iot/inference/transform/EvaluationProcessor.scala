@@ -84,8 +84,8 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
   override def open(conf: Configuration): Unit = {
     evaluator = null
     
-    val ModelStateDescriptor = new ValueStateDescriptor[String]("ModelState", classOf[String])
-    ModelState = getRuntimeContext.getState[String](ModelStateDescriptor)
+    //val ModelStateDescriptor = new ValueStateDescriptor[String]("ModelState", classOf[String])
+    //ModelState = getRuntimeContext.getState[String](ModelStateDescriptor)
 
   }
   
