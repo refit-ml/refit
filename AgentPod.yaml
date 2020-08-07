@@ -10,3 +10,5 @@ spec:
     command:
     - cat
     tty: true
+  nodeSelector:
+    coredns: enabled
