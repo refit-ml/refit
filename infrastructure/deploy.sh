@@ -50,6 +50,8 @@ else
         cassandra \
         bitnami/cassandra \
         --values cassandra/${env}.yaml
+
+    helm upgrade jenkins -f cicd/values.yaml bitnami/jenkins --namespace iot-prototype
 fi
 kubectl apply -k pulsar/
 kubectl apply -k flink/

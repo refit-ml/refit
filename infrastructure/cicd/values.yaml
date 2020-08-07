@@ -1,4 +1,5 @@
-
+image:
+  tag: latest
 nodeSelector: 
   coredns: enabled
 persistence:
