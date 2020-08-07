@@ -1,13 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'node:14-alpine' }
+    }
     stages {
         stage('Test') {
-            environment { 
-                SBT_HOME="/opt/bitnami/jenkins/jenkins_home/tools/org.jvnet.hudson.plugins.SbtPluginBuilder_SbtInstallation/Default/bin"
-            }
             steps {
-                // sbt test
-                sh "${SBT_HOME}/sbt test"
+                sh 'node --version'
             }
         }
     }
