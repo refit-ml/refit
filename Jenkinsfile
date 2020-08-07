@@ -1,12 +1,14 @@
 pipeline {
-    agent {
-        docker { image 'node:14-alpine' }
+  agent {
+    kubernetes {
+      yamlFile 'AgentPod.yaml'
     }
-    stages {
+  }
+  stages {
         stage('Test') {
             steps {
                 sh 'node --version'
             }
         }
-    }
+   }
 }
