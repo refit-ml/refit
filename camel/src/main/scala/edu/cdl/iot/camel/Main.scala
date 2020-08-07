@@ -11,7 +11,7 @@ object Main {
     camel.addRoutes(new RouteBuilder() {
       @throws[Exception]
       def configure(): Unit = {
-        from("pulsar:persistent://sample/standalone/ns1/sensors").to("file:C:/Users/adity/Downloads/CDL Project/iot-prototype/camel/src/main/scala/edu/cdl/iot/camel/data/outbox/test.txt")
+//        from("pulsar:persistent://sample/standalone/ns1/sensors").to("file:C:/Users/adity/Downloads/CDL Project/iot-prototype/camel/src/main/scala/edu/cdl/iot/camel/data/outbox/test.txt")
       }
     })
 
