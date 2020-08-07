@@ -1,6 +1,13 @@
-image:
-  tag: latest
-nodeSelector: 
-  coredns: enabled
+master: 
+  nodeSelector: 
+    coredns: enabled
+agent: 
+  podName: jenkins-agent
+  nodeSelector: 
+    coredns: enabled
+
+
 persistence:
   enabled: false
+
+namespaceOverride: iot-prototype

@@ -35,7 +35,7 @@ if [ "$action" == "install" ]; then
         bitnami/cassandra \
         --values cassandra/${env}.yaml
 
-    helm install jenkins -f cicd/values.yaml bitnami/jenkins --namespace iot-prototype
+    helm install jenkins -f cicd/values.yaml stable/jenkins --namespace iot-prototype
 else 
     # https://pulsar.apache.org/docs/en/helm-deploy/
     # we can uncomment this when coredns works on all nodes
