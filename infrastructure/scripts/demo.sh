@@ -12,7 +12,7 @@ echo "=== Proxy ==="
 kubectl port-forward service/cassandra 9000:9042 9160:9160 &
 kubectl port-forward service/flink-jobmanager 8081:8081 &
 kubectl port-forward service/pulsar-standalone 6650:6650 &
-
+kubectl port-forward service/jenkins 8000:80
 sleep 10
 echo "=== Listen to output ==="
 

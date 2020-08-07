@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-agent
+spec:
+  containers:
+  - name: sbt
+    image: mozilla/sbt
+    command:
+    - cat
+    tty: true
+  nodeSelector:
+    coredns: enabled
