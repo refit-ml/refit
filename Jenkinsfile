@@ -1,14 +1,16 @@
 pipeline {
-  agent {
-    kubernetes {
-      yamlFile 'AgentPod.yaml'
+    agent {
+        kubernetes {
+            yamlFile 'AgentPod.yaml'
+        }
     }
-  }
-  stages {
+    stages {
         stage('Test') {
             steps {
-                sh 'node --version'
+                container('nodejs') {
+                    sh 'node --version'
+                }
             }
         }
-   }
+    }
 }

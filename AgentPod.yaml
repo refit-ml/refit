@@ -5,7 +5,7 @@ metadata:
     app: jenkins-agent
 spec:
   containers:
-  - name: jenkins-agent-node
+  - name: nodejs
     image: node:14-alpine
     command:
     - cat
