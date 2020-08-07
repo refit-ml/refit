@@ -26,7 +26,7 @@ pipeline {
             steps {
                 container('sbt') {
                     sh 'sbt --version'
-                    sh 'sbt assembly'
+                    sh 'sbt inference/assembly'
                 }
             }
         }
