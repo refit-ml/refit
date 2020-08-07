@@ -8,7 +8,6 @@ pipeline {
         stage('Build') {
             steps {
                 container('sbt') {
-                    sh 'sbt --version'
                     sh 'sbt compile'
                 }
             }
@@ -16,7 +15,6 @@ pipeline {
         stage('Test') {
             steps {
                 container('sbt') {
-                    sh 'sbt --version'
                     sh 'sbt test'
                 }
             }
@@ -25,7 +23,6 @@ pipeline {
         stage('Assembly') {
             steps {
                 container('sbt') {
-                    sh 'sbt --version'
                     sh 'sbt inference/assembly'
                 }
             }
