@@ -7,8 +7,9 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                container('nodejs') {
-                    sh 'node --version'
+                container('sbt') {
+                    sh 'sbt --version'
+                    sh 'sbt test'
                 }
             }
         }

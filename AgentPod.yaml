@@ -5,8 +5,8 @@ metadata:
     app: jenkins-agent
 spec:
   containers:
-  - name: nodejs
-    image: node:14-alpine
+  - name: sbt
+    image: mozilla/sbt
     command:
     - cat
     tty: true
