@@ -29,8 +29,8 @@ pipeline {
                     def file = sh returnStdout: true, script: 'flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-'
                     echo "JOB: $jobId"
                     echo "File: $file"
-                    sh 'flink stop -m flink-jobmanager:6123 ${jobId}'
-                    sh 'flink run -m flink-jobmanager:6123 -d inference/target/scala-2.11/inference.jar '
+                    sh "flink stop -m flink-jobmanager:6123 $jobId"
+                    sh "flink run -m flink-jobmanager:6123 -d inference/target/scala-2.11/inference.jar -s $file"
                 }
             }
         }
