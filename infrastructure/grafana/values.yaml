@@ -1,0 +1,7 @@
+nodeSelector:
+  coredns: enabled
+persistence:
+  enabled: false
+namespaceOverride: iot-prototype
+plugins:
+  - simpod-json-datasource

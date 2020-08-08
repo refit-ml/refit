@@ -7,23 +7,26 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt compile'
                 }
             }
         }
         stage('Test') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt test'
                 }
             }
         }
 
-        stage('Assembly') {
+        stage('Deploy') {
+            when { branch 'artifacts' }
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt inference/assembly'
+//                     sh 'chmod +x ./build.sh'
+//                     sh './build.sh'
                 }
             }
         }
