@@ -25,7 +25,6 @@ pipeline {
             steps {
                 container('build') {
                     sh 'sbt inference/assembly'
-                    echo "Start deploy with JobID: $JOB_ID SAVEPOINT: $SAVEPOINT"
                     sh 'build.sh'
                 }
             }
