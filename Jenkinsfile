@@ -26,6 +26,11 @@ pipeline {
                     sh 'sbt inference/assembly'
                 }
             }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'inference/target/**/*.jar', fingerprint: true
+                }
+            }
         }
     }
 }
