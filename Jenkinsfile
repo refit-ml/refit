@@ -25,12 +25,13 @@ pipeline {
             steps {
                 container('build') {
                     sh 'sbt inference/assembly'
-                    def jobId = sh returnStdout: true, script: 'flink -m flink-jobmanager:6123 list | sed -n 3p | cut -c23-54'
-                    def file = sh returnStdout: true, script: 'flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-'
-                    echo "JOB: $jobId"
-                    echo "File: $file"
-                    sh "flink stop -m flink-jobmanager:6123 $jobId"
-                    sh "flink run -m flink-jobmanager:6123 -d inference/target/scala-2.11/inference.jar -s $file"
+                    sh ''' echo start deploy job
+                        jobId=$(flink -m flink-jobmanager:6123 list | sed -n 3p | cut -c23-54)
+                        file=$(flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-)
+                        echo JOB: $jobId FILE: $file
+                        flink stop -m flink-jobmanager:6123 ${jobId}
+                        flink run -m flink-jobmanager:6123 -d inference/target/scala-2.11/inference.jar
+                    '''
                 }
             }
         }
