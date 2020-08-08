@@ -10,5 +10,10 @@ spec:
     command:
     - cat
     tty: true
+  - name: flink-submit
+    image: library/flink:1.10.1-scala_2.11
+    command:
+      - cat
+    tty: true
   nodeSelector:
     coredns: enabled
