@@ -4,10 +4,11 @@ import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.component.pulsar.PulsarComponent
 import org.apache.camel.impl.{DefaultCamelContext, SimpleRegistry}
-import org.apache.camel.spi
+
 import org.apache.pulsar.client.api.PulsarClient
 
 import scala.collection.immutable.HashMap
+import collection.JavaConverters.mapAsJavaMapConverter
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -15,14 +16,16 @@ object Main {
     val registry = new SimpleRegistry
     registry.put("pulsarClient", client)
 
-    val camel = new DefaultCamelContext(registry)
-    val pulCompo = new PulsarComponent
+    val camel = new DefaultCamelContext()
+    val pulCompo = new PulsarComponent(camel)
     pulCompo.setPulsarClient(client)
     camel.addComponent("pulsar", pulCompo)
     camel.addRoutes(new RouteBuilder() {
       @throws[Exception]
       def configure(): Unit = {
-        from("pulsar:persistent://sample/standalone/ns1/sensors").to("file:C:/Users/adity/Downloads/CDL Project/iot-prototype/camel/src/main/scala/edu/cdl/iot/camel/data/outbox/test.txt")
+        from("pulsar:persistent://sample/standalone/ns1/sensors")
+          .log(s"Recieved: ${body()}")
+        //.to(s"file:${System.getProperty("user.dir")}/camel/src/main/scala/edu/cdl/iot/camel/data/outbox/test.txt")
       }
     })
 
@@ -31,5 +34,6 @@ object Main {
     Thread.sleep(10000)
 
     camel.stop()
+    client.close()
   }
 }
