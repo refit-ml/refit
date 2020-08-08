@@ -22,9 +22,9 @@ pipeline {
 
         stage('Assembly') {
             steps {
-                container('sbt') {
+                container('inference') {
                     sh 'sbt inference/assembly'
-                    stash includes: 'inference/target/**/*.jar', name: 'flink-jar'
+                    stash includes: 'inference/target/scala-2.11/inference.jar', name: 'flink-jar'
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
         stage('Deploy') {
             when { branch 'artifacts' }
             steps {
-                container('flink-submit') {
+                container('inference') {
                     unstash 'flink-jar'
                     sh 'jobId=$(flink -m flink-jobmanager:6123 list | sed -n 3p | cut -c23-54)'
                     sh 'file=$(flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-)'
