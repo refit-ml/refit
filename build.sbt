@@ -54,19 +54,19 @@ lazy val protocol = (project in file("protocol"))
     PB.protocVersion := "-v3.11.4",
   )
 
-val camelVersion = "2.24.0"
+val camelVersion = "2.25.2"
 
 lazy val camel = (project in file("camel"))
   .settings(
     settings,
-    scalaVersion := "2.12.11",
     libraryDependencies ++= commonDependencies,
     libraryDependencies ++= Seq(
       "org.apache.camel" % "camel-core" % camelVersion,
-      "org.apache.camel" % "camel-pulsar" % camelVersion,
+      "org.apache.camel" % "camel-scala" % camelVersion,
+      "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
     ),
     mainClass in run := Some("edu.cdl.iot.camel.Main")
-  )
+  ).dependsOn(protocol)
 
 lazy val inference = (project in file("inference"))
   .settings(
