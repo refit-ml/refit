@@ -30,6 +30,7 @@ lazy val settings = Seq(
     "-encoding",
     "utf8"
   ),
+  scalacOptions += "-target:jvm-1.8",
   resolvers ++= Seq(
     "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
     "BinTray" at "https://dl.bintray.com/streamnative/maven",
@@ -63,7 +64,10 @@ lazy val camel = (project in file("camel"))
       "org.apache.camel" % "camel-core" % "2.20.0",
       "org.apache.camel" % "camel-pulsar" % "2.24.0",
       "org.apache.camel" % "camel-stream" % "2.20.0",
-    ),
+      "org.apache.camel" % "spi-annotations" % "2.12.1" % "provided",
+      "org.apache.pulsar" % "pulsar-client" % "2.6.0",
+
+),
     mainClass in run := Some("edu.cdl.iot.camel.Main")
   )
 
