@@ -1,3 +1,15 @@
-cluster: 
-  replicaCount: 2
-  seedCount: 2
+cluster:
+  replicaCount: 4
+  seedCount: 4
+persistence:
+  enabled: false
+  # storageClass: glusterfs
+dbUser:
+  user: cassandra
+  password: cassandra
+
+resources:
+  limits:
+    memory: "10000Mi"
+  requests:
+    memory: "3000Mi"
