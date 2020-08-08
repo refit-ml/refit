@@ -7,23 +7,15 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt compile'
                 }
             }
         }
         stage('Test') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt test'
-                }
-            }
-        }
-
-        stage('Assembly') {
-            steps {
-                container('inference') {
-                    sh 'sbt inference/assembly'
                 }
             }
         }
@@ -31,11 +23,13 @@ pipeline {
         stage('Deploy') {
             when { branch 'artifacts' }
             steps {
-                container('inference') {
+                container('build') {
                     sh 'sbt inference/assembly'
-                    sh 'jobId=$(flink -m flink-jobmanager:6123 list | sed -n 3p | cut -c23-54)'
-                    sh 'file=$(flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-)'
-                    sh 'flink stop ${jobId}'
+                    def jobId = sh returnStdout: true, script: 'flink -m flink-jobmanager:6123 list | sed -n 3p | cut -c23-54'
+                    def file = sh returnStdout: true, script: 'flink -m flink-jobmanager:6123 savepoint ${jobId} savepoints/refit/inference | sed -n 3p | cut -c33-'
+                    echo "JOB: $jobId"
+                    echo "File: $file"
+                    sh 'flink stop -m flink-jobmanager:6123 ${jobId}'
                     sh 'flink run -m flink-jobmanager:6123 -d inference/target/scala-2.11/inference.jar '
                 }
             }

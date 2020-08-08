@@ -5,15 +5,10 @@ metadata:
     app: jenkins-agent
 spec:
   containers:
-  - name: inference
+  - name: build
     image: cdliotprototype/build-agent:latest
     command:
     - cat
-    tty: true
-  - name: sbt
-    image: mozilla/sbt
-    command:
-      - cat
     tty: true
   nodeSelector:
     coredns: enabled
