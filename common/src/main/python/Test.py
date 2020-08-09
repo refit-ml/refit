@@ -32,6 +32,20 @@ class TestStringMethods(unittest.TestCase):
         decoded = EncryptionHelper.decrypt(secret_key, scala_cyphertext)
         self.assertEqual(plain_text, decoded)
 
+    def test_encryption_should_work_with_guids(self):
+        secret_key = "keyboard_cat"
+        plain_text = "06e03bdd-7ba0-49c2-bff5-2a84d68ba819"
+        ciphertext = EncryptionHelper.encrypt(secret_key, plain_text)
+        decoded = EncryptionHelper.decrypt(secret_key, ciphertext)
+        self.assertEqual(plain_text, decoded)
+
+    def test_decryption_should_work_with_guids(self):
+        secret_key = "keyboard_cat"
+        plain_text = "06e03bdd-7ba0-49c2-bff5-2a84d68ba819"
+        scala_ciphertext = "xRJCat6rorK5UvF7IvDvjp7gkgtcikKphZtPyjPJ59Of1q4nUz638jrfTomruA89KPAE0obYzFmqxNegHjVHqA=="
+        decoded = EncryptionHelper.decrypt(secret_key, scala_ciphertext)
+        self.assertEqual(plain_text, decoded)
+
 
 
 if __name__ == '__main__':

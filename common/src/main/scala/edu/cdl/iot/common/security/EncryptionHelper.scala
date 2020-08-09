@@ -52,7 +52,7 @@ object EncryptionHelper {
   private def addIVToCipher(encrypted: Array[Byte]) = {
     val cipherWithIv = new Array[Byte](ivCode.length + encrypted.length)
     System.arraycopy(ivCode, 0, cipherWithIv, 0, ivCode.length)
-    System.arraycopy(encrypted, 0, cipherWithIv, encrypted.length, encrypted.length)
+    System.arraycopy(encrypted, 0, cipherWithIv, ivCode.length, encrypted.length)
     cipherWithIv
   }
 }
