@@ -1,15 +1,14 @@
 package edu.cdl.iot.camel
 
 import edu.cdl.iot.camel.routes.SensorDataRoutes
-import org.apache.camel.main.Main
+import org.apache.camel.impl.DefaultCamelContext
 
 object CamelMain {
   def main(args: Array[String]) {
-    val main = new Main()
-    val context = main.getOrCreateCamelContext()
+    val context = new DefaultCamelContext
+    context.addRoutes(new SensorDataRoutes(context))
 
-    main.addRouteBuilder(new SensorDataRoutes(context).builder)
-    main.run()
+    context.start()
   }
 }
 

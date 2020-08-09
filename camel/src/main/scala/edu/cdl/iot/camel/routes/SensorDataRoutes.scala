@@ -3,25 +3,31 @@ package edu.cdl.iot.camel.routes
 import edu.cdl.iot.camel.transform.{ProtobufProcessors, PulsarProcessors}
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.SensorData.SensorData
-import org.apache.camel.{CamelContext, Exchange}
-import org.apache.camel.scala.dsl.builder.ScalaRouteBuilder
+import org.apache.camel.builder.RouteBuilder
+import org.apache.camel.{CamelContext, Exchange, Processor}
 
 
-class SensorDataRoutes(override val context: CamelContext) extends ScalaRouteBuilder(context) {
+class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) {
   val PULSAR_PROCESS_INTERVAL_MILLS = 100
   val ENCRYPTION_KEY = "keyboard_cat"
   // This is just to print everything out for testing,
   // ideally we will have all processors in the ./transform folder
-  val myProcessorRecieveMethod: Exchange => Unit = (exchange: Exchange) => {
-    val sensorData = exchange.getIn().getBody(classOf[SensorData])
-    val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, sensorData.projectGuid)
-    println(s"Message Received\n\tProject: ${sensorData.projectGuid}\n\tEncrypred GUID: $encrypted\n\tSensorID: ${sensorData.sensorId}\n\tDoubles: ${sensorData.doubles}\n\tStrings: ${sensorData.strings}\n\tIntegers: ${sensorData.integers}")
+
+  private val logger = new Processor {
+    override def process(exchange: Exchange): Unit = {
+      val sensorData = exchange.getIn().getBody(classOf[SensorData])
+      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, sensorData.projectGuid)
+      println(s"Message Received\n\tProject: ${sensorData.projectGuid}\n\tEncrypred GUID: $encrypted\n\tSensorID: ${sensorData.sensorId}\n\tDoubles: ${sensorData.doubles}\n\tStrings: ${sensorData.strings}\n\tIntegers: ${sensorData.integers}")
+
+    }
   }
 
-  from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS") ==> {
-    process(PulsarProcessors.produceMessages)
-    process(ProtobufProcessors.Sensors.deserialize)
-    process(myProcessorRecieveMethod)
-    process(PulsarProcessors.ack)
+
+  override def configure(): Unit = {
+    from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS")
+      .process(PulsarProcessors.produceMessages)
+      .process(ProtobufProcessors.Sensors.deserialize)
+      .process(logger)
+      .process(PulsarProcessors.ack)
   }
 }

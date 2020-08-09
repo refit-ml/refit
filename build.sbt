@@ -60,7 +60,7 @@ lazy val protocol = (project in file("protocol"))
     PB.protocVersion := "-v3.11.4",
   )
 
-val camelVersion = "2.25.2"
+val camelVersion = "3.4.2"
 
 lazy val camel = (project in file("camel"))
   .settings(
@@ -68,7 +68,7 @@ lazy val camel = (project in file("camel"))
     libraryDependencies ++= commonDependencies,
     libraryDependencies ++= Seq(
       "org.apache.camel" % "camel-core" % camelVersion,
-      "org.apache.camel" % "camel-scala" % camelVersion,
+      "org.apache.camel" % "camel-rest" % camelVersion,
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
     ),
     libraryDependencies ++= jdbiDependencies,
