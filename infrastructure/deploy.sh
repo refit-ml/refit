@@ -20,30 +20,30 @@ helm repo update
 if [ "$action" == "install" ]; then
 
     # https://github.com/bitnami/charts/tree/master/bitnami/cassandra/#installing-the-chart
-    helm install \
-        --namespace iot-prototype \
+    helm install cassandra -f cassandra/values.yaml bitnami/cassandra --namespace iot-prototype \
         --set nodeSelector.coredns=enabled \
-        cassandra \
-        bitnami/cassandra \
-        --values cassandra/values.yaml
-
+        
     helm install jenkins -f cicd/values.yaml stable/jenkins --namespace iot-prototype
     helm install grafana -f grafana/values.yaml stable/grafana --namespace iot-prototype
+    helm install redis -f redis/values.yaml --namespace iot-prototype bitnami/redis
 else
-    helm upgrade \
-        --namespace iot-prototype \
-        cassandra \
-        bitnami/cassandra \
-        --values cassandra/values.yaml
-
+    helm upgrade cassandra -f cassandra/values.yaml bitnami/cassandra --namespace iot-prototype
     helm upgrade jenkins -f cicd/values.yaml bitnami/jenkins --namespace iot-prototype
     helm upgrade grafana -f grafana/values.yaml stable/grafana --namespace iot-prototype
+    helm upgrade redis -f redis/values.yaml --namespace iot-prototype bitnami/redis
 fi
 kubectl apply -k pulsar/
 kubectl apply -k flink/
 
 
 kubectl apply -k data/
+
+
+
+# kubectl port-forward service/cassandra 9000:9042 9160:9160 &
+# kubectl port-forward service/flink-jobmanager 8081:8081 &
+# kubectl port-forward service/pulsar-standalone 6650:6650 &
+# kubectl port-forward service/jenkins 8000:80
 
 
 #   These will let you see the cluster dashboard
