@@ -1,23 +1,34 @@
 package edu.cdl.iot.camel.routes
 
 
+import edu.cdl.iot.camel.dto.HealthCheckDto
 import org.apache.camel.builder.RouteBuilder
-import org.apache.camel.{CamelContext, LoggingLevel}
+import org.apache.camel.CamelContext
 import org.apache.camel.model.rest.RestBindingMode
 
 class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
-  //  restConfiguration()
+  private val port = 3000
+
   override def configure(): Unit = {
-    restConfiguration()
-      .component("servlet")
-      .host("localhost")
+    /* This is to get us started
+     * When you start up camel, this will create a webserver to recieve requests
+     * the example I made here puts a health check endpoint at
+     * http://localhost:3000/meta/ping
+     */
+
+    restConfiguration.component("netty-http")
+      .port(port)
       .bindingMode(RestBindingMode.json)
-      .port(3000)
 
-    rest("/hello")
-      .get()
-      .to("direct:hello")
+    rest("/meta")
+      .get("/ping")
+      .outType(classOf[HealthCheckDto])
+      .to("direct:ping")
 
-    from("direct:hello").log(LoggingLevel.INFO, "Hello World").transform.simple("Hello World")
+    from("direct:ping")
+      .transform
+      .constant(new HealthCheckDto)
   }
 }
+
+

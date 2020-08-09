@@ -69,8 +69,8 @@ lazy val camel = (project in file("camel"))
     libraryDependencies ++= Seq(
       "org.apache.camel" % "camel-core" % camelVersion,
       "org.apache.camel" % "camel-rest" % camelVersion,
-      "org.apache.camel" % "camel-servlet" % camelVersion,
       "org.apache.camel" % "camel-jackson" % camelVersion,
+      "org.apache.camel" % "camel-netty-http" % camelVersion,
       "javax.servlet" % "javax.servlet-api" % "3.1.0",
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
     ),
