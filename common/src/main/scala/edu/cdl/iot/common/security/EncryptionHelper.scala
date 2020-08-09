@@ -1,36 +1,58 @@
 package edu.cdl.iot.common.security
 
-import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
+import java.util
 import java.util.Base64
 
-import javax.crypto.Cipher
-import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
+import javax.crypto.{Cipher, SecretKeyFactory}
+import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
 
 object EncryptionHelper {
-  private val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-  private val charset = StandardCharsets.UTF_8
+  private val factoryInstance = "PBKDF2WithHmacSHA256"
+  private val cipherInstance = "AES/CBC/PKCS5PADDING"
+  private val secretKeyType = "AES"
+  private val ivCode = new Array[Byte](16)
+  private val saltOfN = "anySaltYouCanUseOfOn"
 
-  private def encrypt(key: Array[Byte], input: Array[Byte]): Array[Byte] = {
-    val secretBytes = new SecretKeySpec(key, "AES")
-    cipher.init(Cipher.ENCRYPT_MODE, secretBytes, new SecureRandom())
-    cipher.getIV ++ cipher.doFinal(input)
+  // Public "Pretty" methods
+  def encrypt(key: String, input: String): String = encrypt(key, saltOfN, input)
+  def decrypt(key: String, input: String): String = decrypt(key, saltOfN, input)
+
+
+  // Private "Ugly" methods
+  private def encrypt(secretKey: String, salt: String, value: String): String = {
+    val cipher = initCipher(secretKey, salt, Cipher.ENCRYPT_MODE)
+    val encrypted = cipher.doFinal(value.getBytes)
+    val cipherWithIv = addIVToCipher(encrypted)
+    Base64.getEncoder.encodeToString(cipherWithIv)
   }
 
-  def encrypt(key: String, input: String): String =
-    Base64.getEncoder.encodeToString(
-      encrypt(Base64.getEncoder.encode(key.getBytes(charset)),
-        input.getBytes(charset)
-      )
-    )
 
-  private def decrypt(key: Array[Byte], input: Array[Byte]): Array[Byte] = {
-    val secretBytes = new SecretKeySpec(key, "AES")
-    cipher.init(Cipher.DECRYPT_MODE, secretBytes, new IvParameterSpec(input.slice(0, 16)))
-    cipher.doFinal(input.slice(16, input.length))
+  private def decrypt(secretKey: String, salt: String, encrypted: String): String = {
+    val cipher = initCipher(secretKey, salt, Cipher.DECRYPT_MODE)
+    val original = cipher.doFinal(Base64.getDecoder.decode(encrypted))
+    val originalWithoutIv = util.Arrays.copyOfRange(original, 16, original.length)
+    new String(originalWithoutIv)
   }
 
-  def decrypt(key: String, input: String): String =
-    new String(decrypt(Base64.getEncoder.encode(key.getBytes(charset)),
-      Base64.getDecoder.decode(input)), charset)
+
+  private def initCipher(secretKey: String, salt: String, mode: Int) = {
+    val factory = SecretKeyFactory.getInstance(factoryInstance)
+    val spec = new PBEKeySpec(secretKey.toCharArray, salt.getBytes, 65536, 256)
+    val tmp = factory.generateSecret(spec)
+    val skeySpec = new SecretKeySpec(tmp.getEncoded, secretKeyType)
+    val cipher = Cipher.getInstance(cipherInstance)
+    // Generating random IV
+    val random = new SecureRandom
+    random.nextBytes(ivCode)
+    cipher.init(mode, skeySpec, new IvParameterSpec(ivCode))
+    cipher
+  }
+
+  private def addIVToCipher(encrypted: Array[Byte]) = {
+    val cipherWithIv = new Array[Byte](ivCode.length + encrypted.length)
+    System.arraycopy(ivCode, 0, cipherWithIv, 0, ivCode.length)
+    System.arraycopy(encrypted, 0, cipherWithIv, encrypted.length, encrypted.length)
+    cipherWithIv
+  }
 }
