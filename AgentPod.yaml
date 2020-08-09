@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-agent
+spec:
+  containers:
+  - name: build
+    image: cdliotprototype/build-agent:latest
+    command:
+    - cat
+    tty: true
+  nodeSelector:
+    coredns: enabled

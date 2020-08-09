@@ -15,6 +15,7 @@ val pulsar4sVersion = "2.4.0"
 
 val commonDependencies = Seq(
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+  "joda-time" % "joda-time" % "2.10.6",
 )
 
 lazy val settings = Seq(
@@ -33,54 +34,62 @@ lazy val settings = Seq(
     "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
     "BinTray" at "https://dl.bintray.com/streamnative/maven",
     Resolver.mavenLocal
-  )
-)
+  ),
+  Compile / run := Defaults.runTask(Compile / fullClasspath,
+    Compile / run / mainClass,
+    Compile / run / runner
+  ).evaluated,
+  libraryDependencies ++= commonDependencies,
 
+)
 
 
 
 lazy val protocol = (project in file("protocol"))
   .settings(
     settings,
-    libraryDependencies ++= commonDependencies,
     PB.targets in Compile := Seq(
       scalapb.gen() -> (sourceManaged in Compile).value / "scalapb"
     ),
     PB.protocVersion := "-v3.11.4",
   )
 
-
-
-
-lazy val inference = (project in file("inference"))
+lazy val camel = (project in file("camel"))
   .settings(
     settings,
     libraryDependencies ++= commonDependencies,
     libraryDependencies ++=  Seq(
+      "org.apache.camel" % "camel-scala" % "2.10.1",
+      "org.apache.camel" % "camel-core" % "2.20.0",
+      "org.apache.camel" % "camel-pulsar" % "2.24.0",
+      "org.apache.camel" % "camel-stream" % "2.20.0",
+    ),
+    mainClass in run := Some("edu.cdl.iot.camel.Main")
+  )
+
+lazy val inference = (project in file("inference"))
+  .settings(
+    settings,
+    baseAssemblySettings,
+    libraryDependencies ++= Seq(
       "org.apache.flink" %% "flink-scala" % flinkVersion,
       "org.apache.flink" %% "flink-streaming-scala" % flinkVersion,
       "org.apache.pulsar" % "pulsar-flink" % "2.5.2",
       "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion,
       "org.jpmml" % "pmml-evaluator-extension" % pmmlVersion,
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
-      "joda-time" % "joda-time" % "2.10.6",
-
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
     ),
-    mainClass in assembly := Some("com.cdl.iot.Main"),
-    Compile / run := Defaults.runTask(Compile / fullClasspath,
-      Compile / run / mainClass,
-      Compile / run / runner
-    ).evaluated,
+    mainClass in assembly := Some("edu.cdl.iot.inference.Main"),
     assemblyJarName in assembly := "inference.jar",
-    baseAssemblySettings,
     assemblyMergeStrategy in assembly := {
       case PathList("javax", xs@_*) => MergeStrategy.first
       case "module-info.class" => MergeStrategy.first
       case PathList("google", "protobuf", xs@_*) => MergeStrategy.first
+      case PathList("commons-configuration", "commons-configuration", xs@_*) => MergeStrategy.first
       case PathList("org", "apache", "avro", "reflect", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "spark", xs@_*) => MergeStrategy.first
       case PathList("META-INF", "versions", "9", "javax", "xml", "bind", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
-
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
@@ -90,7 +99,6 @@ lazy val inference = (project in file("inference"))
 lazy val training = (project in file("training"))
   .settings(
     settings,
-    libraryDependencies ++= commonDependencies,
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % sparkVersion,
       "org.apache.spark" %% "spark-sql" % sparkVersion,
@@ -112,10 +120,19 @@ lazy val training = (project in file("training"))
     assembly := null,
   ).dependsOn(protocol, db)
 
+lazy val common = (project in file("common"))
+  .settings(
+    settings,
+    libraryDependencies ++= Seq(
+      "commons-codec" % "commons-codec" % "1.14",
+      "org.scalatest" %% "scalatest" % "3.2.0" % Test
+    ),
+    assembly := null,
+  )
+
 lazy val db = (project in file("db"))
   .settings(
     settings,
-    libraryDependencies ++= commonDependencies,
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % "2.4.5",
       "org.apache.spark" %% "spark-sql" % "2.4.5",
@@ -144,7 +161,7 @@ lazy val db = (project in file("db"))
 lazy val ingestion = (project in file("ingestion"))
   .settings(
     settings,
-    libraryDependencies ++= commonDependencies,
+    baseAssemblySettings,
     libraryDependencies ++= Seq(
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
       "org.jdbi" % "jdbi" % "2.78",
@@ -152,6 +169,31 @@ lazy val ingestion = (project in file("ingestion"))
       "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
     ),
     assemblyJarName in assembly := "ingestion.jar",
-    mainClass in run := Some("edu.cdl.iot.ingestion.Main"),
-    assembly := null
+    mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.Main"),
+    assemblyMergeStrategy in assembly := {
+      case PathList("git.properties", xs@_*) => MergeStrategy.first
+      case PathList("git.properties", xs@_*) => MergeStrategy.first
+      case PathList("jetty-dir.css", xs@_*) => MergeStrategy.first
+      case PathList("javax", xs@_*) => MergeStrategy.first
+      case PathList("commons-configuration", "commons-configuration", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "spark", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "pulsar", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "log4j", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "commons", "collections", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "hadoop", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "cassandra", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "avro", xs@_*) => MergeStrategy.first
+      case PathList("org", "aopalliance", xs@_*) => MergeStrategy.first
+      case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
+      case PathList("META-INF", "native", xs@_*) => MergeStrategy.last
+      case PathList("sun", "activation", xs@_*) => MergeStrategy.last
+      case PathList("com", "sun", "activation", xs@_*) => MergeStrategy.last
+      case "properties.dtd" => MergeStrategy.first
+      case "PropertyList-1.0.dtd" => MergeStrategy.first
+      case "digesterRules.xml" => MergeStrategy.first
+      case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
   ).dependsOn(protocol, db)
