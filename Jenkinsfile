@@ -7,14 +7,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt compile'
                 }
             }
         }
         stage('Test') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt test'
                 }
             }
@@ -22,7 +22,7 @@ pipeline {
 
         stage('Assembly') {
             steps {
-                container('sbt') {
+                container('build') {
                     sh 'sbt inference/assembly'
                 }
             }

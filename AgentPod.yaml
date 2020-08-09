@@ -5,8 +5,8 @@ metadata:
     app: jenkins-agent
 spec:
   containers:
-  - name: sbt
-    image: mozilla/sbt
+  - name: build
+    image: cdliotprototype/build-agent:latest
     command:
     - cat
     tty: true

@@ -1,9 +1,0 @@
-#! /bin/sh
-
-PROJECT="cdliotprototype/cdl-refit"
-
-docker build -t cdl-refit .
-
-docker tag cdl-refit:latest ${PROJECT}:latest
-
-docker push cdliotprototype/cdl-refit:latest
