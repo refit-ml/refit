@@ -16,7 +16,7 @@ class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) 
   private val logger = new Processor {
     override def process(exchange: Exchange): Unit = {
       val sensorData = exchange.getIn().getBody(classOf[SensorData])
-      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, sensorData.sensorId)
+      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, sensorData.projectGuid)
       println(s"Message Received\n\tProject: ${sensorData.projectGuid}\n\tEncrypred GUID: $encrypted\n\tSensorID: ${sensorData.sensorId}\n\tDoubles: ${sensorData.doubles}\n\tStrings: ${sensorData.strings}\n\tIntegers: ${sensorData.integers}")
 
     }
