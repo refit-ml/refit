@@ -5,3 +5,7 @@ target/
 .idea/
 .DS_Store
 out
+venv/
+*.pyc
+
+db/data/

@@ -20,13 +20,10 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            when { branch 'artifacts' }
+        stage('Assembly') {
             steps {
                 container('build') {
                     sh 'sbt inference/assembly'
-//                     sh 'chmod +x ./build.sh'
-//                     sh './build.sh'
                 }
             }
         }

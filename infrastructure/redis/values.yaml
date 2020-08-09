@@ -1,0 +1,26 @@
+
+usePassword: true
+password: redis
+master: 
+  nodeSelector: 
+    coredns: enabled
+  persistence:
+    enabled: false
+    # storageClass: glusterfs
+slave: 
+  nodeSelector: 
+    coredns: enabled
+  persistence:
+    enabled: false
+    # storageClass: glusterfs
+
+cluster: 
+  slaveCount: 2
+metrics:
+  enabled: false
+
+resources:
+  limits:
+    memory: "10000Mi"
+  requests:
+    memory: "3000Mi"
