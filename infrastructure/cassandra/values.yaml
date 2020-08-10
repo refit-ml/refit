@@ -8,6 +8,8 @@ dbUser:
   user: cassandra
   password: cassandra
 
+nodeSelector: 
+  coredns: enabled
 resources:
   limits:
     memory: "10000Mi"
