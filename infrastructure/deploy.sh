@@ -44,6 +44,7 @@ kubectl apply -k data/
 # kubectl port-forward service/flink-jobmanager 8081:8081 &
 # kubectl port-forward service/pulsar-standalone 6650:6650 &
 # kubectl port-forward service/jenkins 8000:80
+# k port-forward service/redis-master 6379:6379
 
 
 #   These will let you see the cluster dashboard
