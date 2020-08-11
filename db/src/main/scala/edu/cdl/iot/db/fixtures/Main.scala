@@ -13,7 +13,7 @@ object Main {
     val cassandraPassword = "cassandra"
     val cassandraKeyspace = "cdl_refit"
     val loadTrainingWindow = false
-    val loadSensorData = false
+    val loadSensorData = true
 
 
     println("Create schema fixtures ...")
@@ -29,7 +29,7 @@ object Main {
       val session = SparkSession.builder.config(conf).getOrCreate()
       session.sparkContext.setLogLevel("ERROR")
 
-      val schema = Prototype.dummy
+      val schema = Prototype.baxter
 
       if (loadSensorData) {
         println("Importing Sensor Data")

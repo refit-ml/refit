@@ -41,45 +41,76 @@ sns.set_style('white')
 
 warnings.filterwarnings('ignore')
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+# Every model training event will start with a given Project GUID
+# This is the static project GUID for baxter
+project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
 
-def flatten_row(row, columnNames):
-    row[4] = dict(row[4])
-    row[5] = dict(row[5])
-    return row
+# This one is the dummy data project
+# project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
-def pandas_factory(colnames, rows):
-    lst = [list(i) for i in rows]
-    return pd.DataFrame(map(lambda item: flatten_row(item, colnames), lst), columns=colnames)
+# get_ipython().run_line_magic('matplotlib', 'inline')
+
+def get_keys(row, index):
+    return [] if row[index] is None else list(row[index].keys())
 
 
-auth_provider = PlainTextAuthProvider(
-    username='cassandra', password='cassandra')
-cluster = Cluster(contact_points=['127.0.0.1'], port=9042, auth_provider=auth_provider)
-session = cluster.connect('cdl_refit')
-session.row_factory = pandas_factory
+def get_values(row, index):
+    return [] if row[index] is None else list(dict(row[index]).values())
 
-query = "SELECT * FROM sensor_data"
 
-res = session.execute(query, timeout=None)
-df = res._current_rows
-df
+def extend_row(row, data_index, prediction_index):
+    result = list(row)
+    result.extend(get_values(row, data_index))
+    result.extend(get_values(row, prediction_index))
+    result.pop(max(data_index, prediction_index))
+    result.pop(min(data_index, prediction_index))
+    return result
 
-key_list = list(df['data'][1].keys())
 
-df['target'] = df['prediction'].apply(lambda x: x.get('target'))
+def create_column_definition(rows, column_names, data_index, prediction_index):
+    result = column_names
+    if len(rows) > 0:
+        data_cols = get_keys(rows[0], data_index)
+        prediction_columns = get_keys(rows[0], prediction_index)
+        result.extend(data_cols)
+        result.extend(prediction_columns)
+        result.pop(max(data_index, prediction_index))
+        result.pop(min(data_index, prediction_index))
 
-for key in key_list:
-    df[key] = df['data'].apply(lambda x: x.get(key))
+    return result
 
-df = df.sort_values('timestamp')
+
+def pandas_factory(columns, rows):
+    data_index = columns.index('data')
+    prediction_index = columns.index('prediction')
+    column_names = create_column_definition(rows, columns, data_index, prediction_index)
+    results = map(lambda row: extend_row(row, data_index, prediction_index), rows)
+    return pd.DataFrame(results, columns=column_names)
+
+
+def get_data(query):
+    auth_provider = PlainTextAuthProvider(
+        username='cassandra', password='cassandra')
+    cluster = Cluster(contact_points=['127.0.0.1'], port=9042, auth_provider=auth_provider)
+    session = cluster.connect('cdl_refit')
+    session.row_factory = pandas_factory
+    return session.execute(query, timeout=None)._current_rows
+
+
+def get_sensor_data(project_guid):
+    return get_data('SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction FROM sensor_data')
+
+
+df = get_sensor_data(project_guid)
+
+print(df)
 
 # read from csv for now until fix database connection
-df2 = pd.read_csv("baxter_2.csv")
-df2 = df2.sort_values('timestamp')
+# df2 = pd.read_csv("baxter_2.csv")
+# df2 = df2.sort_values('timestamp')
 
-df2 = df2.drop(['Session-ID', 'timestamp'], axis=1)
+df2 = df.drop(['project_guid', 'sensor_id', 'partition_key', 'timestamp'], axis=1)
 
 values = df2.values
 train = values[:150, :]
@@ -101,3 +132,4 @@ model.compile(loss='mae', optimizer='adam')
 # fit network
 history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2,
                     shuffle=False)
+print("We're done!")
