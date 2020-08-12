@@ -155,7 +155,7 @@ lazy val db = (project in file("db"))
     },
     assemblyJarName in assembly := "data.jar",
     assembly := null
-  ).dependsOn(protocol)
+  ).dependsOn(protocol, common)
 
 
 lazy val ingestion = (project in file("ingestion"))
