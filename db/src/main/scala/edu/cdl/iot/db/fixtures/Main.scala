@@ -1,8 +1,10 @@
 package edu.cdl.iot.db.fixtures
 
+import java.io.{File, FileInputStream}
+
+import edu.cdl.iot.common.schema.SchemaFactory
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
-import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -14,7 +16,9 @@ object Main {
     val cassandraPassword = "cassandra"
     val cassandraKeyspace = "cdl_refit"
     val encryptionKey = "keyboard_cat"
-    val schema = Prototype.baxter
+    val schemaName = "baxter"
+    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/${schemaName}.yaml"
+    val schema = SchemaFactory.parse(new FileInputStream(new File(schemaFile)))
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
     val loadSensorData = true
