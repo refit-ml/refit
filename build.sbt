@@ -15,7 +15,7 @@ val pulsar4sVersion = "2.4.0"
 
 val commonDependencies = Seq(
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-  "joda-time" % "joda-time" % "2.10.6",
+  "joda-time" % "joda-time" % "2.10.6"
 )
 
 lazy val settings = Seq(
@@ -58,7 +58,7 @@ lazy val camel = (project in file("camel"))
   .settings(
     settings,
     libraryDependencies ++= commonDependencies,
-    libraryDependencies ++=  Seq(
+    libraryDependencies ++= Seq(
       "org.apache.camel" % "camel-scala" % "2.10.1",
       "org.apache.camel" % "camel-core" % "2.20.0",
       "org.apache.camel" % "camel-pulsar" % "2.24.0",
@@ -123,8 +123,13 @@ lazy val training = (project in file("training"))
 lazy val common = (project in file("common"))
   .settings(
     settings,
+    resolvers ++= Seq(
+      "Sonatype-public" at "https://oss.sonatype.org/content/groups/public/",
+      Resolver.mavenLocal
+    ),
     libraryDependencies ++= Seq(
       "commons-codec" % "commons-codec" % "1.14",
+      "org.yaml" % "snakeyaml" % "1.26",
       "org.scalatest" %% "scalatest" % "3.2.0" % Test
     ),
     assembly := null,

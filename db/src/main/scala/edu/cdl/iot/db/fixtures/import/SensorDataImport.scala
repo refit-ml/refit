@@ -1,22 +1,23 @@
 package edu.cdl.iot.db.fixtures.`import`
 
+import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.db.fixtures.dto.{SensorData, TrainingWindow}
-import edu.cdl.iot.db.fixtures.schema.Schema
 import org.apache.spark.sql.{Dataset, Encoders, SaveMode, SparkSession}
 
 object SensorDataImport {
   def load(session: SparkSession, schema: Schema, encryptionHelper: EncryptionHelper): Dataset[SensorData] = session
     .read
     .format("CSV")
-    .option("header", schema.includesHeader)
-    .load(s"${System.getProperty("user.dir")}/db/data/${schema.name}.csv")
+    .option("header", schema.importOptions.includesHeader)
+    .load(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}.csv")
     .map(d => {
-      val key = schema.getKey(d)
-      val timestampParts = schema.getTimestamp(d).split("\t")
+      val row = d.toSeq.map(x => x.toString).toArray
+      val key = schema.getKey(row)
+      val timestampParts = schema.getTimestamp(row).split("\t")
       val timestamp = timestampParts(0)
-      val features = schema.getFeatures(d)
-      val labels = schema.getLabels(d)
+      val features = schema.getFeatures(row)
+      val labels = schema.getLabels(row)
       SensorData(
         schema.projectGuid.toString,
         key,
