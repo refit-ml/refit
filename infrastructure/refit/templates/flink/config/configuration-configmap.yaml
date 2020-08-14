@@ -3,7 +3,12 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-flink-config
   labels:
-    app: flink
+    app: {{ .Release.Name }}-flink
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
 data:
   flink-conf.yaml: |+
     jobmanager.rpc.address: {{ .Release.Name }}-flink-jobmanager
