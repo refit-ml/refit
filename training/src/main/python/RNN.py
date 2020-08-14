@@ -26,6 +26,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn import preprocessing
 import math
 import keras
+import config
 from math import sqrt
 from keras.models import Sequential
 from keras.layers import Dense
@@ -43,7 +44,7 @@ pd.set_option('display.float_format', lambda x: '%.4f' % x)
 warnings.filterwarnings('ignore')
 sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 
 project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
@@ -52,6 +53,12 @@ project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
 
 df = get_sensor_data(project_guid)
+
+for i in range(3,len(df.columns)):
+    avg_str = 'avg_'+ df.columns.values[i]
+    std_str = 'std_'+ df.columns.values[i]
+    df['avg'] = df.iloc[:,1].rolling(window=config.avg_window).mean()
+    df['std'] = df.iloc[:,1].rolling(window=config.avg_window).std()
 
 df = df.sort_values('timestamp')
 df
@@ -97,7 +104,7 @@ print(reframed.head())
 
 # split into train and test sets
 values = reframed.values
-n_train_hours = 6 * 24
+n_train_hours = config.TrainingDays * 24
 train = values[:n_train_hours, :]
 test = values[n_train_hours:, :]
 # split into input and outputs
@@ -110,7 +117,7 @@ print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
 
 # baseline model
 model = Sequential()
-model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
+model.add(LSTM(config.epochs, input_shape=(train_X.shape[1], train_X.shape[2])))
 model.add(Dense(1))
 model.compile(loss='mae', optimizer='adam')
 # fitting model
