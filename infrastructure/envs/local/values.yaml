@@ -1,0 +1,64 @@
+cassandra: 
+  cluster:
+    replicaCount: 1
+    seedCount: 1
+  persistence:
+    enabled: false
+  dbUser:
+    user: cassandra
+    password: cassandra
+  nodeSelector: 
+    coredns: enabled
+  resources:
+    limits:
+      memory: "1000Mi"
+    requests:
+      memory: "500Mi"
+redis: 
+  usePassword: true
+  password: redis
+  master: 
+    persistence:
+      enabled: false
+  slave: 
+    persistence:
+      enabled: false
+  cluster: 
+    slaveCount: 0
+  metrics:
+    enabled: false
+  resources:
+    limits:
+      memory: "1000Mi"
+    requests:
+      memory: "500Mi"
+
+grafana: 
+  nodeSelector:
+    coredns: enabled
+  persistence:
+    enabled: false
+  plugins:
+    - simpod-json-datasource
+
+flink: 
+  flinkVersion: 1.10.1
+  scalaVersion: 2.11
+  jobManager: 
+    limits: 
+      memory: "1000Mi"
+    requests: 
+      memory: "500Mi"
+  taskManager: 
+    replicas: 1
+    limits: 
+      memory: "1000Mi"
+    requests: 
+      memory: "500Mi"
+pulsar:
+  pulsarVersion: 2.6.0
+  resources: 
+    limits: 
+      memory: "1000Mi"
+    requests: 
+      memory: "500Mi"

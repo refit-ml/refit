@@ -1,46 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: taskmanager
+  name: flink-jobmanager
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: flink
-      component: taskmanager
+      component: flink-jobmanager
   template:
     metadata:
       labels:
         app: flink
-        component: taskmanager
+        component: flink-jobmanager
     spec:
       containers:
-      - name: taskmanager
-        image: flink:1.10.1-scala_2.11
+      - name: flink-jobmanager
+        image: flink:{{ .Values.flink.flinkVersion }}-scala_{{ .Values.flink.scalaVersion }}
         resources: 
           limits: 
-            memory: "5000Mi"
+            memory: {{ .Values.flink.jobManager.limits.memory }}
           requests: 
-            memory: "2000Mi"
+            memory: {{ .Values.flink.jobManager.requests.memory }}
         workingDir: /opt/flink
-        command: ["/bin/bash", "-c", "$FLINK_HOME/bin/taskmanager.sh start; \
+        command: ["/bin/bash", "-c", "$FLINK_HOME/bin/jobmanager.sh start;\
           while :;
           do
-            if [[ -f $(find log -name '*taskmanager*.log' -print -quit) ]];
-              then tail -f -n +1 log/*taskmanager*.log;
+            if [[ -f $(find log -name '*jobmanager*.log' -print -quit) ]];
+              then tail -f -n +1 log/*jobmanager*.log;
             fi;
           done"]
         ports:
-        - containerPort: 6122
+        - containerPort: 6123
           name: rpc
+        - containerPort: 6124
+          name: blob
+        - containerPort: 8081
+          name: ui
         livenessProbe:
           tcpSocket:
-            port: 6122
+            port: 6123
           initialDelaySeconds: 30
           periodSeconds: 60
         volumeMounts:
         - name: flink-config-volume
-          mountPath: /opt/flink/conf/
+          mountPath: /opt/flink/conf
         securityContext:
           runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
       volumes:

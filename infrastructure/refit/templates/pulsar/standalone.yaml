@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: standalone
+  name: pulsar-standalone
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: pulsar
-      component: standalone
+      component: pulsar-standalone
   template:
     metadata:
       labels:
         app: pulsar
-        component: standalone
+        component: pulsar-standalone
     spec:
       containers:
-      - name: standalone
-        image: apachepulsar/pulsar:2.6.0
+      - name: pulsar-standalone
+        image: apachepulsar/pulsar:{{ .Values.pulsar.pulsarVersion }}
         resources: 
           limits: 
-            memory: "10000Mi"
+            memory: {{ .Values.pulsar.resources.limits.memory }}
           requests: 
-            memory: "3000Mi"
+            memory: {{ .Values.pulsar.resources.requests.memory }}
         command: ["/bin/bash", "-c", "bin/pulsar standalone"]
         ports:
         - containerPort: 6650
@@ -34,7 +34,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: standalone
+  name: pulsar-standalone
 spec:
   type: ClusterIP
   ports:
@@ -44,4 +44,4 @@ spec:
     port: 8080
   selector:
     app: pulsar
-    component: standalone
+    component: pulsar-standalone

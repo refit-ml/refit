@@ -1,50 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jobmanager
+  name: flink-taskmanager
 spec:
-  replicas: 1
+  replicas: {{ .Values.flink.taskManager.replicas }}
   selector:
     matchLabels:
       app: flink
-      component: jobmanager
+      component: flink-taskmanager
   template:
     metadata:
       labels:
         app: flink
-        component: jobmanager
+        component: flink-taskmanager
     spec:
       containers:
-      - name: jobmanager
-        image: flink:1.10.1-scala_2.11
+      - name: flink-taskmanager
+        image: flink:{{ .Values.flink.flinkVersion }}-scala_{{ .Values.flink.scalaVersion }}
         resources: 
           limits: 
-            memory: "5000Mi"
+            memory: {{ .Values.flink.taskManager.limits.memory }}
           requests: 
-            memory: "2000Mi"
+            memory: {{ .Values.flink.taskManager.requests.memory }}
         workingDir: /opt/flink
-        command: ["/bin/bash", "-c", "$FLINK_HOME/bin/jobmanager.sh start;\
+        command: ["/bin/bash", "-c", "$FLINK_HOME/bin/taskmanager.sh start; \
           while :;
           do
-            if [[ -f $(find log -name '*jobmanager*.log' -print -quit) ]];
-              then tail -f -n +1 log/*jobmanager*.log;
+            if [[ -f $(find log -name '*taskmanager*.log' -print -quit) ]];
+              then tail -f -n +1 log/*taskmanager*.log;
             fi;
           done"]
         ports:
-        - containerPort: 6123
+        - containerPort: 6122
           name: rpc
-        - containerPort: 6124
-          name: blob
-        - containerPort: 8081
-          name: ui
         livenessProbe:
           tcpSocket:
-            port: 6123
+            port: 6122
           initialDelaySeconds: 30
           periodSeconds: 60
         volumeMounts:
         - name: flink-config-volume
-          mountPath: /opt/flink/conf
+          mountPath: /opt/flink/conf/
         securityContext:
           runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
       volumes:

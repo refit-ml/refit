@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#! /bin/sh
 set -e 
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -16,4 +15,4 @@ cd ../
 
 helm install --dry-run --debug --generate-name ./refit
 
-helm install refit ./refit --namespace iot-prototype -f envs/tiger/values.yaml
+helm install refit ./refit --namespace iot-prototype -f envs/local/values.yaml
