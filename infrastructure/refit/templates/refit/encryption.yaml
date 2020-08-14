@@ -1,0 +1,13 @@
+{{- if .Release.IsInstall }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: refit-encryption-key
+type: Opaque
+data:
+  {{- if eq .Values.refit.encryptionKey "__generated__" }}
+  password: "{{ randAlphaNum 30 | b64enc }}"
+  {{- else }}
+  password: "{{ .Values.refit.encryptionKey | b64enc }}"
+  {{- end }}
+{{- end }}

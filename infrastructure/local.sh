@@ -1,12 +1,6 @@
 #! /bin/sh
 set -e 
 
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add apache https://pulsar.apache.org/charts
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
-
-helm repo update
-
 cd refit 
 
 helm create refit 
