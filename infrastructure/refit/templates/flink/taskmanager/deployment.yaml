@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: taskmanager
+  name: {{ .Release.Name }}-flink-taskmanager
 spec:
-  replicas: 3
+  replicas: {{ .Values.flink.taskManager.replicas }}
   selector:
     matchLabels:
-      app: flink
-      component: taskmanager
+      app: {{ .Release.Name }}-flink
+      component: {{ .Release.Name }}-flink-taskmanager
   template:
     metadata:
       labels:
-        app: flink
-        component: taskmanager
+        app: {{ .Release.Name }}-flink
+        component: {{ .Release.Name }}-flink-taskmanager
     spec:
       containers:
-      - name: taskmanager
-        image: flink:1.10.1-scala_2.11
+      - name: {{ .Release.Name }}-flink-taskmanager
+        image: flink:{{ .Values.flink.flinkVersion }}-scala_{{ .Values.flink.scalaVersion }}
         resources: 
           limits: 
-            memory: "5000Mi"
+            memory: {{ .Values.flink.taskManager.limits.memory }}
           requests: 
-            memory: "2000Mi"
+            memory: {{ .Values.flink.taskManager.requests.memory }}
         workingDir: /opt/flink
         command: ["/bin/bash", "-c", "$FLINK_HOME/bin/taskmanager.sh start; \
           while :;
@@ -39,18 +39,20 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 60
         volumeMounts:
-        - name: flink-config-volume
+        - name: {{ .Release.Name }}-flink-config-volume
           mountPath: /opt/flink/conf/
         securityContext:
           runAsUser: 9999  # refers to user _flink_ from official flink image, change if necessary
       volumes:
-      - name: flink-config-volume
+      - name: {{ .Release.Name }}-flink-config-volume
         configMap:
-          name: flink-config
+          name: {{ .Release.Name }}-flink-config
           items:
           - key: flink-conf.yaml
             path: flink-conf.yaml
           - key: log4j.properties
             path: log4j.properties
+      {{- with .Values.flink.nodeSelector }}
       nodeSelector:
-        coredns: enabled
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

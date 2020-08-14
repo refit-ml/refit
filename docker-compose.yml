@@ -12,7 +12,7 @@ services:
         condition: on-failure
 
   cassandra:
-    build: ./infrastructure/cassandra/src/
+    build: ./db/src/main/cql/
     ports: 
       - "7000:7000"
       - "9042:9042"
