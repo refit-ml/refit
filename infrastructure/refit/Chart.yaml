@@ -1,7 +1,6 @@
 apiVersion: ALPHA
 name: refit
 version: 0.0.0
-kubeVersion: v1.18.3
 description: The complete REFIT System developed by the CDL at Northwestern University
 type: application
 keywords:

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: refit-encryption-key
+  name: {{ .Release.Name }}-encryption-key
 type: Opaque
 data:
   {{- if eq .Values.refit.encryptionKey "__generated__" }}

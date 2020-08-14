@@ -8,14 +8,13 @@ cassandra:
   dbUser:
     user: cassandra
     password: cassandra
-
   nodeSelector: 
     coredns: enabled
   resources:
     limits:
-      memory: "1000Mi"
+      memory: "10000Mi"
     requests:
-      memory: "500Mi"
+      memory: "5000Mi"
 redis: 
   usePassword: true
   password: redis
@@ -31,17 +30,15 @@ redis:
     persistence:
       enabled: false
       # storageClass: glusterfs
-
   cluster: 
     slaveCount: 2
   metrics:
     enabled: false
-
   resources:
     limits:
-      memory: "1000Mi"
+      memory: "10000Mi"
     requests:
-      memory: "500Mi"
+      memory: "5000Mi"
 
 grafana: 
   nodeSelector:
@@ -56,18 +53,19 @@ flink:
   scalaVersion: 2.11
   jobManager: 
     limits: 
-      memory: "1000Mi"
+      memory: "10000Mi"
     requests: 
-      memory: "500Mi"
+      memory: "5000Mi"
   taskManager: 
+    replicas: 3
     limits: 
-      memory: "1000Mi"
+      memory: "10000Mi"
     requests: 
-      memory: "500Mi"
+      memory: "5000Mi"
 pulsar:
   pulsarVersion: 2.6.0
   resources: 
     limits: 
-      memory: "1000Mi"
+      memory: "10000Mi"
     requests: 
-      memory: "500Mi"
+      memory: "5000Mi"

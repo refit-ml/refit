@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pulsar-standalone
+  name: {{ .Release.Name }}-pulsar-standalone
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pulsar
-      component: pulsar-standalone
+      app: {{ .Release.Name }}-pulsar
+      component: {{ .Release.Name }}-pulsar-standalone
   template:
     metadata:
       labels:
-        app: pulsar
-        component: pulsar-standalone
+        app: {{ .Release.Name }}-pulsar
+        component: {{ .Release.Name }}-pulsar-standalone
     spec:
       containers:
-      - name: pulsar-standalone
+      - name: {{ .Release.Name }}-pulsar-standalone
         image: apachepulsar/pulsar:{{ .Values.pulsar.pulsarVersion }}
         resources: 
           limits: 
@@ -28,13 +28,15 @@ spec:
           name: pulsar
         - containerPort: 8080
           name: api
+      {{- with .Values.pulsar.nodeSelector }}
       nodeSelector:
-        coredns: enabled
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: pulsar-standalone
+  name: {{ .Release.Name }}-pulsar-standalone
 spec:
   type: ClusterIP
   ports:
@@ -43,5 +45,5 @@ spec:
   - name: api
     port: 8080
   selector:
-    app: pulsar
-    component: pulsar-standalone
+    app: {{ .Release.Name }}-pulsar
+    component: {{ .Release.Name }}-pulsar-standalone

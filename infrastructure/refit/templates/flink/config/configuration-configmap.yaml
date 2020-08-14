@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: flink-config
+  name: {{ .Release.Name }}-flink-config
   labels:
     app: flink
 data:
   flink-conf.yaml: |+
-    jobmanager.rpc.address: flink-jobmanager
+    jobmanager.rpc.address: {{ .Release.Name }}-flink-jobmanager
     taskmanager.numberOfTaskSlots: 1
     blob.server.port: 6124
     jobmanager.rpc.port: 6123
