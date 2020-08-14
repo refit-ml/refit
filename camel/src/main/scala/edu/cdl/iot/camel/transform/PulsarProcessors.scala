@@ -6,7 +6,7 @@ import org.apache.pulsar.client.api.Schema
 
 object PulsarProcessors {
   private val client = PulsarClient(s"pulsar://127.0.0.1:6650")
-  private val topic = Topic("persistent://sample/standalone/ns1/sensors")
+  private val topic = Topic("persistent://sample/standalone/ns1/predictions")
   private val config = ConsumerConfig(
     Subscription("camel-subs"),
     Seq(topic)

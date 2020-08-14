@@ -2,7 +2,7 @@ package edu.cdl.iot.camel.routes
 
 import edu.cdl.iot.camel.transform.{ProtobufProcessors, PulsarProcessors}
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.protocol.SensorData.SensorData
+import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 
@@ -15,10 +15,9 @@ class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) 
 
   private val logger = new Processor {
     override def process(exchange: Exchange): Unit = {
-      val sensorData = exchange.getIn().getBody(classOf[SensorData])
-      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, sensorData.projectGuid)
-      println(s"Message Received\n\tProject: ${sensorData.projectGuid}\n\tEncrypred GUID: $encrypted\n\tSensorID: ${sensorData.sensorId}\n\tDoubles: ${sensorData.doubles}\n\tStrings: ${sensorData.strings}\n\tIntegers: ${sensorData.integers}")
-
+      val predictionData = exchange.getIn().getBody(classOf[Prediction])
+      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, predictionData.projectGuid)
+      println(s"Message Received\n\tProject: ${predictionData.projectGuid}\n\tEncrypted GUID: $encrypted\n\tSensorID: ${predictionData.sensorId}\n\tDoubles: ${predictionData.doubles}\n\tStrings: ${predictionData.strings}\n\tIntegers: ${predictionData.integers}")
     }
   }
 
@@ -26,7 +25,7 @@ class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) 
   override def configure(): Unit = {
     from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS")
       .process(PulsarProcessors.produceMessages)
-      .process(ProtobufProcessors.Sensors.deserialize)
+      .process(ProtobufProcessors.Predictions.deserialize)
       .process(logger)
       .process(PulsarProcessors.ack)
   }

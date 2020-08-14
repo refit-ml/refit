@@ -1,6 +1,5 @@
 package edu.cdl.iot.camel.routes
 
-
 import edu.cdl.iot.camel.dto.HealthCheckDto
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.CamelContext
@@ -11,7 +10,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
 
   override def configure(): Unit = {
     /* This is to get us started
-     * When you start up camel, this will create a webserver to recieve requests
+     * When you start up camel, this will create a web server to receive requests
      * the example I made here puts a health check endpoint at
      * http://localhost:3000/meta/ping
      */
