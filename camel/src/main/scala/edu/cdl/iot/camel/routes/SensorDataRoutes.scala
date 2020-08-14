@@ -17,7 +17,7 @@ class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) 
     override def process(exchange: Exchange): Unit = {
       val predictionData = exchange.getIn().getBody(classOf[Prediction])
       val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, predictionData.projectGuid)
-      println(s"Message Received\n\tProject: ${predictionData.projectGuid}\n\tEncrypted GUID: $encrypted\n\tSensorID: ${predictionData.sensorId}\n\tDoubles: ${predictionData.doubles}\n\tStrings: ${predictionData.strings}\n\tIntegers: ${predictionData.integers}")
+      println(s"Message Received\n\tProject: ${predictionData.projectGuid}\n\tEncrypted GUID: $encrypted\n\tSensorID: ${predictionData.sensorId}\n\tDoubles: ${predictionData.doubles}\n\tStrings: ${predictionData.strings}\n\tIntegers: ${predictionData.integers}\n\tPredictions: ${predictionData.prediction} ")
     }
   }
 
