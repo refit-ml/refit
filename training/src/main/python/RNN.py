@@ -57,8 +57,8 @@ df = get_sensor_data(project_guid)
 for i in range(3,len(df.columns)):
     avg_str = 'avg_'+ df.columns.values[i]
     std_str = 'std_'+ df.columns.values[i]
-    df['avg'] = df.iloc[:,1].rolling(window=config.avg_window).mean()
-    df['std'] = df.iloc[:,1].rolling(window=config.avg_window).std()
+    df[avg_str] = df.iloc[:,1].rolling(window=config.avg_window).mean()
+    df[std_str] = df.iloc[:,1].rolling(window=config.std_window).std()
 
 df = df.sort_values('timestamp')
 df
