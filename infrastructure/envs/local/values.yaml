@@ -7,8 +7,6 @@ cassandra:
   dbUser:
     user: cassandra
     password: cassandra
-  nodeSelector: 
-    coredns: enabled
   resources:
     limits:
       memory: "1000Mi"
@@ -34,8 +32,6 @@ redis:
       memory: "500Mi"
 
 grafana: 
-  nodeSelector:
-    coredns: enabled
   persistence:
     enabled: false
   plugins:

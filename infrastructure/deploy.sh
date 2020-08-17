@@ -15,10 +15,11 @@ helm create refit
 
 cd ../
 
-helm install --dry-run --debug --generate-name ./refit
 
 if [ "$ACTION" != "install" ]; then
     ACTION="upgrade"
 fi
+
+helm $ACTION refit --namespace iot-prototype --dry-run --debug ./refit
 
 helm $ACTION refit ./refit --namespace iot-prototype -f envs/tiger/values.yaml
