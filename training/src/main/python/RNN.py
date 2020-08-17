@@ -43,7 +43,7 @@ pd.set_option('display.float_format', lambda x: '%.4f' % x)
 warnings.filterwarnings('ignore')
 sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
