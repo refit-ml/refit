@@ -6,7 +6,7 @@ import edu.cdl.iot.inference.util.helpers
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
-import org.apache.flink.api.common.state.{ValueState, ValueStateDescriptor}
+import org.apache.flink.api.common.state.{MapState, MapStateDescriptor}
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
@@ -16,12 +16,11 @@ import org.jpmml.evaluator.{EvaluatorUtil, LoadingModelEvaluatorBuilder, ModelEv
 
 import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
 
-class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
 
-  private var evaluator: ModelEvaluator[_] = _
-  private var modelGuid: String = "__NONE__"
-
-  var ModelState: ValueState[String] = _
+  private var evaluator: Map[String, ModelEvaluator[_]] = _
+  private var modelGuid: Map[String, String] = _
+  private var evaluatorState: MapState[String, ModelEvaluator[_]] = _
+  private var modelState: MapState[String, String] = _
 
   override def processElement1(value: SensorData, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     if (evaluator != null) {
@@ -75,26 +74,34 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
       .build();
     println("Model updated")
 
-    //this.ModelState.update(model.key)
   }
 
   override def open(conf: Configuration): Unit = {
     evaluator = null
-
-    //val ModelStateDescriptor = new ValueStateDescriptor[String]("ModelState", classOf[String])
-    //ModelState = getRuntimeContext.getState[String](ModelStateDescriptor)
-
   }
 
   override def initializeState(context: FunctionInitializationContext): Unit = {
 
-    val ModelStateDescriptor = new ValueStateDescriptor[String]("ModelState", classOf[String])
-    ModelState = getRuntimeContext.getState[String](ModelStateDescriptor)
+    val ModelStateDescriptor = new MapStateDescriptor[String, String]("ModelState", classOf[String], classOf[String])
+    modelState = getRuntimeContext.getMapState[String, String](ModelStateDescriptor)
+
+    val EvaluatorStateDescriptor = new MapStateDescriptor[String, ModelEvaluator[_]]("EvaluatorState", classOf[String], classOf[ModelEvaluator[_]])
+    evaluatorState = context.getKeyedStateStore.getMapState[String, ModelEvaluator[_]](EvaluatorStateDescriptor)
+
+
   }
 
   override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
-    ModelState.clear()
-    ModelState.update(modelGuid)
+    for ((Key, guid) <- modelGuid) {
+      modelState.remove(Key)
+      modelState.put(Key, guid)
+    }
+
+    for ((Key, eval) <- evaluator) {
+      evaluatorState.remove(Key)
+      evaluatorState.put(Key, eval)
+    }
+
   }
 
 }
