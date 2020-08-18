@@ -98,18 +98,16 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     val EvaluatorStateDescriptor = new MapStateDescriptor[String, ModelEvaluator[_]]("EvaluatorState", classOf[String], classOf[ModelEvaluator[_]])
     evaluatorState = context.getKeyedStateStore.getMapState[String, ModelEvaluator[_]](EvaluatorStateDescriptor)
 
-
-
-    val Keys = modelState.keys().asScala
-    for(key <- Keys){
+    
+    val modelKeys = modelState.keys().asScala
+    for(key <- modelKeys){
       models += (key -> modelState.get(key))
-      evaluators += (key -> evaluatorState.get(key))
     }
 
-    // TODO: We need to add the elements from modelState to models HERE
-
-    // TODO: We need to add the elements from evaluatorState to evaluators HERE
-
+    val evaluatorKeys = evaluatorState.keys().asScala
+    for(key <- evaluatorKeys){
+      evaluators += (key -> evaluatorState.get(key))
+    }
 
   }
 
