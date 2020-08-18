@@ -92,22 +92,25 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
 
   override def initializeState(context: FunctionInitializationContext): Unit = {
 
-    val ModelStateDescriptor = new MapStateDescriptor[String, String]("ModelState", classOf[String], classOf[String])
-    modelState = getRuntimeContext.getMapState[String, String](ModelStateDescriptor)
+    val modelStateDescriptor = new MapStateDescriptor[String, String]("ModelState", classOf[String], classOf[String])
+    modelState = getRuntimeContext.getMapState[String, String](modelStateDescriptor)
 
-    val EvaluatorStateDescriptor = new MapStateDescriptor[String, ModelEvaluator[_]]("EvaluatorState", classOf[String], classOf[ModelEvaluator[_]])
-    evaluatorState = context.getKeyedStateStore.getMapState[String, ModelEvaluator[_]](EvaluatorStateDescriptor)
+    val evaluatorStateDescriptor = new MapStateDescriptor[String, ModelEvaluator[_]]("EvaluatorState", classOf[String], classOf[ModelEvaluator[_]])
+    evaluatorState = context.getKeyedStateStore.getMapState[String, ModelEvaluator[_]](evaluatorStateDescriptor)
 
-    
-    val modelKeys = modelState.keys().asScala
-    for(key <- modelKeys){
-      models += (key -> modelState.get(key))
+
+    if(context.isRestored){
+      val modelKeys = modelState.keys().asScala
+      for(key <- modelKeys){
+        models += (key -> modelState.get(key))
+      }
+
+      val evaluatorKeys = evaluatorState.keys().asScala
+      for(key <- evaluatorKeys){
+        evaluators += (key -> evaluatorState.get(key))
+      }
     }
 
-    val evaluatorKeys = evaluatorState.keys().asScala
-    for(key <- evaluatorKeys){
-      evaluators += (key -> evaluatorState.get(key))
-    }
 
   }
 
