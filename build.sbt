@@ -24,6 +24,10 @@ val jdbiDependencies = Seq(
   "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
 )
 
+val cassandraDependencies = Seq(
+  "com.datastax.cassandra" % "cassandra-driver-core" % "3.1.1"
+)
+
 lazy val settings = Seq(
   scalacOptions ++= Seq(
     "-unchecked",
@@ -74,7 +78,7 @@ lazy val camel = (project in file("camel"))
       "javax.servlet" % "javax.servlet-api" % "3.1.0",
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
     ),
-    libraryDependencies ++= jdbiDependencies,
+    libraryDependencies ++= cassandraDependencies,
     mainClass in run := Some("edu.cdl.iot.camel.Main")
   ).dependsOn(protocol, common)
 
