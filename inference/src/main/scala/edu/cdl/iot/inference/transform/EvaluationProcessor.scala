@@ -16,14 +16,19 @@ import org.jpmml.evaluator.{EvaluatorUtil, LoadingModelEvaluatorBuilder, ModelEv
 
 import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
 
+class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
 
-  private var evaluator: Map[String, ModelEvaluator[_]] = _
-  private var modelGuid: Map[String, String] = _
+  private var evaluators: Map[String, ModelEvaluator[_]] = _
+  private var models: Map[String, String] = _
   private var evaluatorState: MapState[String, ModelEvaluator[_]] = _
   private var modelState: MapState[String, String] = _
 
   override def processElement1(value: SensorData, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
-    if (evaluator != null) {
+    val key = ctx.getCurrentKey
+
+    if (evaluators.contains(key) && models.contains(key)) {
+      val evaluator = evaluators(key)
+      val modelGuid = models(key)
       println("Try make ")
       val p = evaluator.evaluate(helpers.getVector(value).asJava)
       val results = EvaluatorUtil.decodeAll(p).asScala
@@ -55,7 +60,7 @@ import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConv
           value.projectGuid,
           value.sensorId,
           value.timestamp,
-          modelGuid,
+          key,
           value.doubles,
           value.strings,
           value.integers,
@@ -63,21 +68,25 @@ import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConv
         )
       )
     }
-
   }
 
   override def processElement2(model: Model, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     println(s"Model update: ${model.key}")
-    modelGuid = model.key
-    evaluator = new LoadingModelEvaluatorBuilder()
-      .load(new ByteArrayInputStream(model.bytes.toByteArray))
-      .build();
+    val key = ctx.getCurrentKey
+
+    evaluators += (
+      key -> new LoadingModelEvaluatorBuilder()
+        .load(new ByteArrayInputStream(model.bytes.toByteArray))
+        .build())
+    models += (key -> model.key)
+
     println("Model updated")
 
   }
 
   override def open(conf: Configuration): Unit = {
-    evaluator = null
+    evaluators = Map[String, ModelEvaluator[_]]()
+    models = Map[String, String]()
   }
 
   override def initializeState(context: FunctionInitializationContext): Unit = {
@@ -91,17 +100,14 @@ import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConv
 
   }
 
-  override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
-    for ((guidkey, guid) <- modelGuid) {
-      modelState.remove(guidkey)
-      modelState.put(guidkey, guid)
-    }
+  override def snapshotState(ctx: FunctionSnapshotContext): Unit = {
+    val id = ctx.getCheckpointId
+    println(s"Checkpointing: ${id}")
+    modelState.clear()
+    evaluatorState.clear()
 
-    for ((evalkey, eval) <- evaluator) {
-      evaluatorState.remove(evalkey)
-      evaluatorState.put(evalkey, eval)
-    }
-
+    models.foreach(model => modelState.put(model._1, model._2))
+    evaluators.foreach(evaluator => evaluatorState.put(evaluator._1, evaluator._2))
   }
 
 }

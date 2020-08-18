@@ -5,5 +5,5 @@ docker-compose build
 docker-compose up --force-recreate -d
 
 if [ "$1" == "demo" ]; then
-    pulsar-client consume persistent://public/standalone/default/event-log -n 0 -s tst-consumer
+    pulsar-client consume persistent://sample/standalone/ns1/predictions -n 0 -s tst-consumer
 fi 
