@@ -15,6 +15,7 @@ import org.apache.flink.util.Collector
 import org.jpmml.evaluator.{EvaluatorUtil, LoadingModelEvaluatorBuilder, ModelEvaluator}
 
 import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
+import scala.collection.JavaConverters._
 
 class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
 
@@ -98,12 +99,11 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     evaluatorState = context.getKeyedStateStore.getMapState[String, ModelEvaluator[_]](EvaluatorStateDescriptor)
 
 
-    // modelState.keys()(key => models(key) = modelState.get(key))
-    // Different syntax but should be doing the same as below
 
-    val Keys = modelState.keys()
+    val Keys = modelState.keys().asScala
     for(key <- Keys){
       models += (key -> modelState.get(key))
+      evaluators += (key -> evaluatorState.get(key))
     }
 
     // TODO: We need to add the elements from modelState to models HERE
