@@ -92,14 +92,14 @@ import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConv
   }
 
   override def snapshotState(snapshotContext: FunctionSnapshotContext): Unit = {
-    for ((Key, guid) <- modelGuid) {
-      modelState.remove(Key)
-      modelState.put(Key, guid)
+    for ((guidkey, guid) <- modelGuid) {
+      modelState.remove(guidkey)
+      modelState.put(guidkey, guid)
     }
 
-    for ((Key, eval) <- evaluator) {
-      evaluatorState.remove(Key)
-      evaluatorState.put(Key, eval)
+    for ((evalkey, eval) <- evaluator) {
+      evaluatorState.remove(evalkey)
+      evaluatorState.put(evalkey, eval)
     }
 
   }
