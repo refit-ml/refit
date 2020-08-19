@@ -7,7 +7,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot
-
+import onnxmltools
 import seaborn as sns
 import warnings
 
@@ -38,12 +38,13 @@ from keras.callbacks import EarlyStopping
 
 
 from Helpers import get_sensor_data
+# import keras2onnx
 
 pd.set_option('display.float_format', lambda x: '%.4f' % x)
 warnings.filterwarnings('ignore')
 sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
-get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
@@ -138,4 +139,10 @@ inv_y = inv_y[:, 0]
 rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
 print('Test RMSE: %.3f' % rmse)
 
-model.save('baseline_model')
+# model.save('baseline_model')
+
+
+
+# keras2onnx.convert_keras(model, name='Test', doc_string='', target_opset=None, channel_first_inputs=None)
+onnx_model = onnxmltools.convert_keras(model)
+onnxmltools.utils.save_model(onnx_model, 'example.onnx')
