@@ -18,6 +18,16 @@ val commonDependencies = Seq(
   "joda-time" % "joda-time" % "2.10.6"
 )
 
+val jdbiDependencies = Seq(
+  "org.jdbi" % "jdbi" % "2.78",
+  "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5",
+  "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
+)
+
+val cassandraDependencies = Seq(
+  "com.datastax.cassandra" % "cassandra-driver-core" % "3.1.1"
+)
+
 lazy val settings = Seq(
   scalacOptions ++= Seq(
     "-unchecked",
@@ -54,18 +64,23 @@ lazy val protocol = (project in file("protocol"))
     PB.protocVersion := "-v3.11.4",
   )
 
+val camelVersion = "3.4.2"
+
 lazy val camel = (project in file("camel"))
   .settings(
     settings,
     libraryDependencies ++= commonDependencies,
     libraryDependencies ++= Seq(
-      "org.apache.camel" % "camel-scala" % "2.10.1",
-      "org.apache.camel" % "camel-core" % "2.20.0",
-      "org.apache.camel" % "camel-pulsar" % "2.24.0",
-      "org.apache.camel" % "camel-stream" % "2.20.0",
+      "org.apache.camel" % "camel-core" % camelVersion,
+      "org.apache.camel" % "camel-rest" % camelVersion,
+      "org.apache.camel" % "camel-jackson" % camelVersion,
+      "org.apache.camel" % "camel-netty-http" % camelVersion,
+      "javax.servlet" % "javax.servlet-api" % "3.1.0",
+      "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
     ),
+    libraryDependencies ++= cassandraDependencies,
     mainClass in run := Some("edu.cdl.iot.camel.Main")
-  )
+  ).dependsOn(protocol, common)
 
 lazy val inference = (project in file("inference"))
   .settings(
@@ -144,11 +159,9 @@ lazy val db = (project in file("db"))
       "org.apache.spark" %% "spark-mllib" % sparkVersion,
       "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
-      "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
-      "org.jdbi" % "jdbi" % "2.78",
-      "org.apache-extras.cassandra-jdbc" % "cassandra-jdbc" % "1.2.5",
-      "org.apache.cassandra" % "cassandra-all" % "4.0-alpha4"
+      "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1"
     ),
+    libraryDependencies ++= jdbiDependencies,
     excludeDependencies ++= Seq(
       ExclusionRule("org.slf4j", "slf4j-log4j12")
     ),

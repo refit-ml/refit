@@ -27,7 +27,7 @@ object Main {
 
     val pulsarHost = helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
     val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
-    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
+    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "" + "", params)
     val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
     val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
@@ -36,16 +36,14 @@ object Main {
     val cassandraUsername = helpers.env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = helpers.env_var("CASSANDRA_PASSWORD", "cassandra", params)
 
-    val serviceUrl = s"pulsar://${pulsarHost}:6650"
-    val adminUrl = s"http://${pulsarHost}:8080"
+    val serviceUrl = s"pulsar://$pulsarHost:6650"
+    val adminUrl = s"http://$pulsarHost:8080"
 
-    println(s"pulsar host: ${pulsarHost}")
-    println(s"cassandra host: ${cassandraHost}")
+    println(s"pulsar host: $pulsarHost")
+    println(s"cassandra host: $cassandraHost")
 
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     config.setCheckpointInterval(checkpointInterval)
-
-
 
 
     val modelSrc = PulsarSourceBuilder.builder(new ModelSchema)

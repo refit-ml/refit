@@ -1,7 +1,7 @@
 package edu.cdl.iot.ingestion
 
 import com.sksamuel.pulsar4s.PulsarClient
-import edu.cdl.iot.ingestion.actions.{Ingestion, Models}
+import edu.cdl.iot.ingestion.actions.{Ingestion, Models, Predictions}
 
 object Main {
 
@@ -18,10 +18,10 @@ object Main {
     val cassandraUsername = env("CASSANDRA_USER", "cassandra")
     val cassandraPassword = env("CASSANDRA_PASSWORD", "cassandra")
     val modelVersion = env("MODEL_VERSION", "__latest__")
-    val action = env("ACTION", "ingest")
+    val action = env("ACTION", "inference")
 
-    println(s"Run with action: ${action}")
-    val client = PulsarClient(s"pulsar://${hostName}:6650")
+    println(s"Run with action: $action")
+    val client = PulsarClient(s"pulsar://$hostName:6650")
 
     action match {
       case "ingest" => Ingestion.simulate(client,
@@ -35,6 +35,10 @@ object Main {
         modelVersion,
         namespace,
         modelTopic)
+      case "inference" => Predictions.simulate(client,
+        namespace,
+        "predictions",
+        sleepIntervalMils)
       case _ => println("No action specified")
     }
 
