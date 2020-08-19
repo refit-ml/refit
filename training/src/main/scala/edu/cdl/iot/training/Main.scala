@@ -1,10 +1,11 @@
 package edu.cdl.iot.training
 
+import java.io.{File, FileInputStream}
 import java.util.UUID
 import java.util.UUID
 
 import com.google.protobuf.ByteString
-import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
+import edu.cdl.iot.common.schema.SchemaFactory
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.training.dto.ModelDto
 import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
@@ -38,7 +39,9 @@ object Main {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val schema = Prototype.dummy
+    val schemaName = "dummy"
+    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/${schemaName}.yaml"
+    val schema = SchemaFactory.parse(new FileInputStream(new File(schemaFile)))
 
     val data = SensorData.load(spark)
     val time = TrainingWindow.load(spark)

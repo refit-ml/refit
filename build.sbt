@@ -15,7 +15,7 @@ val pulsar4sVersion = "2.4.0"
 
 val commonDependencies = Seq(
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-  "joda-time" % "joda-time" % "2.10.6",
+  "joda-time" % "joda-time" % "2.10.6"
 )
 
 val jdbiDependencies = Seq(
@@ -138,8 +138,13 @@ lazy val training = (project in file("training"))
 lazy val common = (project in file("common"))
   .settings(
     settings,
+    resolvers ++= Seq(
+      "Sonatype-public" at "https://oss.sonatype.org/content/groups/public/",
+      Resolver.mavenLocal
+    ),
     libraryDependencies ++= Seq(
       "commons-codec" % "commons-codec" % "1.14",
+      "org.yaml" % "snakeyaml" % "1.26",
       "org.scalatest" %% "scalatest" % "3.2.0" % Test
     ),
     assembly := null,
@@ -168,7 +173,7 @@ lazy val db = (project in file("db"))
     },
     assemblyJarName in assembly := "data.jar",
     assembly := null
-  ).dependsOn(protocol)
+  ).dependsOn(protocol, common)
 
 
 lazy val ingestion = (project in file("ingestion"))

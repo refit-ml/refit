@@ -1,7 +1,7 @@
 package edu.cdl.iot.db.fixtures.`import`
 
+import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.db.fixtures.dto.TrainingWindow
-import edu.cdl.iot.db.fixtures.schema.Schema
 import org.apache.spark.sql.{Dataset, Encoders, SaveMode, SparkSession}
 
 object TrainingWindowImport {
@@ -9,7 +9,7 @@ object TrainingWindowImport {
     .read
     .format("CSV")
     .option("header", "true")
-    .load(s"${System.getProperty("user.dir")}/db/data/${schema.name}-training-window.csv")
+    .load(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}-training-window.csv")
     .map(d =>
       TrainingWindow(
         schema.projectGuid.toString,

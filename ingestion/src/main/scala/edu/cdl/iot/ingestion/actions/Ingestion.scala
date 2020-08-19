@@ -1,9 +1,7 @@
 package edu.cdl.iot.ingestion.actions
 
-import java.time.LocalDateTime
-
 import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
-import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
+import edu.cdl.iot.db.fixtures.schema.Prototype
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.pulsar.client.api.Schema
 import org.joda.time.DateTime

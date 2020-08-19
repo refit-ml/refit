@@ -5,3 +5,11 @@ target/
 .idea/
 .DS_Store
 out
+venv/
+*.pyc
+
+db/data/
+data/
+baseline_model/
+infrastructure/refit/refit/
+infrastructure/refit/charts/
