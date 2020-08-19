@@ -1,11 +1,15 @@
 package edu.cdl.iot.inference
 
+
 import com.datastax.driver.core.Cluster
 import edu.cdl.iot.inference.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
 import edu.cdl.iot.inference.transform.{EvaluationProcessor, PredictionKeyExtractor, SensorDataMapper}
 import edu.cdl.iot.inference.util.helpers
+import edu.cdl.iot.protocol.Model.Model
 import org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}
 import edu.cdl.iot.protocol.Prediction.Prediction
+import edu.cdl.iot.protocol.SensorData.SensorData
+import org.apache.flink.api.java.functions.KeySelector
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
@@ -21,7 +25,6 @@ object Main {
     val params = ParameterTool.fromArgs(args)
     val config = env.getCheckpointConfig
 
-
     val pulsarHost = helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
     val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
     val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
@@ -29,7 +32,6 @@ object Main {
     val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
     val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
-
     val cassandraHost = helpers.env_var("CASSANDRA_HOST", "refit-cassandra", params)
     val cassandraUsername = helpers.env_var("CASSANDRA_USER", "cassandra", params)
     val cassandraPassword = helpers.env_var("CASSANDRA_PASSWORD", "cassandra", params)
@@ -56,6 +58,9 @@ object Main {
     val model = env
       .addSource(modelSrc, "Models")
       .broadcast()
+      .keyBy(new KeySelector[Model, String ] {
+        override def getKey(value: Model): String = value.projectGuid
+      })
 
     val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
       .serviceUrl(serviceUrl)
@@ -64,7 +69,13 @@ object Main {
       .build()
 
 
-    val input = env.addSource(eventSrc, "Events")
+
+
+    val input = env
+      .addSource(eventSrc, "Events")
+      .keyBy(new KeySelector[SensorData, String ] {
+        override def getKey(value: SensorData): String = value.projectGuid
+      })
 
 
     val inference = input
