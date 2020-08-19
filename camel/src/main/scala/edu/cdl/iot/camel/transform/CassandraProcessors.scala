@@ -63,11 +63,12 @@ object CassandraProcessors {
   val sendToCassandra: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
+      val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
       val statement = createSensorDataStatement.bind(
         record.projectGuid,
         record.sensorId,
         record.sensorId,
-        DateTime.parse(record.timestamp), // TODO: This needs to parse the timestamp
+        Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
         combineSensorReadings(record).asJava,
         record.prediction.asJava
       )
