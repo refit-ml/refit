@@ -1,10 +1,13 @@
 package edu.cdl.iot.camel.routes
 
+
 import edu.cdl.iot.camel.transform.{CassandraProcessors, ProtobufProcessors, PulsarProcessors}
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
+
+import scala.collection.mutable
 
 
 class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) {
@@ -13,11 +16,19 @@ class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) 
   // This is just to print everything out for testing,
   // ideally we will have all processors in the ./transform folder
 
-  private val logger = new Processor {
+  private val logger: Processor = new Processor {
+    // Example of how to use the encryption helpers properly
+    val encryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
+
     override def process(exchange: Exchange): Unit = {
-      val predictionData = exchange.getIn().getBody(classOf[Prediction])
-      val encrypted = EncryptionHelper.encrypt(ENCRYPTION_KEY, predictionData.projectGuid)
-      println(s"Message Received\n\tProject: ${predictionData.projectGuid}\n\tEncrypted GUID: $encrypted\n\tSensorID: ${predictionData.sensorId}\n\tDoubles: ${predictionData.doubles}\n\tStrings: ${predictionData.strings}\n\tIntegers: ${predictionData.integers}\n\tPredictions: ${predictionData.prediction} ")
+      val record = exchange.getIn().getBody(classOf[Prediction])
+      val helper = encryptionHelpers.getOrElseUpdate(record.projectGuid, {
+        // This is slow, so we delay evaluation and only compute once when we need it
+        new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
+      })
+
+      val encrypted = helper.transform(record.projectGuid)
+      println(s"Message Received\n\tProject: ${record.projectGuid}\n\tEncrypted GUID: $encrypted\n\tSensorID: ${record.sensorId}\n\tDoubles: ${record.doubles}\n\tStrings: ${record.strings}\n\tIntegers: ${record.integers}\n\tPredictions: ${record.prediction} ")
     }
   }
 
