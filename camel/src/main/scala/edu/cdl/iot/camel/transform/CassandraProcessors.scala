@@ -11,6 +11,9 @@ import org.joda.time.format.DateTimeFormat
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import collection.JavaConverters.mapAsJavaMapConverter
+import edu.cdl.iot.common.security.EncryptionHelper
+
+import scala.collection.mutable
 
 object CassandraProcessors {
   val host = "127.0.0.1"
@@ -61,16 +64,22 @@ object CassandraProcessors {
   }
 
   val sendToCassandra: Processor = new Processor {
+    val ENCRYPTION_KEY = "keyboard_cat"
+    val encryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
       val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
+      val helper = encryptionHelpers.getOrElseUpdate(record.projectGuid, {
+        // This is slow, so we delay evaluation and only compute once when we need it
+        new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
+      })
       val statement = createSensorDataStatement.bind(
         record.projectGuid,
         record.sensorId,
         record.sensorId,
         Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
-        combineSensorReadings(record).asJava,
-        record.prediction.asJava
+        helper.transform(combineSensorReadings(record)).asJava,
+        helper.transform(record.prediction).asJava
       )
       println("Executing the statement")
       session.execute(statement)
