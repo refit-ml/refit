@@ -6,6 +6,8 @@ import java.time.Instant
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import collection.JavaConverters.mapAsJavaMapConverter
@@ -65,11 +67,13 @@ object CassandraProcessors {
         record.projectGuid,
         record.sensorId,
         record.sensorId,
-        Timestamp.from(Instant.now()), // TODO: This needs to parse the timestamp
+        DateTime.parse(record.timestamp), // TODO: This needs to parse the timestamp
         combineSensorReadings(record).asJava,
         record.prediction.asJava
       )
+      println("Executing the statement")
       session.execute(statement)
+      println("Executed the statement")
 
     }
   }
