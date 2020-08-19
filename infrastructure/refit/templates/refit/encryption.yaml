@@ -1,0 +1,20 @@
+{{- if .Release.IsInstall }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Release.Name }}-encryption-key
+  labels:
+    app: {{ .Release.Name }}
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+type: Opaque
+data:
+  {{- if eq .Values.refit.encryptionKey "__generated__" }}
+  password: "{{ randAlphaNum 30 | b64enc }}"
+  {{- else }}
+  password: "{{ .Values.refit.encryptionKey | b64enc }}"
+  {{- end }}
+{{- end }}

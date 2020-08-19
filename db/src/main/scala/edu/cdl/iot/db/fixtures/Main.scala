@@ -1,7 +1,11 @@
 package edu.cdl.iot.db.fixtures
 
+import java.io.{File, FileInputStream}
+
+import edu.cdl.iot.common.schema.SchemaFactory
+import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
-import edu.cdl.iot.db.fixtures.schema.definitions.Prototype
+import edu.cdl.iot.db.fixtures.schema.Prototype
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 
@@ -12,6 +16,10 @@ object Main {
     val cassandraUsername = "cassandra"
     val cassandraPassword = "cassandra"
     val cassandraKeyspace = "cdl_refit"
+    val encryptionKey = "keyboard_cat"
+
+    val schema = Prototype.baxter
+    val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
     val loadSensorData = false
 
@@ -29,11 +37,10 @@ object Main {
       val session = SparkSession.builder.config(conf).getOrCreate()
       session.sparkContext.setLogLevel("ERROR")
 
-      val schema = Prototype.dummy
 
       if (loadSensorData) {
         println("Importing Sensor Data")
-        val data = SensorDataImport.load(session, schema)
+        val data = SensorDataImport.load(session, schema, encryptionHelper)
         data.show(5)
         println("Saving Sensor Data")
         SensorDataImport.save(data)

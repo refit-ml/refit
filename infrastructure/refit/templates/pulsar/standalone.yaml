@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pulsar-standalone
+  labels:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pulsar
+      component: {{ .Release.Name }}-pulsar-standalone
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pulsar
+        component: {{ .Release.Name }}-pulsar-standalone
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-pulsar-standalone
+        image: apachepulsar/pulsar:{{ .Values.pulsar.pulsarVersion }}
+        resources: 
+          limits: 
+            memory: {{ .Values.pulsar.resources.limits.memory }}
+          requests: 
+            memory: {{ .Values.pulsar.resources.requests.memory }}
+        command: ["/bin/bash", "-c", "bin/pulsar standalone"]
+        ports:
+        - containerPort: 6650
+          name: pulsar
+        - containerPort: 8080
+          name: api
+      {{- with .Values.pulsar.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-pulsar-standalone
+  labels:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+spec:
+  type: ClusterIP
+  ports:
+  - name: pulsar
+    port: 6650
+  - name: api
+    port: 8080
+  selector:
+    app: {{ .Release.Name }}-pulsar
+    component: {{ .Release.Name }}-pulsar-standalone
