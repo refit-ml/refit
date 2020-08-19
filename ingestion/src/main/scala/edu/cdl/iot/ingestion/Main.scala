@@ -18,7 +18,7 @@ object Main {
     val cassandraUsername = env("CASSANDRA_USER", "cassandra")
     val cassandraPassword = env("CASSANDRA_PASSWORD", "cassandra")
     val modelVersion = env("MODEL_VERSION", "__latest__")
-    val action = env("ACTION", "inference")
+    val action = env("ACTION", "ingest")
 
     println(s"Run with action: $action")
     val client = PulsarClient(s"pulsar://$hostName:6650")
