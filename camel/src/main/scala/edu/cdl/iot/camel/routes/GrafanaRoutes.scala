@@ -5,6 +5,7 @@ import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthChec
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 import org.apache.camel.model.rest.RestBindingMode
+import scala.collection.JavaConverters._
 
 
 class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
@@ -23,7 +24,6 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
         if (x.`type` == "timeserie") TimeSerieFixtures.response(x.target) else TableFixtures.response
       })
       exchange.getIn.setBody(res)
-
     }
   }
 
@@ -77,7 +77,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
 
     from(SEARCH_ROUTE_ID)
       .transform
-      .constant(Array(schema.fields{3}.name, schema.fields{4}.name, schema.fields{5}.name))
+      .constant((schema.fields.map(i => i.name)).toArray)
 
     from(QUERY_ROUTE_ID)
       .process(postProcessor)
