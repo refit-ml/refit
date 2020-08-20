@@ -23,14 +23,12 @@ object TimeSerieFixtures {
 
   def random(start: Int, end: Int): Int = start + random.nextInt((end - start) + 1)
 
-
   def response(target: String): TimeSerieResponse = {
 
     val lst = Array.ofDim[Any](100, 2)
     for (x <- 0 to 99) {
       lst(x) = Array(random(1, 1000), Instant.now().minus(Duration.standardMinutes(x)).getMillis)
     }
-
 
     new TimeSerieResponse(target, lst)
   }

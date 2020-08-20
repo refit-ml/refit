@@ -1,9 +1,11 @@
 package edu.cdl.iot.camel.routes
 
+import edu.cdl.iot.db.fixtures.schema.Prototype
 import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthCheckDto, QueryRequest, TableFixtures, TimeSerieFixtures}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 import org.apache.camel.model.rest.RestBindingMode
+
 
 class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val port = 3000
@@ -11,6 +13,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val HEALTH_CHECK_ROUTE_ID = "direct:healthcheck"
   private val SEARCH_ROUTE_ID = "direct:grafana-search"
   private val QUERY_ROUTE_ID = "direct:grafana-query"
+  val schema = Prototype.dummy
 
   val postProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
@@ -74,7 +77,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
 
     from(SEARCH_ROUTE_ID)
       .transform
-      .constant(Array("upper_25", "upper_50", "upper_75", "upper_95"))
+      .constant(Array(schema.fields{3}.name, schema.fields{4}.name, schema.fields{5}.name))
 
     from(QUERY_ROUTE_ID)
       .process(postProcessor)
