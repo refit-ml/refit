@@ -1,6 +1,10 @@
 package edu.cdl.iot.camel.dto
 
-import org.joda.time.Instant
+import java.util
+
+import org.joda.time.{Duration, Instant}
+
+import scala.util.Random
 
 class TimeSerieResponse(target: String,
                         datapoints: Array[Array[Any]]) {
@@ -15,10 +19,19 @@ class TimeSerieResponse(target: String,
 
 
 object TimeSerieFixtures {
-  def response(target: String): TimeSerieResponse =
-    new TimeSerieResponse(target, Array(
-      Array(1234, Instant.now().getMillis),
-      Array(1235, Instant.now().getMillis)
-    )
-    )
+  val random = new scala.util.Random
+
+  def random(start: Int, end: Int): Int = start + random.nextInt((end - start) + 1)
+
+
+  def response(target: String): TimeSerieResponse = {
+
+    val lst = Array.ofDim[Any](100, 2)
+    for (x <- 0 to 99) {
+      lst(x) = Array(random(1, 1000), Instant.now().minus(Duration.standardMinutes(x)).getMillis)
+    }
+
+
+    new TimeSerieResponse(target, lst)
+  }
 }
