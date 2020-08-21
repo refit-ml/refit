@@ -52,9 +52,14 @@ object CassandraProcessors {
        |IF NOT EXISTS
     """.stripMargin
 
+  val schemaRecSensorData =
+    s"""
+       |SELECT * FROM $keyspace.sensor_data
+    """.stripMargin
+
   lazy val sensorDataStatement: PreparedStatement = session.prepare(schemaCreateSensorData)
   lazy val sensorStatement: PreparedStatement = session.prepare(schemaCreateSensor)
-
+  lazy val receiveSensorDataStatement: PreparedStatement = session.prepare(schemaRecSensorData)
 
   def combineSensorReadings(v: Prediction): Map[String, String] = {
     val data: Map[String, String] = v.integers.map({
@@ -70,6 +75,15 @@ object CassandraProcessors {
           x -> d
       }))
     data
+  }
+
+  val recFromCassandra: Processor = new Processor {
+    override def process(exchange: Exchange): Unit = {
+      println("Executing the statement")
+      val results = session.execute(receiveSensorDataStatement.bind())
+      println("Executed the statement")
+      println(results)
+    }
   }
 
   val sendToCassandra: Processor = new Processor {
