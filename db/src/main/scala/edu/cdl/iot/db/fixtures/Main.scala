@@ -18,7 +18,7 @@ object Main {
     val cassandraKeyspace = "cdl_refit"
     val encryptionKey = "keyboard_cat"
 
-    val schema = Prototype.baxter
+    val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
     val loadSensorData = false

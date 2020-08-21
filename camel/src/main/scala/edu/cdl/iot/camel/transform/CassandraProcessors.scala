@@ -59,7 +59,6 @@ object CassandraProcessors {
         case (x, d) =>
           x -> d
       }))
-    // TODO: We need to encrypt this map right HERE
     data
   }
 

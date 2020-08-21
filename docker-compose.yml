@@ -10,13 +10,13 @@ services:
 #    deploy:
 #      restart_policy:
 #        condition: on-failure
-#
-#  cassandra:
-#    build: ./db/src/main/cql/
-#    ports:
-#      - "7000:7000"
-#      - "9042:9042"
-#      - "9160:9160"
+
+  cassandra:
+    build: ./db/src/main/cql/
+    ports:
+      - "7000:7000"
+      - "9042:9042"
+      - "9160:9160"
 
   grafana:
     image: grafana/grafana:5.1.0
@@ -25,8 +25,6 @@ services:
     user: "104"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
-
-
 
 networks:
   default:
