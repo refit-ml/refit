@@ -148,7 +148,7 @@ lazy val common = (project in file("common"))
       "org.scalatest" %% "scalatest" % "3.2.0" % Test
     ),
     assembly := null,
-  )
+  ).dependsOn(protocol)
 
 lazy val db = (project in file("db"))
   .settings(

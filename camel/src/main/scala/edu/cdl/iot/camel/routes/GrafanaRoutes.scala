@@ -13,7 +13,6 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val ANNOTATION_ROUTE_ID = "direct:grafana-annotations"
   private val HEALTH_CHECK_ROUTE_ID = "direct:healthcheck"
   private val SEARCH_ROUTE_ID = "direct:grafana-search"
-  private val QUERY_ROUTE_ID = "direct:grafana-query"
 
   val schema: Schema = SchemaFactory.getSchema("dummy")
 
@@ -79,13 +78,6 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
     from(SEARCH_ROUTE_ID)
       .transform
       .constant((schema.fields.map(i => i.name)).toArray)
-
-    from(QUERY_ROUTE_ID)
-      .process(TableFixtures.recFromCassandra)
-      .process(postProcessor)
-      .transform
-      .constant(TableFixtures.response)
-
 
   }
 }
