@@ -1,18 +1,8 @@
 package edu.cdl.iot.camel.transform
 
-import java.sql.Timestamp
-import java.time.Instant
-
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, Session}
 import edu.cdl.iot.camel.dao.CassandraDao
-import edu.cdl.iot.camel.transform.CassandraProcessors.{receiveSensorDataStatement, session}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
-import scala.collection.JavaConverters.mapAsScalaMapConverter
-import collection.JavaConverters.mapAsJavaMapConverter
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.common.util.PredictionHelper
 
@@ -42,7 +32,7 @@ object CassandraProcessors {
   val recFromCassandra: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       println("Executing the statement")
-      val results = session.execute(receiveSensorDataStatement.bind())
+      val results = CassandraDao.getSensorData
       println("Executed the statement")
       println(results)
     }

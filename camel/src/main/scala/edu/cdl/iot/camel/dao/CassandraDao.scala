@@ -3,10 +3,11 @@ package edu.cdl.iot.camel.dao
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, Session}
+import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+
 import collection.JavaConverters.mapAsJavaMapConverter
 
 
@@ -35,18 +36,23 @@ object CassandraDao {
   val session: Session = cluster.connect()
 
   object queries {
-    val schemaCreateSensorData: String =
+    val createSensorData: String =
       s"""
          |INSERT INTO $keyspace.sensor_data(project_guid, sensor_id, partition_key, timestamp, data, prediction)
          |VALUES(?, ?, ?, ?, ?, ?)
     """.stripMargin
 
-    val schemaCreateSensor: String =
+    val createSensor: String =
       s"""
          |INSERT INTO $keyspace.sensor(project_guid, sensor_id, created_at)
          |VALUES (?, ?, ?)
          |IF NOT EXISTS
     """.stripMargin
+
+    val getSensorData: String =
+      s"""
+         |SELECT * FROM $keyspace.sensor_data
+      """.stripMargin
 
     val getSensors: String =
       s"""
@@ -57,14 +63,18 @@ object CassandraDao {
   }
 
   object statements {
-    lazy val sensorDataStatement: PreparedStatement = session.prepare(queries.schemaCreateSensorData)
-    lazy val sensorStatement: PreparedStatement = session.prepare(queries.schemaCreateSensor)
+    lazy val createSensorData: PreparedStatement = session.prepare(queries.createSensorData)
+    lazy val createSensor: PreparedStatement = session.prepare(queries.createSensor)
+    lazy val getSensors: PreparedStatement = session.prepare(queries.getSensors)
+    lazy val getSensorData: PreparedStatement = session.prepare(queries.getSensorData)
   }
+
+
 
   def savePrediction(record: Prediction, data: Map[String, String], predictions: Map[String, String]): Unit = {
     val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
 
-    session.execute(statements.sensorDataStatement
+    session.execute(statements.createSensorData
       .bind(
         record.projectGuid,
         record.sensorId,
@@ -73,12 +83,14 @@ object CassandraDao {
         data.asJava,
         predictions.asJava
       ))
-    session.execute(statements.sensorStatement
+    session.execute(statements.createSensor
       .bind(
         record.projectGuid,
         record.sensorId,
         Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis))
       ))
   }
+
+  def getSensorData: ResultSet = session.execute(statements.getSensorData.bind())
 
 }
