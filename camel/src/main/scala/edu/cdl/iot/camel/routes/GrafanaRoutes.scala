@@ -81,9 +81,12 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .constant((schema.fields.map(i => i.name)).toArray)
 
     from(QUERY_ROUTE_ID)
+      .process(TableFixtures.recFromCassandra)
       .process(postProcessor)
       .transform
       .constant(TableFixtures.response)
+
+
   }
 }
 

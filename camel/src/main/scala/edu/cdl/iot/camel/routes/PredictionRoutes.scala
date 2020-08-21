@@ -32,7 +32,6 @@ class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) 
     }
   }
 
-
   override def configure(): Unit = {
     from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS")
       .process(PulsarProcessors.produceMessages)
