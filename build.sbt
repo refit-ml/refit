@@ -80,7 +80,7 @@ lazy val camel = (project in file("camel"))
     ),
     libraryDependencies ++= cassandraDependencies,
     mainClass in run := Some("edu.cdl.iot.camel.Main")
-  ).dependsOn(protocol, common, db)
+  ).dependsOn(protocol, common)
 
 lazy val inference = (project in file("inference"))
   .settings(

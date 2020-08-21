@@ -1,11 +1,11 @@
 package edu.cdl.iot.camel.routes
 
-import edu.cdl.iot.db.fixtures.schema.Prototype
+
 import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthCheckDto, QueryRequest, TableFixtures, TimeSerieFixtures}
+import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 import org.apache.camel.model.rest.RestBindingMode
-import scala.collection.JavaConverters._
 
 
 class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
@@ -14,7 +14,8 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val HEALTH_CHECK_ROUTE_ID = "direct:healthcheck"
   private val SEARCH_ROUTE_ID = "direct:grafana-search"
   private val QUERY_ROUTE_ID = "direct:grafana-query"
-  val schema = Prototype.dummy
+
+  val schema: Schema = SchemaFactory.getSchema("dummy")
 
   val postProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {

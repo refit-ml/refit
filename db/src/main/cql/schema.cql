@@ -37,6 +37,14 @@ CREATE TABLE IF NOT EXISTS sensor_data
     PRIMARY KEY ((project_guid, sensor_id, partition_key), timestamp)
 );
 
+CREATE TABLE IF NOT EXISTS sensor
+(
+    project_guid  text,
+    sensor_id     text,
+    created_at     timestamp,
+    PRIMARY KEY (project_guid, sensor_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS training_window
 (

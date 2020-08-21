@@ -3,7 +3,8 @@ package edu.cdl.iot.camel.transform
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
+import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, Session}
+import edu.cdl.iot.camel.transform.CassandraProcessors.session
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
 import org.joda.time.DateTime
@@ -36,15 +37,24 @@ object CassandraProcessors {
     builder.build()
   }
 
-  lazy implicit val session: Session = cluster.connect()
+  val session: Session = cluster.connect()
 
-  lazy val schemaCreateSensorData =
+  val schemaCreateSensorData =
     s"""
        |INSERT INTO $keyspace.sensor_data(project_guid, sensor_id, partition_key, timestamp, data, prediction)
        |VALUES(?, ?, ?, ?, ?, ?)
     """.stripMargin
 
-  lazy val createSensorDataStatement = session.prepare(schemaCreateSensorData)
+  val schemaCreateSensor =
+    s"""
+       |INSERT INTO $keyspace.sensor(project_guid, sensor_id, created_at)
+       |VALUES (?, ?, ?)
+       |IF NOT EXISTS
+    """.stripMargin
+
+  lazy val sensorDataStatement: PreparedStatement = session.prepare(schemaCreateSensorData)
+  lazy val sensorStatement: PreparedStatement = session.prepare(schemaCreateSensor)
+
 
   def combineSensorReadings(v: Prediction): Map[String, String] = {
     val data: Map[String, String] = v.integers.map({
@@ -66,6 +76,7 @@ object CassandraProcessors {
   val sendToCassandra: Processor = new Processor {
     val ENCRYPTION_KEY = "keyboard_cat"
     val encryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
+
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
       val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
@@ -73,18 +84,25 @@ object CassandraProcessors {
         // This is slow, so we delay evaluation and only compute once when we need it
         new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
       })
-      val statement = createSensorDataStatement.bind(
-        record.projectGuid,
-        record.sensorId,
-        record.sensorId,
-        Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
-        helper.transform(combineSensorReadings(record)).asJava,
-        helper.transform(record.prediction).asJava
-      )
-      println("Executing the statement")
-      session.execute(statement)
-      println("Executed the statement")
 
+      println("Save Sensor Data")
+      session.execute(sensorDataStatement
+        .bind(
+          record.projectGuid,
+          record.sensorId,
+          record.sensorId,
+          Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
+          helper.transform(combineSensorReadings(record)).asJava,
+          helper.transform(record.prediction).asJava
+        ))
+      println("Save Sensor")
+      session.execute(sensorStatement
+        .bind(
+          record.projectGuid,
+          record.sensorId,
+          Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis))
+        ))
+      println("Done")
     }
   }
 }
