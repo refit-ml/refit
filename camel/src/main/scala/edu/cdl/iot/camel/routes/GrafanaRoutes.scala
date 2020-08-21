@@ -2,6 +2,7 @@ package edu.cdl.iot.camel.routes
 
 
 import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthCheckDto, QueryRequest, TableFixtures, TimeSerieFixtures}
+import edu.cdl.iot.camel.transform.CassandraProcessors
 import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
@@ -13,6 +14,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val ANNOTATION_ROUTE_ID = "direct:grafana-annotations"
   private val HEALTH_CHECK_ROUTE_ID = "direct:healthcheck"
   private val SEARCH_ROUTE_ID = "direct:grafana-search"
+  private val QUERY_ROUTE_ID = "direct:grafana-query"
 
   val schema: Schema = SchemaFactory.getSchema("dummy")
 
@@ -49,6 +51,8 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .outType(classOf[Array[_]])
       .route()
       .process(postProcessor)
+      .process(CassandraProcessors.recFromCassandra)
+
 
     rest("/annotations")
       .post()
@@ -78,6 +82,8 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
     from(SEARCH_ROUTE_ID)
       .transform
       .constant((schema.fields.map(i => i.name)).toArray)
+
+
 
   }
 }
