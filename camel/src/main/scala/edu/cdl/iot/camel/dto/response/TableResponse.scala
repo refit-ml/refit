@@ -1,4 +1,4 @@
-package edu.cdl.iot.camel.dto
+package edu.cdl.iot.camel.dto.response
 
 import org.joda.time.{Duration, Instant}
 

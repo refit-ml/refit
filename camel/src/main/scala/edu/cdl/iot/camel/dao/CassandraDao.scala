@@ -73,6 +73,12 @@ object CassandraDao {
          |FROM $keyspace.sensor
          |WHERE project_guid = ?
          |""".stripMargin
+
+    val getProjects: String =
+      s"""
+         |SELECT project_guid, name
+         |FROM $keyspace.project
+         |""".stripMargin
   }
 
   object statements {
@@ -81,6 +87,7 @@ object CassandraDao {
     lazy val getSensors: PreparedStatement = session.prepare(queries.getSensors)
     lazy val getSensorData: PreparedStatement = session.prepare(queries.getSensorData)
     lazy val getSensorDataInRange: PreparedStatement = session.prepare(queries.getSensorDataInRange)
+    lazy val getProjects: PreparedStatement = session.prepare(queries.getProjects)
   }
 
 
@@ -105,6 +112,13 @@ object CassandraDao {
   }
 
   def getSensorData: ResultSet = session.execute(statements.getSensorData.bind())
+
+  def getProjects: List[String] =
+    session.execute(statements.getProjects.bind())
+      .all()
+      .asScala
+      .map(x => s"${x.get("name", classOf[String])} - ${x.get("project_guid", classOf[String])}" )
+      .toList
 
   def getSensors(projectGuid: String): List[String] =
     session.execute(statements.getSensors.bind(projectGuid))

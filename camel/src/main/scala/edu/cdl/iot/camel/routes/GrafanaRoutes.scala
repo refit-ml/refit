@@ -1,7 +1,9 @@
 package edu.cdl.iot.camel.routes
 
 
-import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthCheckDto, QueryRequest, TableFixtures, TimeSerieFixtures}
+import edu.cdl.iot.camel.dto.request.{QueryRequest, SearchRequest, TagRequest}
+import edu.cdl.iot.camel.dto.response.{AnnotationFixtures, AnnotationResponse, TableFixtures, TimeSerieFixtures}
+import edu.cdl.iot.camel.dto.HealthCheckDto
 import edu.cdl.iot.camel.transform.{CassandraProcessors, GrafanaProcessors}
 import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
 import org.apache.camel.builder.RouteBuilder
@@ -15,6 +17,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val HEALTH_CHECK_ROUTE_ID = "direct:healthcheck"
   private val SEARCH_ROUTE_ID = "direct:grafana-search"
   private val QUERY_ROUTE_ID = "direct:grafana-query"
+  private val SCHEMA_HEADER = "REFIT_SCHEMA"
 
   val schema: Schema = SchemaFactory.getSchema("dummy")
 
@@ -61,8 +64,26 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
 
     rest("/search")
       .post()
+      .`type`(classOf[SearchRequest])
       .outType(classOf[Array[String]])
+      .route()
       .to(SEARCH_ROUTE_ID)
+
+    rest("/tag-keys")
+      .post()
+      .route()
+      .outputType(classOf[Array[String]])
+      .transform()
+      .constant(Array("sensor", "project"))
+
+    rest("/tag-values")
+      .post()
+      .consumes("application/json")
+      .`type`(classOf[TagRequest])
+      .outType(classOf[Array[_]])
+      .route()
+      .setHeader(SCHEMA_HEADER, constant(schema))
+      .process(GrafanaProcessors.tagProcessor)
 
     rest()
       // Health check
@@ -80,8 +101,8 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .constant(AnnotationFixtures.response)
 
     from(SEARCH_ROUTE_ID)
-      .transform
-      .constant((schema.fields.map(i => i.name)).toArray)
+      .setHeader(SCHEMA_HEADER, constant(schema))
+      .process(GrafanaProcessors.searchProcessor)
 
 
   }

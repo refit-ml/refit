@@ -1,5 +1,4 @@
-package edu.cdl.iot.camel.dto
-
+package edu.cdl.iot.camel.dto.response
 
 class Annotation(name: String,
                  enabled: Boolean,

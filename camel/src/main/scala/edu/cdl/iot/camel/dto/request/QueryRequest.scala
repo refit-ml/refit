@@ -1,4 +1,4 @@
-package edu.cdl.iot.camel.dto
+package edu.cdl.iot.camel.dto.request
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

@@ -1,10 +1,6 @@
-package edu.cdl.iot.camel.dto
-
-import java.util
+package edu.cdl.iot.camel.dto.response
 
 import org.joda.time.{Duration, Instant}
-
-import scala.util.Random
 
 class TimeSerieResponse(target: String,
                         datapoints: Array[Array[Any]]) {

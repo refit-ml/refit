@@ -1,7 +1,8 @@
 package edu.cdl.iot.camel.transform
 
 import edu.cdl.iot.camel.dao.CassandraDao
-import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto, QueryRequest, QueryTarget}
+import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest, QueryTarget}
+import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
 import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
@@ -34,14 +35,26 @@ object CassandraProcessors {
   }
   val schema: Schema = SchemaFactory.getSchema("dummy")
 
-  val mapToSensorIds: List[QueryTarget] => List[GrafanaSensorsDto] =
-    (targets: List[QueryTarget]) => targets
+  val sensorFilterPredicate: QueryFilters => Boolean =
+    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
+
+  val getSensorIds: (String, Array[QueryFilters]) => List[String] =
+    (projectGuid: String, filters: Array[QueryFilters]) =>
+      if (filters.exists(sensorFilterPredicate))
+        filters.filter(sensorFilterPredicate)
+          .map(filter => filter.value).toList
+      else
+        CassandraDao.getSensors(projectGuid)
+
+  val mapToSensorIds: QueryRequest => List[GrafanaSensorsDto] =
+    (request: QueryRequest) => request.targets
       .map(x =>
         GrafanaSensorsDto(
           schema.projectGuid.toString,
           x.`type`,
           x.target,
-          CassandraDao.getSensors(schema.projectGuid.toString)))
+          getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
+      .toList
 
   val getEncryptionHelper: String => EncryptionHelper = (projectGuid) =>
     decryptionHelpers.getOrElseUpdate(projectGuid, {
@@ -64,12 +77,11 @@ object CassandraProcessors {
     }
 
 
-
   val grafanaQuery: Processor = new Processor {
 
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn.getBody(classOf[QueryRequest])
-      val data = mapToSensorIds(record.targets.toList)
+      val data = mapToSensorIds(record)
         .flatMap(x => x.sensors.map(y => getSensorReadings(x, y)))
 
       exchange.getIn.setBody(data)

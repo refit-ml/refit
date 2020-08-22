@@ -1,4 +1,4 @@
-package edu.cdl.iot.camel.dto
+package edu.cdl.iot.camel.dto.response
 
 class TableColumn(text: String, `type`: String) {
   def getText: String = text
