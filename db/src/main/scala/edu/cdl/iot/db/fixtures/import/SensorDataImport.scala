@@ -1,42 +1,39 @@
 package edu.cdl.iot.db.fixtures.`import`
 
+import java.sql.Timestamp
+import java.time.Instant
+
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.db.fixtures.dto.{SensorData, TrainingWindow}
-import org.apache.spark.sql.{Dataset, Encoders, SaveMode, SparkSession}
+import edu.cdl.iot.common.util.TimestampHelper
+import edu.cdl.iot.db.fixtures.dto.SensorData
+
+import scala.io.Source
 
 object SensorDataImport {
-  def load(session: SparkSession, schema: Schema, encryptionHelper: EncryptionHelper): Dataset[SensorData] = session
-    .read
-    .format("CSV")
-    .option("header", schema.importOptions.includesHeader)
-    .load(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}.csv")
-    .map(d => {
-      val row = d.toSeq.map(x => x.toString).toArray
+  def load(schema: Schema, encryptionHelper: EncryptionHelper): List[SensorData] = {
+    val bufferedSource = Source.fromFile(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}.csv")
+    val lines = bufferedSource.getLines()
+    if (schema.importOptions.includesHeader) lines.drop(1)
+    val result = lines.map(line => {
+      val row = line.split(",").map(_.trim)
       val key = schema.getKey(row)
       val timestampParts = schema.getTimestamp(row).split("\t")
       val timestamp = timestampParts(0)
       val features = schema.getFeatures(row)
       val labels = schema.getLabels(row)
+
       SensorData(
         schema.projectGuid.toString,
         key,
         key,
-        timestamp,
+        TimestampHelper.parse(timestamp),
         encryptionHelper.transform(features),
         encryptionHelper.transform(labels)
       )
-    })(Encoders.product[SensorData])
+    }).toList
 
-
-  def save(dataSet: Dataset[SensorData]): Unit = dataSet
-    .write.format("org.apache.spark.sql.cassandra")
-    .options(
-      Map(
-        "keyspace" -> "cdl_refit",
-        "table" -> "sensor_data")
-    )
-    .mode(SaveMode.Append)
-    .save
-
+    bufferedSource.close
+    result
+  }
 }

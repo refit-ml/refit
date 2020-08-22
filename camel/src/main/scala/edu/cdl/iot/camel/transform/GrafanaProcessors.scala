@@ -5,6 +5,7 @@ import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResp
 import edu.cdl.iot.camel.dto.GrafanaSensorDataDto
 import edu.cdl.iot.camel.dto.request.{SearchRequest, TagRequest}
 import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.util.TimestampHelper
 import org.apache.camel.{Exchange, Processor}
 import org.joda.time.DateTime
 
@@ -30,7 +31,8 @@ object GrafanaProcessors {
       val data = record.data.map(data => {
         Array[Any](
           getDataValue(record.target, data(record.target.toLowerCase)),
-          DateTime.parse(data("timestamp")).getMillis)
+          TimestampHelper.parseDate(data("timestamp").replace(".0", "")).getMillis
+        )
       }).toArray
 
       Sorting.quickSort(data)(`ByTimestamp`)

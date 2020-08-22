@@ -154,23 +154,12 @@ lazy val db = (project in file("db"))
   .settings(
     settings,
     libraryDependencies ++= Seq(
-      "org.apache.spark" %% "spark-core" % "2.4.5",
-      "org.apache.spark" %% "spark-sql" % "2.4.5",
-      "org.apache.spark" %% "spark-mllib" % sparkVersion,
-      "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
       "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
-      "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1"
     ),
-    libraryDependencies ++= jdbiDependencies,
+    libraryDependencies ++= cassandraDependencies,
     excludeDependencies ++= Seq(
       ExclusionRule("org.slf4j", "slf4j-log4j12")
     ),
-    dependencyOverrides ++= {
-      Seq(
-        "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.1",
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.1",
-      )
-    },
     assemblyJarName in assembly := "data.jar",
     assembly := null
   ).dependsOn(protocol, common)

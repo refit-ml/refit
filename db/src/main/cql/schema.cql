@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS project
     org_guid         text,
     project_guid     text,
     name             text,
-    partition_scheme text,
+    "schema"         text,
     description      text,
     tags             map<text, text>,
     timestamp        timestamp,

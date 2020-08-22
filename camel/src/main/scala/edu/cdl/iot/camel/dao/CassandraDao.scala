@@ -4,10 +4,9 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
-import edu.cdl.iot.camel.transform.CassandraProcessors.{ENCRYPTION_KEY, decryptionHelpers}
 import edu.cdl.iot.common.security.EncryptionHelper
+import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
-import javax.crypto.Cipher
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -92,14 +91,14 @@ object CassandraDao {
 
 
   def savePrediction(record: Prediction, data: Map[String, String], predictions: Map[String, String]): Unit = {
-    val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
+    val timestamp = TimestampHelper.parse(record.timestamp)
 
     session.execute(statements.createSensorData
       .bind(
         record.projectGuid,
         record.sensorId,
         record.sensorId,
-        Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
+        timestamp,
         data.asJava,
         predictions.asJava
       ))
@@ -107,7 +106,7 @@ object CassandraDao {
       .bind(
         record.projectGuid,
         record.sensorId,
-        Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis))
+        timestamp
       ))
   }
 
@@ -127,7 +126,7 @@ object CassandraDao {
       .map(x => x.get("sensor_id", classOf[String]))
       .toList
 
-  def getSensorData(decryptionHelper: (String) => EncryptionHelper,
+  def getSensorData(decryptionHelper: String => EncryptionHelper,
                     projectGuid: String,
                     sensorId: String): List[Map[String, String]] =
     session.execute(statements.getSensorDataInRange.bind(projectGuid, sensorId, sensorId))

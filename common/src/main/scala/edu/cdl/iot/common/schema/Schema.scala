@@ -26,6 +26,7 @@ case class Schema(yaml: SchemaYaml) {
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
 
+  def toYaml: String = (new Yaml).dump(yaml)
 
   def getFileName: String = (if (importOptions == null || importOptions.fileName == null) name else s"$name.csv").toLowerCase()
 
@@ -44,12 +45,12 @@ case class Schema(yaml: SchemaYaml) {
 
   def getFeatures(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Feature)
-      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
+      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 
   def getLabels(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Label)
-      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2).toString))
+      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 
   // TODO We will want to create actual type checks for this
