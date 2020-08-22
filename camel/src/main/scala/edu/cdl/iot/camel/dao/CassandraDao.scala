@@ -4,11 +4,15 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
+import edu.cdl.iot.camel.transform.CassandraProcessors.{ENCRYPTION_KEY, decryptionHelpers}
+import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
+import javax.crypto.Cipher
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
 import collection.JavaConverters.mapAsJavaMapConverter
+import collection.JavaConverters._
 
 
 object CassandraDao {
@@ -102,10 +106,29 @@ object CassandraDao {
 
   def getSensorData: ResultSet = session.execute(statements.getSensorData.bind())
 
-  def getSensors(projectGuid: String): ResultSet =
+  def getSensors(projectGuid: String): List[String] =
     session.execute(statements.getSensors.bind(projectGuid))
+      .all()
+      .asScala
+      .map(x => x.get("sensor_id", classOf[String]))
+      .toList
 
-  def getSensorData(projectGuid: String, sensorId: String): ResultSet =
+  def getSensorData(decryptionHelper: (String) => EncryptionHelper,
+                    projectGuid: String,
+                    sensorId: String): List[Map[String, String]] =
     session.execute(statements.getSensorDataInRange.bind(projectGuid, sensorId, sensorId))
+      .all()
+      .asScala
+      .map(row => {
+        val helper = decryptionHelper(projectGuid)
+        val timestamp = Timestamp.from(row.getTimestamp("timestamp").toInstant)
+        val data = row.getMap("data", classOf[String], classOf[String]).asScala.toMap
+        val predictions = row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap
+
+        Map(
+          "sensorid" -> sensorId,
+          "timestamp" -> timestamp.toString
+        ) ++ helper.transform(data) ++ helper.transform(predictions)
+      }).toList
 
 }
