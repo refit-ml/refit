@@ -6,7 +6,7 @@ fields:
   - name: Auto-Increment
     type: Integer
     classification: ThrowAway
-  - name: Sensor-ID
+  - name: SensorID
     type: Integer
     classification: Key
   - name: Timestamp

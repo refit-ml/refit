@@ -54,6 +54,15 @@ object CassandraDao {
          |SELECT * FROM $keyspace.sensor_data
       """.stripMargin
 
+    val getSensorDataInRange: String =
+      s"""
+         |SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction
+         |FROM $keyspace.sensor_data
+         |WHERE project_guid = ?
+         |AND sensor_id = ?
+         |AND partition_key = ?
+         |""".stripMargin
+
     val getSensors: String =
       s"""
          |SELECT sensor_id
@@ -67,8 +76,8 @@ object CassandraDao {
     lazy val createSensor: PreparedStatement = session.prepare(queries.createSensor)
     lazy val getSensors: PreparedStatement = session.prepare(queries.getSensors)
     lazy val getSensorData: PreparedStatement = session.prepare(queries.getSensorData)
+    lazy val getSensorDataInRange: PreparedStatement = session.prepare(queries.getSensorDataInRange)
   }
-
 
 
   def savePrediction(record: Prediction, data: Map[String, String], predictions: Map[String, String]): Unit = {
@@ -92,5 +101,11 @@ object CassandraDao {
   }
 
   def getSensorData: ResultSet = session.execute(statements.getSensorData.bind())
+
+  def getSensors(projectGuid: String): ResultSet =
+    session.execute(statements.getSensors.bind(projectGuid))
+
+  def getSensorData(projectGuid: String, sensorId: String): ResultSet =
+    session.execute(statements.getSensorDataInRange.bind(projectGuid, sensorId, sensorId))
 
 }

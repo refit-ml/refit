@@ -2,7 +2,7 @@ package edu.cdl.iot.camel.routes
 
 
 import edu.cdl.iot.camel.dto.{AnnotationFixtures, AnnotationResponse, HealthCheckDto, QueryRequest, TableFixtures, TimeSerieFixtures}
-import edu.cdl.iot.camel.transform.CassandraProcessors
+import edu.cdl.iot.camel.transform.{CassandraProcessors, GrafanaProcessors}
 import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
@@ -50,8 +50,8 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .`type`(classOf[QueryRequest])
       .outType(classOf[Array[_]])
       .route()
-      .process(postProcessor)
-      .process(CassandraProcessors.recFromCassandra)
+      .process(CassandraProcessors.grafanaQuery)
+      .process(GrafanaProcessors.queryProcessor)
 
 
     rest("/annotations")
@@ -82,7 +82,6 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
     from(SEARCH_ROUTE_ID)
       .transform
       .constant((schema.fields.map(i => i.name)).toArray)
-
 
 
   }
