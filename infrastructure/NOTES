@@ -1,0 +1,17 @@
+# kubectl port-forward service/refit-cassandra 9000:9042 9160:9160 &
+# kubectl port-forward service/refit-flink-jobmanager 8081:8081 &
+# kubectl port-forward service/refit-pulsar-standalone 6650:6650 &
+# kubectl port-forward service/jenkins 8000:80
+# k port-forward service/redis-master 6379:6379
+
+
+#   These will let you see the cluster dashboard
+    #   kubectl proxy
+    #   UI: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+#   To get admin token
+    #   kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+# fi
+
+minikube start --memory 10000 --cpus 10
+kubectl config set-context --current --namespace=iot-prototype
+k label nodes minikube coredns=enabled

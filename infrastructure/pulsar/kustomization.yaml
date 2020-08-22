@@ -1,9 +1,0 @@
-
-namePrefix: pulsar-
-namespace: iot-prototype
-commonLabels:
-  service: pulsar
-
-
-resources:
-  - standalone.yaml
