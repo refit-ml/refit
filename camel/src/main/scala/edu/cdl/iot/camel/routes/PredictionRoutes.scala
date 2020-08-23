@@ -11,7 +11,7 @@ import scala.collection.mutable
 
 
 class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) {
-  val PULSAR_PROCESS_INTERVAL_MILLS = 100
+  val PULSAR_PROCESS_INTERVAL_MILLS = 10
   val ENCRYPTION_KEY = "keyboard_cat"
   // This is just to print everything out for testing,
   // ideally we will have all processors in the ./transform folder

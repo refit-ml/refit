@@ -20,7 +20,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
   private val QUERY_ROUTE_ID = "direct:grafana-query"
   private val SCHEMA_HEADER = "REFIT_SCHEMA"
 
-  val schema: Schema = SchemaFactory.getSchema("dummy")
+  val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
   val postProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
@@ -86,7 +86,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .`type`(classOf[TagRequest])
       .outType(classOf[Array[_]])
       .route()
-      .setHeader(SCHEMA_HEADER, constant(schema))
+      .setHeader(SCHEMA_HEADER, constant(projectGuid))
       .process(GrafanaProcessors.tagProcessor)
 
     rest()
@@ -105,7 +105,7 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .constant(AnnotationFixtures.response)
 
     from(SEARCH_ROUTE_ID)
-      .setHeader(SCHEMA_HEADER, constant(schema))
+      .setHeader(SCHEMA_HEADER, constant(projectGuid))
       .process(GrafanaProcessors.searchProcessor)
 
 

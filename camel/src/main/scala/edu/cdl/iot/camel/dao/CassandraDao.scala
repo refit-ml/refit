@@ -6,7 +6,7 @@ import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Prepared
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.schema.factories.SchemaFactory
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.common.util.TimestampHelper
+import edu.cdl.iot.common.util.{ConfigHelper, TimestampHelper}
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.joda.time.DateTimeZone
 
@@ -16,7 +16,7 @@ import collection.JavaConverters._
 
 object CassandraDao {
 
-  val host = "127.0.0.1"
+  val host = ConfigHelper.env("CASSANDRA_HOST", "127.0.0.1")
   val keyspace = "cdl_refit"
   val user = "cassandra"
   val password = "cassandra"

@@ -4,7 +4,7 @@ import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
 import edu.cdl.iot.db.fixtures.schema.Prototype
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.pulsar.client.api.Schema
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.util.Random
 
@@ -23,7 +23,7 @@ object Predictions {
 
     print("Begin sending messages")
     while (true) {
-      val timestamp = DateTime.now
+      val timestamp = DateTime.now.toDateTime(DateTimeZone.UTC)
       for (sensorId <- 1000 to 1100) {
         val x = new Prediction(projectGuid, sensorId.toString,
           timestamp.toString("yyyy-MM-dd HH:mm:ss"),

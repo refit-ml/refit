@@ -14,8 +14,8 @@ object Main {
     val batchSize = 100
     val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
-    val loadTrainingWindow = true
-    val loadSensorData = true
+    val loadTrainingWindow = false
+    val loadSensorData = false
 
 
     println("Create schema fixtures ...")
