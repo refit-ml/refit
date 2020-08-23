@@ -1,5 +1,6 @@
 name: Dummy
 projectGuid: b6ee5bab-08dd-49b0-98b6-45cd0a28b12f
+partitionScheme: DAY
 importOptions:
   includesHeader: true
 fields:

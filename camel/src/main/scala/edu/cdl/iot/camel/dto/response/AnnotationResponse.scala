@@ -2,6 +2,8 @@ package edu.cdl.iot.camel.dto.response
 
 import java.time.Instant
 
+import edu.cdl.iot.camel.dto.Annotation
+
 class AnnotationResponse(annotation: Annotation,
                          title: String,
                          time: Long,

@@ -3,10 +3,10 @@ package edu.cdl.iot.common.security
 import java.io.{File, FileInputStream}
 import java.util.UUID
 
-import edu.cdl.iot.common.schema.{FieldClassification, FieldType, SchemaFactory}
+import edu.cdl.iot.common.schema.factories.SchemaFactory
+import edu.cdl.iot.common.schema.enums.FieldClassification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import sun.jvm.hotspot.oops.FieldType
 
 class SchemaTests extends AnyFlatSpec with should.Matchers {
   val filename = s"${System.getProperty("user.dir")}/common/data/dummy.yaml"
@@ -48,7 +48,7 @@ class SchemaTests extends AnyFlatSpec with should.Matchers {
     actual.fields should not be (null)
     actual.fields.size should be(6)
     actual.fields.head.name should be("Auto-Increment")
-    actual.fields.head.`type` should be(edu.cdl.iot.common.schema.FieldType.Integer)
+    actual.fields.head.`type` should be(edu.cdl.iot.common.schema.enums.FieldType.Integer)
     actual.fields.head.classification should be(FieldClassification.ThrowAway)
   }
 

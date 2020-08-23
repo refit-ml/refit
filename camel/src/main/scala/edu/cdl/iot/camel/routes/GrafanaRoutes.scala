@@ -4,8 +4,9 @@ package edu.cdl.iot.camel.routes
 import edu.cdl.iot.camel.dto.request.{QueryRequest, SearchRequest, TagRequest}
 import edu.cdl.iot.camel.dto.response.{AnnotationFixtures, AnnotationResponse, TableFixtures, TimeSerieFixtures}
 import edu.cdl.iot.camel.dto.HealthCheckDto
-import edu.cdl.iot.camel.transform.{CassandraProcessors, GrafanaProcessors}
-import edu.cdl.iot.common.schema.{Schema, SchemaFactory}
+import edu.cdl.iot.camel.transform.{CassandraProcessors, GrafanaProcessors, SchemaProcessors}
+import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.schema.factories.SchemaFactory
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 import org.apache.camel.model.rest.RestBindingMode
@@ -53,6 +54,9 @@ class GrafanaRoutes(val context: CamelContext) extends RouteBuilder(context) {
       .`type`(classOf[QueryRequest])
       .outType(classOf[Array[_]])
       .route()
+      .process(SchemaProcessors.extractOrg)
+      .process(SchemaProcessors.extractSchema)
+      .process(SchemaProcessors.getQueryPartitions)
       .process(CassandraProcessors.grafanaQuery)
       .process(GrafanaProcessors.queryProcessor)
 

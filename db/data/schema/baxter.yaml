@@ -1,5 +1,6 @@
 name: Baxter
 projectGuid: e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93
+partitionScheme: DAY
 importOptions:
   includesHeader: true
 fields:

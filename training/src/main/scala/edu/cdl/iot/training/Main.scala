@@ -5,7 +5,7 @@ import java.util.UUID
 import java.util.UUID
 
 import com.google.protobuf.ByteString
-import edu.cdl.iot.common.schema.SchemaFactory
+import edu.cdl.iot.common.schema.factories.SchemaFactory
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.training.dto.ModelDto
 import edu.cdl.iot.training.load.{SensorData, TrainingWindow}

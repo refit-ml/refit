@@ -26,7 +26,7 @@ object SensorDataImport {
       SensorData(
         schema.projectGuid.toString,
         key,
-        key,
+        schema.getPartitionString(TimestampHelper.parseDate(timestamp)),
         TimestampHelper.parse(timestamp),
         encryptionHelper.transform(features),
         encryptionHelper.transform(labels)

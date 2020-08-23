@@ -83,7 +83,13 @@ object GrafanaProcessors {
             .getSensors(schema.projectGuid.toString)
             .map(x => new TagResponse(x))
             .toArray
-          case _ => CassandraDao.getProjects
+          case "project" => CassandraDao.getProjects
+            .map(x => new TagResponse(x))
+            .toArray
+          case "org" => CassandraDao.getOrgs
+            .map(x => new TagResponse(x))
+            .toArray
+          case _ => CassandraDao.getOrgs
             .map(x => new TagResponse(x))
             .toArray
         }

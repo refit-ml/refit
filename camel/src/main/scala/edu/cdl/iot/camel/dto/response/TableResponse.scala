@@ -1,5 +1,6 @@
 package edu.cdl.iot.camel.dto.response
 
+import edu.cdl.iot.camel.dto.TableColumn
 import org.joda.time.{Duration, Instant}
 
 class TableResponse(columns: Array[TableColumn],

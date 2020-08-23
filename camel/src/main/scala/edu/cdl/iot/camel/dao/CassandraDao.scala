@@ -1,14 +1,13 @@
 package edu.cdl.iot.camel.dao
 
 import java.sql.Timestamp
-import java.time.Instant
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
+import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Row, Session}
+import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.schema.factories.SchemaFactory
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 
 import collection.JavaConverters.mapAsJavaMapConverter
 import collection.JavaConverters._
@@ -55,6 +54,9 @@ object CassandraDao {
     val getSensorData: String =
       s"""
          |SELECT * FROM $keyspace.sensor_data
+         |WHERE project_guid = ?
+         |AND sensor_id = ?
+         |AND partition_key = ?
       """.stripMargin
 
     val getSensorDataInRange: String =
@@ -78,6 +80,21 @@ object CassandraDao {
          |SELECT project_guid, name
          |FROM $keyspace.project
          |""".stripMargin
+
+    val getOrgs: String =
+      s"""
+         |SELECT org_guid, name
+         |FROM $keyspace.org
+         |""".stripMargin
+
+    val getProjectSchema: String =
+      s"""
+         |SELECT "schema"
+         |FROM $keyspace.project
+         |WHERE org_guid = ?
+         |AND project_guid = ?
+         |""".stripMargin
+
   }
 
   object statements {
@@ -87,6 +104,8 @@ object CassandraDao {
     lazy val getSensorData: PreparedStatement = session.prepare(queries.getSensorData)
     lazy val getSensorDataInRange: PreparedStatement = session.prepare(queries.getSensorDataInRange)
     lazy val getProjects: PreparedStatement = session.prepare(queries.getProjects)
+    lazy val getOrgs: PreparedStatement = session.prepare(queries.getOrgs)
+    lazy val getProjectSchema: PreparedStatement = session.prepare(queries.getProjectSchema)
   }
 
 
@@ -116,8 +135,23 @@ object CassandraDao {
     session.execute(statements.getProjects.bind())
       .all()
       .asScala
-      .map(x => s"${x.get("name", classOf[String])} - ${x.get("project_guid", classOf[String])}" )
+      .map(x => s"${x.get("name", classOf[String])} - ${x.get("project_guid", classOf[String])}")
       .toList
+
+  def getOrgs: List[String] =
+    session.execute(statements.getOrgs.bind())
+      .all
+      .asScala
+      .map(x => s"${x.get("name", classOf[String])} - ${x.get("org_guid", classOf[String])}")
+      .toList
+
+  def getProjectSchema(orgGuid: String, projectGuid: String): Schema =
+    session.execute(statements.getProjectSchema.bind(orgGuid, projectGuid))
+      .all
+      .asScala
+      .map(x => SchemaFactory.parse(x.get("schema", classOf[String])))
+      .toList
+      .head
 
   def getSensors(projectGuid: String): List[String] =
     session.execute(statements.getSensors.bind(projectGuid))
@@ -126,12 +160,24 @@ object CassandraDao {
       .map(x => x.get("sensor_id", classOf[String]))
       .toList
 
-  def getSensorData(decryptionHelper: String => EncryptionHelper,
-                    projectGuid: String,
-                    sensorId: String): List[Map[String, String]] =
-    session.execute(statements.getSensorDataInRange.bind(projectGuid, sensorId, sensorId))
+  def getSensorData(projectGuid: String,
+                    sensorId: String,
+                    partition: String): List[Row] =
+    session.execute(
+      statements.getSensorData.bind(
+        projectGuid,
+        sensorId,
+        partition))
       .all()
       .asScala
+      .toList
+
+
+  def getSensorData(decryptionHelper: String => EncryptionHelper,
+                    projectGuid: String,
+                    sensorId: String,
+                    partitions: List[String]): List[Map[String, String]] =
+    partitions.flatMap(partition => getSensorData(projectGuid, sensorId, partition))
       .map(row => {
         val helper = decryptionHelper(projectGuid)
         val timestamp = Timestamp.from(row.getTimestamp("timestamp").toInstant)
@@ -142,6 +188,7 @@ object CassandraDao {
           "sensorid" -> sensorId,
           "timestamp" -> timestamp.toString
         ) ++ helper.transform(data) ++ helper.transform(predictions)
-      }).toList
+      })
+
 
 }
