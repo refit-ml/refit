@@ -24,26 +24,27 @@ object Predictions {
     print("Begin sending messages")
     while (true) {
       val timestamp = DateTime.now
-      val x = new Prediction(projectGuid, random(r, 5000, 5005).toString,
-        timestamp.toString("yyyy-MM-dd HH:mm:ss"),
-        "__MOCK__",
-        Map(
-          "wind" -> random(r, 30, 101).toDouble,
-          "pressure" -> random(r, 900, 1201).toDouble,
-          "temperature" -> random(r, 0, 105).toDouble
-        ),
-        Map(
-          "timestamp" -> timestamp.toString
-        ),
-        Map(
-          "hour" -> timestamp.getHourOfDay
-        ),
-        Map(
-          "target" -> false.toString
+      for (sensorId <- 1000 to 1100) {
+        val x = new Prediction(projectGuid, sensorId.toString,
+          timestamp.toString("yyyy-MM-dd HH:mm:ss"),
+          "__MOCK__",
+          Map(
+            "wind" -> random(r, 30, 101).toDouble,
+            "pressure" -> random(r, 900, 1201).toDouble,
+            "temperature" -> random(r, 0, 105).toDouble
+          ),
+          Map(),
+          Map(
+            "hour" -> timestamp.getHourOfDay
+          ),
+          Map(
+            "target" -> false.toString
+          )
         )
-      )
-      print(s"\nSend message: ${x.sensorId} ${x.timestamp} ${x.doubles} ${x.integers} ${x.strings}\n")
-      val res = producer.send(x.toByteArray)
+        print(s"\nSend message: ${x.sensorId} ${x.timestamp} ${x.doubles} ${x.integers} ${x.strings}\n")
+        val res = producer.send(x.toByteArray)
+      }
+
       Thread.sleep(sleepIntervalMils)
     }
 

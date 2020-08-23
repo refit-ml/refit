@@ -3,6 +3,7 @@ package edu.cdl.iot.camel.transform
 import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
 import org.joda.time.DateTime
 
@@ -43,6 +44,14 @@ object SchemaProcessors {
         .last
         .trim
       val schema = CassandraDao.getProjectSchema(orgGuid, projectGuid)
+      exchange.getIn.setHeader(SCHEMA_HEADER, schema)
+    }
+  }
+
+  val extractSchemaFromProto: Processor = new Processor {
+    override def process(exchange: Exchange): Unit = {
+      val record = exchange.getIn().getBody(classOf[Prediction])
+      val schema = CassandraDao.getProjectSchema(record.projectGuid)
       exchange.getIn.setHeader(SCHEMA_HEADER, schema)
     }
   }

@@ -1,7 +1,7 @@
 package edu.cdl.iot.camel.routes
 
 
-import edu.cdl.iot.camel.transform.{CassandraProcessors, ProtobufProcessors, PulsarProcessors}
+import edu.cdl.iot.camel.transform.{CassandraProcessors, ProtobufProcessors, PulsarProcessors, SchemaProcessors}
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.builder.RouteBuilder
@@ -36,6 +36,7 @@ class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) 
     from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS")
       .process(PulsarProcessors.produceMessages)
       .process(ProtobufProcessors.Predictions.deserialize)
+      .process(SchemaProcessors.extractSchemaFromProto)
       .process(logger)
       .process(CassandraProcessors.sendToCassandra)
       .process(PulsarProcessors.ack)

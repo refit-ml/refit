@@ -31,7 +31,7 @@ object GrafanaProcessors {
       val data = record.data.map(data => {
         Array[Any](
           getDataValue(record.target, data(record.target.toLowerCase)),
-          TimestampHelper.parseDate(data("timestamp").replace(".0", "")).getMillis
+          TimestampHelper.parseDate(data("timestamp")).getMillis
         )
       }).toArray
 

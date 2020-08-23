@@ -3,6 +3,7 @@ package edu.cdl.iot.camel.transform
 import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
+import edu.cdl.iot.camel.transform.GrafanaProcessors.SCHEMA_HEADER
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
@@ -66,6 +67,7 @@ object CassandraProcessors {
 
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
+      val schema = exchange.getIn.getHeader(SCHEMA_HEADER).asInstanceOf[Schema]
       val helper = encryptionHelpers.getOrElseUpdate(record.projectGuid, {
         // This is slow, so we delay evaluation and only compute once when we need it
         new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
@@ -73,7 +75,7 @@ object CassandraProcessors {
 
       val data = helper.transform(PredictionHelper.combineSensorReadings(record))
       val predictions = helper.transform(record.prediction)
-      CassandraDao.savePrediction(record, data, predictions)
+      CassandraDao.savePrediction(schema, record, data, predictions)
     }
   }
 

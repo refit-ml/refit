@@ -13,4 +13,8 @@ object TimestampHelper {
   val parse: String => Timestamp =
     (timestamp: String) =>
       Timestamp.from(Instant.ofEpochMilli(parseDate(timestamp).getMillis))
+
+  val toTimestamp: DateTime => Timestamp =
+    (timestamp: DateTime) =>
+      Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis))
 }
