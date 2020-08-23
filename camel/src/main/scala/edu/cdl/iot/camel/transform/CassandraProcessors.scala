@@ -3,7 +3,6 @@ package edu.cdl.iot.camel.transform
 import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
-import edu.cdl.iot.camel.transform.GrafanaProcessors.SCHEMA_HEADER
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
@@ -41,7 +40,7 @@ object CassandraProcessors {
           getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
       .toList
 
-  private val getEncryptionHelper: String => EncryptionHelper = (projectGuid) =>
+  private val getEncryptionHelper: String => EncryptionHelper = projectGuid =>
     decryptionHelpers.getOrElseUpdate(projectGuid, {
       new EncryptionHelper(ENCRYPTION_KEY, projectGuid, Cipher.DECRYPT_MODE)
     })

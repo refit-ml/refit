@@ -1,6 +1,5 @@
 package edu.cdl.iot.camel.dao
 
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Row, Session}
@@ -9,7 +8,7 @@ import edu.cdl.iot.common.schema.factories.SchemaFactory
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
-import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.DateTimeZone
 
 import collection.JavaConverters.mapAsJavaMapConverter
 import collection.JavaConverters._

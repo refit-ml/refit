@@ -7,7 +7,6 @@ import edu.cdl.iot.camel.dto.request.{SearchRequest, TagRequest}
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.TimestampHelper
 import org.apache.camel.{Exchange, Processor}
-import org.joda.time.DateTime
 
 import scala.util.Sorting
 

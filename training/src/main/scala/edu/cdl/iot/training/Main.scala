@@ -2,7 +2,6 @@ package edu.cdl.iot.training
 
 import java.io.{File, FileInputStream}
 import java.util.UUID
-import java.util.UUID
 
 import com.google.protobuf.ByteString
 import edu.cdl.iot.common.schema.factories.SchemaFactory
@@ -14,8 +13,8 @@ import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
-import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
-import org.apache.spark.sql.functions.{to_timestamp, _}
+import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DoubleType
 import org.joda.time.DateTime
 import org.jpmml.sparkml.PMMLBuilder
@@ -40,7 +39,7 @@ object Main {
     spark.sparkContext.setLogLevel("ERROR")
 
     val schemaName = "dummy"
-    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/${schemaName}.yaml"
+    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/$schemaName.yaml"
     val schema = SchemaFactory.parse(new FileInputStream(new File(schemaFile)))
 
     val data = SensorData.load(spark)
