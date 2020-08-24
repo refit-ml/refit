@@ -51,7 +51,7 @@ grafana:
   persistence:
     enabled: false
   plugins:
-    - simpod-json-datasource
+    - grafana-simple-json-datasource
 
 flink: 
   flinkVersion: 1.10.1
@@ -82,3 +82,12 @@ pulsar:
 refit: 
   version: latest
   encryptionKey: __generated__
+  nodeSelector:
+    coredns: enabled
+  integrations:
+    replicas: 1
+    resources:
+      limits:
+        memory: "2000Mi"
+      requests:
+        memory: "500Mi"

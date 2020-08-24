@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}-data-generation
-        image: cdliotprototype/cdl-refit:{{ .Values.refit.version }}
+        image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
         env:
         - name: PULSAR_HOST
           value: {{ .Release.Name }}-pulsar-standalone
@@ -47,7 +47,7 @@ spec:
         spec:
           containers:
           - name: model-ingestion
-            image: cdliotprototype/cdl-refit:{{ .Values.refit.version }}
+            image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
             env: 
             - name: PULSAR_HOST
               value: refit-pulsar-standalone

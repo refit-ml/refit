@@ -2,7 +2,6 @@ package edu.cdl.iot.ingestion.actions
 
 import com.google.protobuf.ByteString
 import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
-import edu.cdl.iot.db.fixtures.schema.Prototype
 import edu.cdl.iot.ingestion.dao.ModelDao
 import edu.cdl.iot.protocol.Model.Model
 import org.apache.pulsar.client.api.Schema
@@ -23,7 +22,7 @@ object Models {
     val topic: Topic = Topic(s"persistent://sample/standalone/$namespace/$topicName")
     val producerConfig = ProducerConfig(topic)
     val producer = client.producer[Array[Byte]](producerConfig)(schema)
-    val projectGuid = Prototype.dummy.projectGuid.toString
+    val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
     val model = getModel(host, username, password, projectGuid, modelVersion)
     println(s"Sending Model ${model.key}")

@@ -23,13 +23,13 @@ services:
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
 
-  camel:
-    build: ./camel/
-    ports:
-      - "3000:3000"
-    environment:
-      CASSANDRA_HOST: cassandra
-      PULSAR_HOST: pulsar
+#  camel:
+#    build: ./camel/
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      CASSANDRA_HOST: cassandra
+#      PULSAR_HOST: pulsar
 
 
 

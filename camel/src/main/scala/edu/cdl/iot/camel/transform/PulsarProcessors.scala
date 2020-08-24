@@ -3,15 +3,16 @@ package edu.cdl.iot.camel.transform
 import com.sksamuel.pulsar4s.{ConsumerConfig, MessageId, PulsarClient, Subscription, Topic}
 import edu.cdl.iot.common.util.ConfigHelper
 import org.apache.camel.{Exchange, Processor}
-import org.apache.pulsar.client.api.Schema
+import org.apache.pulsar.client.api.{Schema, SubscriptionType}
 
 object PulsarProcessors {
   private val host = ConfigHelper.env("PULSAR_HOST", "127.0.0.1")
   private val client = PulsarClient(s"pulsar://${host}:6650")
   private val topic = Topic("persistent://sample/standalone/ns1/predictions")
   private val config = ConsumerConfig(
-    Subscription("camel-subs"),
-    Seq(topic)
+    Subscription("camel-subscription"),
+    Seq(topic),
+    subscriptionType = Option.apply(SubscriptionType.Shared)
   )
   private val consumer = client.consumer(config)(Schema.BYTES)
   private val MESSAGE_ID_HEADER = "PULSAR_MESSAGE_ID"
