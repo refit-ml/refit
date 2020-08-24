@@ -8,6 +8,8 @@ set -e
 #echo "Start Job \n\t JOB_ID: $JOB_ID\n\t SAVEPOINT: $SAVEPOINT\n\n"
 #
 #flink run -s $SAVEPOINT inference/target/scala-2.11/inference.jar -d
+tag="demo-1"
+
 echo "Build Assemblies"
 sbt assembly
 
@@ -15,9 +17,15 @@ echo "Build Integrations"
 docker build -t integrations camel
 docker tag integrations:latest cdliotprototype/cdl-refit-integrations:latest
 docker push cdliotprototype/cdl-refit-integrations:latest
+docker tag integrations:latest cdliotprototype/cdl-refit-integrations:$tag
+docker push cdliotprototype/cdl-refit-integrations:$tag
+
 
 echo "Build Ingestion"
 docker build -t ingestion ingestion
 docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:latest
 docker push cdliotprototype/cdl-refit-ingestion:latest
+
+docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:$tag
+docker push cdliotprototype/cdl-refit-ingestion:$tag
 

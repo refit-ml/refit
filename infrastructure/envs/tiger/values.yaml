@@ -71,6 +71,7 @@ pulsar:
       memory: "5000Mi"
 
 refit:
+  version: demo-1
   nodeSelector:
     coredns: enabled
   integrations:

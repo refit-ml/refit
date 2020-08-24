@@ -2,6 +2,7 @@
 # kubectl port-forward service/refit-flink-jobmanager 8081:8081 &
 # kubectl port-forward service/refit-pulsar-standalone 6650:6650 &
 # kubectl port-forward service/jenkins 8000:80
+# kubectl port-forward service/grafana 8000:80
 # k port-forward service/redis-master 6379:6379
 
 

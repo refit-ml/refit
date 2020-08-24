@@ -76,11 +76,11 @@ object GrafanaProcessors {
   val tagProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn.getBody(classOf[TagRequest])
-      val schema = exchange.getIn.getHeader(SCHEMA_HEADER).asInstanceOf[Schema]
+      val projectGuid = exchange.getIn.getHeader(SCHEMA_HEADER).asInstanceOf[String]
       exchange.getIn.setBody(
         body.key match {
           case "sensor" => CassandraDao
-            .getSensors(schema.projectGuid.toString)
+            .getSensors(projectGuid)
             .map(x => new TagResponse(x))
             .toArray
           case "project" => CassandraDao.getProjects
