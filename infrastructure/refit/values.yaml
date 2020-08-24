@@ -58,6 +58,19 @@ grafana:
   plugins:
     - name:
       value: grafana-simple-json-datasource
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: REFIT
+        type: simpod-json-datasource
+        url: http://refit-integrations:3000
+        isDefault: true
+        jsonData:
+          tlsSkipVerify: true
+  sidecar:
+    dashboards:
+      enabled: true
 
 flink: 
   flinkVersion: 1.10.1
