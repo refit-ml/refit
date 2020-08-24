@@ -66,7 +66,7 @@ object GrafanaProcessors {
       exchange.getIn.setBody(
         body.target match {
           case "sensors" => CassandraDao.getSensors(projectGuid).toArray
-          case _ => exchange.getIn.setBody(schema.fields.map(i => i.name).toArray)
+          case _ => schema.fields.map(i => i.name).toArray
         }
       )
 

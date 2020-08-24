@@ -8,7 +8,7 @@ set -e
 #echo "Start Job \n\t JOB_ID: $JOB_ID\n\t SAVEPOINT: $SAVEPOINT\n\n"
 #
 #flink run -s $SAVEPOINT inference/target/scala-2.11/inference.jar -d
-tag="ALPHA-2"
+tag="ALPHA-3"
 
 echo "Build Assemblies"
 sbt assembly
@@ -29,3 +29,10 @@ docker push cdliotprototype/cdl-refit-ingestion:latest
 docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:$tag
 docker push cdliotprototype/cdl-refit-ingestion:$tag
 
+echo "Build Cassandra"
+docker build -t cassandra db/src/main/cql/
+docker tag cassandra:latest cdliotprototype/cdl-refit-cassandra:latest
+docker push cdliotprototype/cdl-refit-cassandra:latest
+
+docker tag cassandra:latest cdliotprototype/cdl-refit-cassandra:$tag
+docker push cdliotprototype/cdl-refit-cassandra:$tag

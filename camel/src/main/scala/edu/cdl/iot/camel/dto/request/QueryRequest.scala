@@ -53,7 +53,7 @@ class QueryFilters(var key: String,
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class QueryRequest(var panelId: Int,
+class QueryRequest(var panelId: String,
                    var targets: Array[QueryTarget],
                    var range: QueryRange,
                    var rangeRaw: QueryRangeRaw,
@@ -62,9 +62,9 @@ class QueryRequest(var panelId: Int,
                    var adhocFilters: Array[QueryFilters],
                    var format: String,
                    var maxDataPoints: Long) {
-  def this() = this(0, null, null, null, null, 0, null, null, 0)
+  def this() = this(null, null, null, null, null, 0, null, null, 0)
 
-  def getPanelId: Int = panelId
+  def getPanelId: String = panelId
 
   def getTargets: Array[QueryTarget] = targets
 

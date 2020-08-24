@@ -1,6 +1,9 @@
 
 
-cassandra: 
+cassandra:
+  image:
+    repository: cdliotprototype/cdl-refit-cassandra
+    tag: latest
   cluster:
     replicaCount: 4
     seedCount: 4
@@ -51,7 +54,7 @@ grafana:
   persistence:
     enabled: false
   env:
-    GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
   plugins:
     - name:
       value: grafana-simple-json-datasource
