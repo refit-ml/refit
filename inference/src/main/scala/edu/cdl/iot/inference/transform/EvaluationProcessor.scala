@@ -1,4 +1,5 @@
 package edu.cdl.iot.inference.transform
+
 import java.io.ByteArrayInputStream
 
 import edu.cdl.iot.inference.util.helpers
@@ -79,6 +80,7 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
         .load(new ByteArrayInputStream(model.bytes.toByteArray))
         .build())
     models += (key -> model.key)
+    evaluatorState.put(ctx.getCurrentKey, model.bytes.toByteArray)
 
     println("Model updated")
 
@@ -97,19 +99,14 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     val evaluatorStateDescriptor = new MapStateDescriptor[String, Array[Byte]]("EvaluatorState", classOf[String], classOf[Array[Byte]])
     evaluatorState = context.getKeyedStateStore.getMapState[String, Array[Byte]](evaluatorStateDescriptor)
 
-    if(context.isRestored){
+    if (context.isRestored) {
+      modelState.keys().asScala.foreach(key => models += (key -> modelState.get(key)))
 
-      val modelStateKeys = modelState.keys().asScala
-      for(key <- modelStateKeys){
-        models += (key -> modelState.get(key))
-      }
-
-      val evaluatorStateKeys = evaluatorState.keys().asScala
-      for(key <- evaluatorStateKeys){
-        val evaluatorBytes = evaluatorState.get(key)
-        val evaluator: ModelEvaluator[_] = SerializationUtils.deserialize(evaluatorBytes)
-        evaluators += (key -> evaluator)
-      }
+      evaluatorState.keys().asScala.foreach(
+        key => evaluators +=
+          (key -> new LoadingModelEvaluatorBuilder()
+            .load(new ByteArrayInputStream(evaluatorState.get(key)))
+            .build()))
 
     }
 
@@ -124,13 +121,6 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     evaluatorState.clear()
 
     models.foreach(model => modelState.put(model._1, model._2))
-
-    val evaluatorKeys = evaluators.keys
-    for(key <- evaluatorKeys){
-      val evaluator = evaluators(key)
-      val evaluatorBytes: Array[Byte] = SerializationUtils.serialize(evaluator.isInstanceOf[Serializable])
-      evaluatorState.put(key, evaluatorBytes)
-    }
 
   }
 
