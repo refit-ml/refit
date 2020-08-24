@@ -53,18 +53,18 @@ project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
 
 df = get_sensor_data(project_guid)
-
-for i in range(3,len(df.columns)):
-    avg_str = 'avg_'+ df.columns.values[i]
-    std_str = 'std_'+ df.columns.values[i]
-    df[avg_str] = df.iloc[:,1].rolling(window=config.avg_window).mean()
-    df[std_str] = df.iloc[:,1].rolling(window=config.std_window).std()
-
 df = df.sort_values('timestamp')
-df
-
 df2 = df.drop(['project_guid', 'sensor_id', 'partition_key', 'timestamp'], axis=1)
+num_features = len(df2.columns)
 
+df3 = pd.DataFrame()
+for i in range(0,num_features):
+    avg_str = 'avg_'+ df2.columns.values[i]
+    std_str = 'std_'+ df2.columns.values[i]
+    df3[avg_str] = df2.iloc[:,i].rolling(window=5).mean()
+    df3[std_str] = df2.iloc[:,i].rolling(window=5).std()
+
+df2 = pd.concat([df2, df3],axis=1)
 
 # convert series to supervised learning
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
@@ -99,7 +99,7 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 scaled = scaler.fit_transform(values)
 # frame as supervised learning
 reframed = series_to_supervised(scaled, 1, 1)
-reframed.drop(reframed.columns[47:93], axis=1, inplace=True)
+reframed.drop(reframed.columns[num_features*3:-1], axis=1, inplace=True)
 print(reframed.head())
 
 # split into train and test sets
