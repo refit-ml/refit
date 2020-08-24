@@ -16,7 +16,7 @@ services:
 #      - "9160:9160"
 
   grafana:
-    image: grafana/grafana:5.1.0
+    image: grafana/grafana:7.1.1
     ports:
       - 8000:3000
     user: "104"
