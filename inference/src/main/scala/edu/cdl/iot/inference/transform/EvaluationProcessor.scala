@@ -118,8 +118,6 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     println(s"Checkpointing: ${id}")
 
     modelState.clear()
-    evaluatorState.clear()
-
     models.foreach(model => modelState.put(model._1, model._2))
 
   }
