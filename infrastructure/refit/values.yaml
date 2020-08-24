@@ -50,8 +50,11 @@ grafana:
     coredns: enabled
   persistence:
     enabled: false
+  env:
+    GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
   plugins:
-    - grafana-simple-json-datasource
+    - name:
+      value: grafana-simple-json-datasource
 
 flink: 
   flinkVersion: 1.10.1

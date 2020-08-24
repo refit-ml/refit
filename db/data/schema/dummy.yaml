@@ -22,4 +22,13 @@ fields:
   - name: Wind
     type: Double
     classification: Feature
+  - name: Operable
+    type: Double
+    classification: Label
+  - name: Probability(1)
+    type: Double
+    classification: ThrowAway
+  - name: Probability(0)
+    type: Double
+    classification: ThrowAway
 
