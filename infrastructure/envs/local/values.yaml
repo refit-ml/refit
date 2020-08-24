@@ -58,3 +58,7 @@ pulsar:
       memory: "1000Mi"
     requests: 
       memory: "500Mi"
+refit:
+  version: ALPHA-3
+  integrations:
+    replicas: 1

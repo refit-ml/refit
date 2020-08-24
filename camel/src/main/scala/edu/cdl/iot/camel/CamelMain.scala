@@ -1,4 +1,5 @@
 package edu.cdl.iot.camel
+
 import edu.cdl.iot.camel.routes.{GrafanaRoutes, PredictionRoutes}
 import org.apache.camel.component.netty.http.NettyHttpComponent
 import org.apache.camel.impl.DefaultCamelContext

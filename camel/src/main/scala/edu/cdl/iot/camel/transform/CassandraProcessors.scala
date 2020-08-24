@@ -1,90 +1,104 @@
 package edu.cdl.iot.camel.transform
 
-import java.sql.Timestamp
-import java.time.Instant
-
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
+import edu.cdl.iot.camel.dao.CassandraDao
+import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
+import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
+import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
-import scala.collection.JavaConverters.mapAsScalaMapConverter
-import collection.JavaConverters.mapAsJavaMapConverter
 import edu.cdl.iot.common.security.EncryptionHelper
+import edu.cdl.iot.common.util.PredictionHelper
+import javax.crypto.Cipher
 
 import scala.collection.mutable
 
 object CassandraProcessors {
-  val host = "127.0.0.1"
-  val keyspace = "cdl_refit"
-  val user = "cassandra"
-  val password = "cassandra"
-  val port = 9042
+  val ENCRYPTION_KEY = "keyboard_cat"
+  val SCHEMA_HEADER = "REFIT_SCHEMA"
+  val ORG_HEADER = "REFIT_ORG"
+  val QUERY_PARTITIONS_HEADER = "REFIT_QUERY_PARTITIONS"
+  val decryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
 
-  lazy val poolingOptions: PoolingOptions = {
-    new PoolingOptions()
-      .setConnectionsPerHost(HostDistance.LOCAL, 4, 10)
-      .setConnectionsPerHost(HostDistance.REMOTE, 2, 4)
-  }
+  private val sensorFilterPredicate: QueryFilters => Boolean =
+    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
 
-  lazy val cluster: Cluster = {
-    val builder = Cluster.builder()
-    builder.addContactPoint(host)
-    builder.withCredentials(user, password)
-    builder.withPort(port)
-    builder.build()
-  }
+  private val getSensorIds: (String, Array[QueryFilters]) => List[String] =
+    (projectGuid: String, filters: Array[QueryFilters]) =>
+      if (filters.exists(sensorFilterPredicate))
+        filters.filter(sensorFilterPredicate)
+          .map(filter => filter.value).toList
+      else
+        CassandraDao.getSensors(projectGuid)
 
-  lazy implicit val session: Session = cluster.connect()
+  private val mapToSensorIds: (Schema, QueryRequest) => List[GrafanaSensorsDto] =
+    (schema: Schema, request: QueryRequest) => request.targets
+      .map(x =>
+        GrafanaSensorsDto(
+          schema.projectGuid.toString,
+          x.`type`,
+          x.target,
+          getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
+      .toList
 
-  lazy val schemaCreateSensorData =
-    s"""
-       |INSERT INTO $keyspace.sensor_data(project_guid, sensor_id, partition_key, timestamp, data, prediction)
-       |VALUES(?, ?, ?, ?, ?, ?)
-    """.stripMargin
-
-  lazy val createSensorDataStatement = session.prepare(schemaCreateSensorData)
-
-  def combineSensorReadings(v: Prediction): Map[String, String] = {
-    val data: Map[String, String] = v.integers.map({
-      case (x, d) =>
-        x -> d.toString
+  private val getEncryptionHelper: String => EncryptionHelper = projectGuid =>
+    decryptionHelpers.getOrElseUpdate(projectGuid, {
+      new EncryptionHelper(ENCRYPTION_KEY, projectGuid, Cipher.DECRYPT_MODE)
     })
-      .++(v.doubles.map({
-        case (x, d) =>
-          x -> d.toString
-      }))
-      .++(v.strings.map({
-        case (x, d) =>
-          x -> d
-      }))
-    // TODO: We need to encrypt this map right HERE
-    data
-  }
+
+  private val getSensorReadings: (GrafanaSensorsDto, String, List[String]) => GrafanaSensorDataDto =
+    (sensors: GrafanaSensorsDto, sensorId: String, partitions: List[String]) => {
+      val data = CassandraDao.getSensorData(getEncryptionHelper,
+        sensors.projectGuid,
+        sensorId,
+        partitions)
+          .filter( x => x.contains(sensors.target.toLowerCase))
+
+      GrafanaSensorDataDto(
+        sensors.projectGuid,
+        sensors.`type`,
+        sensors.target,
+        sensorId,
+        data
+      )
+    }
 
   val sendToCassandra: Processor = new Processor {
-    val ENCRYPTION_KEY = "keyboard_cat"
     val encryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
+
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
-      val timestamp = DateTime.parse(record.timestamp, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
+      val schema = exchange.getIn.getHeader(SCHEMA_HEADER).asInstanceOf[Schema]
       val helper = encryptionHelpers.getOrElseUpdate(record.projectGuid, {
         // This is slow, so we delay evaluation and only compute once when we need it
         new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
       })
-      val statement = createSensorDataStatement.bind(
-        record.projectGuid,
-        record.sensorId,
-        record.sensorId,
-        Timestamp.from(Instant.ofEpochMilli(timestamp.getMillis)),
-        helper.transform(combineSensorReadings(record)).asJava,
-        helper.transform(record.prediction).asJava
-      )
-      println("Executing the statement")
-      session.execute(statement)
-      println("Executed the statement")
 
+      val data = helper.transform(PredictionHelper.combineSensorReadings(record))
+      val predictions = helper.transform(record.prediction)
+      CassandraDao.savePrediction(schema, record, data, predictions)
+    }
+  }
+
+  val grafanaQuery: Processor = new Processor {
+
+    override def process(exchange: Exchange): Unit = {
+      val record = exchange.getIn.getBody(classOf[QueryRequest])
+      val schema = exchange.getIn.getHeader(SCHEMA_HEADER, classOf[Schema])
+      val partitions = exchange.getIn.getHeader(QUERY_PARTITIONS_HEADER, classOf[List[String]])
+
+      val data = mapToSensorIds(schema, record)
+        .flatMap(x => x.sensors.map(y => getSensorReadings(x, y, partitions)))
+
+      exchange.getIn.setBody(data)
+    }
+  }
+
+  val recFromCassandra: Processor = new Processor {
+    override def process(exchange: Exchange): Unit = {
+      println("Executing the statement")
+      val results = CassandraDao.getSensorData
+      println("Executed the statement")
+      println(results)
     }
   }
 }

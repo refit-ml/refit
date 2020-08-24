@@ -69,3 +69,10 @@ pulsar:
       memory: "10000Mi"
     requests: 
       memory: "5000Mi"
+
+refit:
+  version: ALPHA-3
+  nodeSelector:
+    coredns: enabled
+  integrations:
+    replicas: 4

@@ -1,11 +1,7 @@
 package edu.cdl.iot.common.schema
 
-import scala.beans.BeanProperty
+import edu.cdl.iot.common.schema.yaml.ImportOptionsYaml
 
-class ImportOptionsYaml extends Serializable {
-  @BeanProperty var fileName: String = _
-  @BeanProperty var includesHeader: Boolean = false
-}
 
 case class ImportOptions(yaml: ImportOptionsYaml) {
   val fileName: String = yaml.fileName

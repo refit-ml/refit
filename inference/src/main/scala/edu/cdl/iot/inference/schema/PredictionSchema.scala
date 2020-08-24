@@ -5,7 +5,7 @@ import org.apache.flink.api.common.serialization.{DeserializationSchema, Seriali
 import org.apache.flink.api.common.typeinfo.TypeInformation
 
 class PredictionSchema extends SerializationSchema[Prediction] with DeserializationSchema[Prediction] {
-  override def serialize(element: Prediction): Array[Byte] = element.toProtoString.getBytes
+  override def serialize(element: Prediction): Array[Byte] = element.toByteArray
 
   override def deserialize(message: Array[Byte]): Prediction = Prediction.parseFrom(message)
 

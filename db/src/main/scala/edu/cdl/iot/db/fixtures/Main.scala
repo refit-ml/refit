@@ -1,58 +1,54 @@
 package edu.cdl.iot.db.fixtures
 
-import java.io.{File, FileInputStream}
-
-import edu.cdl.iot.common.schema.SchemaFactory
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
+import edu.cdl.iot.db.fixtures.dao.FixtureDao
+import edu.cdl.iot.db.fixtures.dto.Sensor
 import edu.cdl.iot.db.fixtures.schema.Prototype
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+
+import scala.collection.mutable
 
 object Main {
   def main(args: Array[String]): Unit = {
-
-    val cassandraHost = "127.0.0.1"
-    val cassandraUsername = "cassandra"
-    val cassandraPassword = "cassandra"
-    val cassandraKeyspace = "cdl_refit"
     val encryptionKey = "keyboard_cat"
-
-    val schema = Prototype.baxter
+    val batchSize = 100
+    val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
     val loadSensorData = false
 
 
     println("Create schema fixtures ...")
-    Fixtures.build(cassandraHost, cassandraUsername, cassandraPassword, cassandraKeyspace)
+    Fixtures.build()
 
     if (loadTrainingWindow || loadSensorData) {
-      val conf = new SparkConf()
-        .setAppName("baselineModel")
-        .set("spark.cassandra.connection.host", cassandraHost)
-        .set("spark.cassandra.auth.username", cassandraUsername)
-        .set("spark.cassandra.auth.password", cassandraPassword)
-        .setMaster("local[2]")
-      val session = SparkSession.builder.config(conf).getOrCreate()
-      session.sparkContext.setLogLevel("ERROR")
-
-
       if (loadSensorData) {
         println("Importing Sensor Data")
-        val data = SensorDataImport.load(session, schema, encryptionHelper)
-        data.show(5)
+        val data = SensorDataImport.load(schema, encryptionHelper)
         println("Saving Sensor Data")
-        SensorDataImport.save(data)
+        data.grouped(batchSize).map(FixtureDao.createSensorData).toList
+
+        val sensors = new mutable.HashMap[String, Sensor]
+
+        data.foreach(x => {
+          sensors.getOrElseUpdate(x.sensor_id, {
+            Sensor(x.project_guid, x.sensor_id, x.timestamp)
+          })
+        })
+        println("Create Sensors")
+        sensors.values.toList.grouped(batchSize).map(FixtureDao.createSensor).toList
+
       }
 
       if (loadTrainingWindow) {
         println("Importing training window data")
-        val data = TrainingWindowImport.load(session, schema)
-        data.show(5)
+        val data = TrainingWindowImport.load(schema)
         println("Saving training window data")
-        TrainingWindowImport.save(data)
+        data.grouped(batchSize).map(FixtureDao.createTrainingWindow).toList
       }
     }
+    println("Done")
+    FixtureDao.close()
   }
+
 }

@@ -1,7 +1,7 @@
 package edu.cdl.iot.camel.routes
 
 
-import edu.cdl.iot.camel.transform.{CassandraProcessors, ProtobufProcessors, PulsarProcessors}
+import edu.cdl.iot.camel.transform.{CassandraProcessors, ProtobufProcessors, PulsarProcessors, SchemaProcessors}
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.builder.RouteBuilder
@@ -11,7 +11,7 @@ import scala.collection.mutable
 
 
 class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) {
-  val PULSAR_PROCESS_INTERVAL_MILLS = 100
+  val PULSAR_PROCESS_INTERVAL_MILLS = 10
   val ENCRYPTION_KEY = "keyboard_cat"
   // This is just to print everything out for testing,
   // ideally we will have all processors in the ./transform folder
@@ -32,11 +32,11 @@ class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) 
     }
   }
 
-
   override def configure(): Unit = {
     from(s"timer://pulsar?period=$PULSAR_PROCESS_INTERVAL_MILLS")
       .process(PulsarProcessors.produceMessages)
       .process(ProtobufProcessors.Predictions.deserialize)
+      .process(SchemaProcessors.extractSchemaFromProto)
       .process(logger)
       .process(CassandraProcessors.sendToCassandra)
       .process(PulsarProcessors.ack)
