@@ -9,18 +9,13 @@ cassandra:
     seedCount: 4
   persistence:
     enabled: false
-    # storageClass: glusterfs
-  dbUser:
-    user: cassandra
-    password: cassandra
-
-  nodeSelector: 
-    coredns: enabled
   resources:
     limits:
       memory: "10000Mi"
     requests:
       memory: "3000Mi"
+  dbUser:
+    existingSecret: refit-cassandra-credentials
 redis: 
   usePassword: true
   password: redis
@@ -76,7 +71,7 @@ flink:
   flinkVersion: 1.10.1
   scalaVersion: 2.11
   nodeSelector:
-        coredns: enabled
+    coredns: enabled
   jobManager: 
     limits: 
       memory: "5000Mi"
@@ -101,6 +96,7 @@ pulsar:
 refit: 
   version: latest
   encryptionKey: __generated__
+  cassandraPassword: __generated__
   nodeSelector:
     coredns: enabled
   integrations:

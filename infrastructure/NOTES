@@ -1,5 +1,5 @@
-# kubectl port-forward service/refit-cassandra 9042:9042 9160:9160 &
-# kubectl port-forward service/refit-flink-jobmanager 8081:8081 &
+kubectl port-forward service/refit-cassandra 9042:9042 9160:9160 &
+kubectl port-forward service/refit-flink-jobmanager 8081:8081 &
 # kubectl port-forward service/refit-pulsar-standalone 6650:6650 &
 # kubectl port-forward service/jenkins 8000:80
 # kubectl port-forward service/refit-grafana 8000:80
@@ -18,3 +18,4 @@ kubectl config set-context --current --namespace=iot-prototype
 k label nodes minikube coredns=enabled
 
 kubectl get secret refit-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret refit-cassandra-credentials -o jsonpath="{.data.cassandra-password}" | base64 --decode ; echo

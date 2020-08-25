@@ -20,6 +20,11 @@ spec:
           value: {{ .Release.Name }}-pulsar-standalone
         - name: CASSANDRA_HOST
           value: {{ .Release.Name }}-cassandra
+        - name: CASSANDRA_PASSWORD
+          valueFrom:
+           secretKeyRef:
+             key: cassandra-password
+             name: refit-cassandra-credentials
         - name: ACTION
           value: ingest
         - name: PROJECT

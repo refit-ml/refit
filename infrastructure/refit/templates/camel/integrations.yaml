@@ -30,6 +30,16 @@ spec:
               value: {{ .Release.Name }}-cassandra
             - name: PROJECT
               value: integrations
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: cassandra-password
+                  name: refit-cassandra-credentials
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: {{ .Release.Name }}-encryption-key
           resources:
             limits:
               memory: {{ .Values.refit.integrations.resources.limits.memory }}

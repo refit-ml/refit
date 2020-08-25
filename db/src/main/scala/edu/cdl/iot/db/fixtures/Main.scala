@@ -1,6 +1,7 @@
 package edu.cdl.iot.db.fixtures
 
 import edu.cdl.iot.common.security.EncryptionHelper
+import edu.cdl.iot.common.util.ConfigHelper
 import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
 import edu.cdl.iot.db.fixtures.dao.FixtureDao
 import edu.cdl.iot.db.fixtures.dto.Sensor
@@ -10,7 +11,7 @@ import scala.collection.mutable
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val encryptionKey = "keyboard_cat"
+    val encryptionKey = ConfigHelper.env("ENCRYPTION_KEY", "keyboard_cat")
     val batchSize = 100
     val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)

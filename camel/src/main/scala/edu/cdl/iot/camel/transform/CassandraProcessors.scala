@@ -7,13 +7,13 @@ import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.common.util.PredictionHelper
+import edu.cdl.iot.common.util.{ConfigHelper, PredictionHelper}
 import javax.crypto.Cipher
 
 import scala.collection.mutable
 
 object CassandraProcessors {
-  val ENCRYPTION_KEY = "keyboard_cat"
+  val ENCRYPTION_KEY: String = ConfigHelper.env("ENCRYPTION_KEY", "keyboard_cat")
   val SCHEMA_HEADER = "REFIT_SCHEMA"
   val ORG_HEADER = "REFIT_ORG"
   val QUERY_PARTITIONS_HEADER = "REFIT_QUERY_PARTITIONS"

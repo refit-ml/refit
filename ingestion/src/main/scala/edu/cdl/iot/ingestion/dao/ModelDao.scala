@@ -1,6 +1,7 @@
 package edu.cdl.iot.ingestion.dao
 
 import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, PreparedStatement, Session}
+import edu.cdl.iot.common.util.ConfigHelper
 
 import collection.JavaConverters._
 
@@ -8,7 +9,7 @@ object ModelDao {
   val host = "127.0.0.1"
   val keyspace = "cdl_refit"
   val user = "cassandra"
-  val password = "cassandra"
+  val password: String = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
   val port = 9042
 
   lazy val poolingOptions: PoolingOptions = {

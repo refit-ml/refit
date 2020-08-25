@@ -16,10 +16,10 @@ import collection.JavaConverters._
 
 object CassandraDao {
 
-  val host = ConfigHelper.env("CASSANDRA_HOST", "127.0.0.1")
+  val host: String = ConfigHelper.env("CASSANDRA_HOST", "127.0.0.1")
   val keyspace = "cdl_refit"
-  val user = "cassandra"
-  val password = "cassandra"
+  val user: String = ConfigHelper.env("CASSANDRA_USER", "cassandra")
+  val password: String = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
   val port = 9042
 
   lazy val poolingOptions: PoolingOptions = {

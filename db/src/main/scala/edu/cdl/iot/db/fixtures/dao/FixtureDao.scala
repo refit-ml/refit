@@ -3,6 +3,7 @@ package edu.cdl.iot.db.fixtures.dao
 import java.sql.Timestamp
 
 import com.datastax.driver.core.{BatchStatement, BoundStatement, Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
+import edu.cdl.iot.common.util.ConfigHelper
 import edu.cdl.iot.db.fixtures.dto.{Org, Project, Sensor, SensorData, TrainingWindow}
 
 import collection.JavaConverters.mapAsJavaMapConverter
@@ -12,7 +13,7 @@ object FixtureDao {
   val host = "127.0.0.1"
   val keyspace = "cdl_refit"
   val user = "cassandra"
-  val password = "cassandra"
+  val password = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
   val port = 9042
 
   lazy val poolingOptions: PoolingOptions = {

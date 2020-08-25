@@ -65,7 +65,7 @@ object SchemaProcessors {
 
       val partitions = mutable.Set[String]()
       var cursor = from
-      while (to.getMillis > cursor.getMillis) {
+      while (to.getMillis >= cursor.getMillis) {
         partitions.add(schema.getPartitionString(cursor))
         cursor = schema.getNextPartition(cursor)
       }
