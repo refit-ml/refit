@@ -23,13 +23,29 @@ object Main {
     val params = ParameterTool.fromArgs(args)
     val config = env.getCheckpointConfig
 
+<<<<<<< HEAD
+
+    val pulsarHost = helpers.env_var("PULSAR_HOST", "127.0.0.1", params)
+=======
     val pulsarHost = helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
+>>>>>>> 3c14f3eda8632a729707f3b869fb5adaba907a59
     val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
     val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
     val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
     val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
     val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
     val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+
+    val cassandraHost = helpers.env_var("CASSANDRA_HOST", "127.0.0.1", params)
+=======
+    val cassandraHost = helpers.env_var("CASSANDRA_HOST", "refit-cassandra", params)
+>>>>>>> 3c14f3eda8632a729707f3b869fb5adaba907a59
+    val cassandraUsername = helpers.env_var("CASSANDRA_USER", "cassandra", params)
+    val cassandraPassword = helpers.env_var("CASSANDRA_PASSWORD", "cassandra", params)
+>>>>>>> 2d68c791f7f0dc86cf20ec6729a735e0d3ab6733
 
     val serviceUrl = s"pulsar://$pulsarHost:6650"
 
