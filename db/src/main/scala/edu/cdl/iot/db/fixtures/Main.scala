@@ -12,11 +12,11 @@ import scala.collection.mutable
 object Main {
   def main(args: Array[String]): Unit = {
     val encryptionKey = ConfigHelper.env("ENCRYPTION_KEY", "keyboard_cat")
-    val batchSize = 100
-    val schema = Prototype.dummy
+    val batchSize = 5
+    val schema = Prototype.baxter
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
-    val loadSensorData = false
+    val loadSensorData = true
 
 
     println("Create schema fixtures ...")

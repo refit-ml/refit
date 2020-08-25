@@ -19,7 +19,7 @@ object SensorDataImport {
       val row = line.split(",").map(_.trim)
       val key = schema.getKey(row)
       val timestampParts = schema.getTimestamp(row).split("\t")
-      val timestamp = timestampParts(0)
+      val timestamp = timestampParts(0).replace(".0", "")
       val features = schema.getFeatures(row)
       val labels = schema.getLabels(row)
 

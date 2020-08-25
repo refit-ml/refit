@@ -51,7 +51,9 @@ object SchemaProcessors {
   val extractSchemaFromProto: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
-      val schema = CassandraDao.getProjectSchema(record.projectGuid)
+      val schema = CassandraDao.getProjectSchemas
+        .filter(x => x.projectGuid.toString == record.projectGuid)
+        .head
       exchange.getIn.setHeader(SCHEMA_HEADER, schema)
     }
   }

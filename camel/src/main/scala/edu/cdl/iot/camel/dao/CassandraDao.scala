@@ -69,6 +69,12 @@ object CassandraDao {
          |AND partition_key = ?
          |""".stripMargin
 
+    val getAllSensors: String =
+      s"""
+         |SELECT sensor_id
+         |FROM $keyspace.sensor
+         |""".stripMargin
+
     val getSensors: String =
       s"""
          |SELECT sensor_id
@@ -101,6 +107,7 @@ object CassandraDao {
   object statements {
     lazy val createSensorData: PreparedStatement = session.prepare(queries.createSensorData)
     lazy val createSensor: PreparedStatement = session.prepare(queries.createSensor)
+    lazy val getAllSensors: PreparedStatement = session.prepare(queries.getAllSensors)
     lazy val getSensors: PreparedStatement = session.prepare(queries.getSensors)
     lazy val getSensorData: PreparedStatement = session.prepare(queries.getSensorData)
     lazy val getSensorDataInRange: PreparedStatement = session.prepare(queries.getSensorDataInRange)
@@ -159,14 +166,19 @@ object CassandraDao {
       .toList
       .head
 
-  def getProjectSchema(projectGuid: String): Schema =
+  def getProjectSchemas: List[Schema] =
     session.execute(statements.getProjects.bind)
       .all
       .asScala
-      .filter(x => x.get("project_guid", classOf[String]) == projectGuid)
       .map(x => SchemaFactory.parse(x.get("schema", classOf[String])))
       .toList
-      .head
+
+  def getAllSensors: List[String] =
+    session.execute(statements.getAllSensors.bind())
+      .all()
+      .asScala
+      .map(x => x.get("sensor_id", classOf[String]))
+      .toList
 
   def getSensors(projectGuid: String): List[String] =
     session.execute(statements.getSensors.bind(projectGuid))
@@ -174,6 +186,7 @@ object CassandraDao {
       .asScala
       .map(x => x.get("sensor_id", classOf[String]))
       .toList
+
 
   def getSensorData(projectGuid: String,
                     sensorId: String,
@@ -196,7 +209,7 @@ object CassandraDao {
       .map(row => {
         val helper = decryptionHelper(projectGuid)
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val timestamp = formatter.format( row.getTimestamp("timestamp"))
+        val timestamp = formatter.format(row.getTimestamp("timestamp"))
         val data = row.getMap("data", classOf[String], classOf[String]).asScala.toMap
         val predictions = row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap
 
