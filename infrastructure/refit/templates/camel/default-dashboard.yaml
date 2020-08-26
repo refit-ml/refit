@@ -810,7 +810,7 @@ data:
       "uid": "eHHfJ5HMz",
       "version": 3
     }
-    
+
   baxter-dashboard.json: |- 
     {
       "annotations": {
@@ -1646,7 +1646,7 @@ data:
                 "condition": "",
                 "key": "sensor",
                 "operator": "=",
-                "value": "077996514214469671"
+                "value": "090886014240220151"
               }
             ],
             "hide": 0,
@@ -1658,8 +1658,8 @@ data:
         ]
       },
       "time": {
-        "from": "2015-03-20T05:00:00.000Z",
-        "to": "2015-03-30T05:00:00.000Z"
+        "from": "2015-02-17T06:00:00.000Z",
+        "to": "2015-02-20T06:00:00.000Z"
       },
       "timepicker": {
         "refresh_intervals": [
