@@ -11,7 +11,7 @@ import edu.cdl.iot.db.fixtures.dto.SensorData
 import scala.io.Source
 
 object SensorDataImport {
-  def load(schema: Schema, encryptionHelper: EncryptionHelper): List[SensorData] = {
+  def load(schema: Schema, encryptionHelper: EncryptionHelper): Iterator[SensorData] = {
     val bufferedSource = Source.fromFile(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}.csv")
     val lines = bufferedSource.getLines()
     if (schema.importOptions.includesHeader) lines.drop(1)
@@ -31,9 +31,9 @@ object SensorDataImport {
         encryptionHelper.transform(features),
         encryptionHelper.transform(labels)
       )
-    }).toList
+    })
 
-    bufferedSource.close
+//    bufferedSource.close
     result
   }
 }

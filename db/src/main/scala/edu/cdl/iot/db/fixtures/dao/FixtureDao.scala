@@ -98,9 +98,9 @@ object FixtureDao {
       record.prediction.asJava
     )
 
-  def createSensorData(records: List[SensorData]): ResultSet = {
+  def createSensorData(records: Seq[SensorData]): ResultSet = {
     val batchedStatement = new BatchStatement()
-    records.map(createSensorData)
+    records.toList.map(createSensorData)
       .foreach(batchedStatement.add)
     session.execute(batchedStatement)
   }
