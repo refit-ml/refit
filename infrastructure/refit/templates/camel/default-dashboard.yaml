@@ -1339,6 +1339,72 @@ data:
               "refId": "P",
               "target": "pumpID_enc16",
               "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "Q",
+              "target": "pumpID_enc17",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "R",
+              "target": "pumpID_enc18",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "S",
+              "target": "pumpID_enc19",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "T",
+              "target": "pumpID_enc20",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "U",
+              "target": "pumpID_enc21",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "V",
+              "target": "pumpID_enc22",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "W",
+              "target": "pumpID_enc23",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "X",
+              "target": "pumpID_enc24",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "Y",
+              "target": "pumpID_enc25",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "Z",
+              "target": "pumpID_enc26",
+              "type": "timeseries"
+            },
+            {
+              "data": "",
+              "refId": "AA",
+              "target": "pumpID_enc27",
+              "type": "timeseries"
             }
           ],
           "thresholds": [],
