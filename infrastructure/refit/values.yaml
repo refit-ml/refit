@@ -1,23 +1,21 @@
 
 
-cassandra: 
+cassandra:
+  image:
+    repository: cdliotprototype/cdl-refit-cassandra
+    tag: latest
   cluster:
     replicaCount: 4
     seedCount: 4
   persistence:
     enabled: false
-    # storageClass: glusterfs
-  dbUser:
-    user: cassandra
-    password: cassandra
-
-  nodeSelector: 
-    coredns: enabled
   resources:
     limits:
       memory: "10000Mi"
     requests:
       memory: "3000Mi"
+  dbUser:
+    existingSecret: refit-cassandra-credentials
 redis: 
   usePassword: true
   password: redis
@@ -50,14 +48,30 @@ grafana:
     coredns: enabled
   persistence:
     enabled: false
+  env:
+    GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
   plugins:
-    - simpod-json-datasource
+    - name:
+      value: grafana-simple-json-datasource
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: REFIT
+        type: simpod-json-datasource
+        url: http://refit-integrations:3000
+        isDefault: true
+        jsonData:
+          tlsSkipVerify: true
+  sidecar:
+    dashboards:
+      enabled: true
 
 flink: 
   flinkVersion: 1.10.1
   scalaVersion: 2.11
   nodeSelector:
-        coredns: enabled
+    coredns: enabled
   jobManager: 
     limits: 
       memory: "5000Mi"
@@ -82,3 +96,13 @@ pulsar:
 refit: 
   version: latest
   encryptionKey: __generated__
+  cassandraPassword: __generated__
+  nodeSelector:
+    coredns: enabled
+  integrations:
+    replicas: 1
+    resources:
+      limits:
+        memory: "2000Mi"
+      requests:
+        memory: "500Mi"

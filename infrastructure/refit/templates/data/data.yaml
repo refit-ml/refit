@@ -14,12 +14,17 @@ spec:
     spec:
       containers:
       - name: {{ .Release.Name }}-data-generation
-        image: cdliotprototype/cdl-refit:{{ .Values.refit.version }}
+        image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
         env:
         - name: PULSAR_HOST
           value: {{ .Release.Name }}-pulsar-standalone
         - name: CASSANDRA_HOST
           value: {{ .Release.Name }}-cassandra
+        - name: CASSANDRA_PASSWORD
+          valueFrom:
+           secretKeyRef:
+             key: cassandra-password
+             name: refit-cassandra-credentials
         - name: ACTION
           value: ingest
         - name: PROJECT
@@ -47,7 +52,7 @@ spec:
         spec:
           containers:
           - name: model-ingestion
-            image: cdliotprototype/cdl-refit:{{ .Values.refit.version }}
+            image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
             env: 
             - name: PULSAR_HOST
               value: refit-pulsar-standalone
