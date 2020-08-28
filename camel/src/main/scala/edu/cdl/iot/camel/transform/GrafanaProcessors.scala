@@ -41,8 +41,17 @@ object GrafanaProcessors {
       )
     }
 
-  val table: GrafanaSensorDataDto => TableResponse = (record: GrafanaSensorDataDto) => {
-    new TableResponse(Array(), Array())
+  val table: GrafanaSensorDataDto => TableResponse =
+    (record: GrafanaSensorDataDto) => {
+      println("I am here!!!")
+      val data = record.data.map(data => {
+        Array[Any](
+          getDataValue(record.target, data(record.target.toLowerCase)),
+          TimestampHelper.parseDate(data("timestamp")).getMillis
+        )
+      }).toArray
+
+      new TableResponse(Array(s"${record.target} - ${record.sensorId}"), Array(Array(data)))
   }
 
   val getResponse: GrafanaSensorDataDto => Object =
