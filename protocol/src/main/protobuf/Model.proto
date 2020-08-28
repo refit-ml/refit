@@ -1,8 +1,14 @@
 syntax = "proto3";
 package edu.cdl.iot.protocol;
 
+enum SerializationFormat {
+  ONNX = 0;
+  PMML = 1;
+}
+
 message Model  {
   string projectGuid = 1;
   string key = 2;
   bytes bytes = 3;
+  SerializationFormat format = 4;
 }

@@ -141,7 +141,8 @@ lazy val inference = (project in file("inference"))
       "org.apache.pulsar" % "pulsar-flink" % "2.5.2",
       "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion,
       "org.jpmml" % "pmml-evaluator-extension" % pmmlVersion,
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
+      "com.microsoft.onnxruntime" % "onnxruntime" % "1.4.0"
     ),
     mainClass in assembly := Some("edu.cdl.iot.inference.Main"),
     assemblyJarName in assembly := "inference.jar",

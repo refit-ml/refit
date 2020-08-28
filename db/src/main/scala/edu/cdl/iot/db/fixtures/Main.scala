@@ -27,7 +27,7 @@ object Main {
         println("Importing Sensor Data")
         val data = SensorDataImport.load(schema, encryptionHelper)
         println("Saving Sensor Data")
-//        data.grouped(batchSize).map(FixtureDao.createSensorData).toList
+        data.grouped(batchSize).map(FixtureDao.createSensorData).toList
 
         val sensors = new mutable.HashMap[String, Sensor]
 

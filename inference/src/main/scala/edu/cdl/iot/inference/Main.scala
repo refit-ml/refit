@@ -3,7 +3,7 @@ package edu.cdl.iot.inference
 
 import edu.cdl.iot.inference.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
 import edu.cdl.iot.inference.transform.{EvaluationProcessor, PredictionKeyExtractor, SensorDataMapper}
-import edu.cdl.iot.inference.util.helpers
+import edu.cdl.iot.inference.util.Helpers
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -23,13 +23,13 @@ object Main {
     val params = ParameterTool.fromArgs(args)
     val config = env.getCheckpointConfig
 
-    val pulsarHost = helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
-    val inputTopic = helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
-    val outputTopic = helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
-    val subscribtionName = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
-    val modelTopic = helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
-    val subscribtionNameModels = helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
-    val checkpointInterval = helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
+    val pulsarHost = Helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
+    val inputTopic = Helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
+    val outputTopic = Helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
+    val subscribtionName = Helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
+    val modelTopic = Helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
+    val subscribtionNameModels = Helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
+    val checkpointInterval = Helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
 
     val serviceUrl = s"pulsar://$pulsarHost:6650"
 

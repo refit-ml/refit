@@ -141,8 +141,5 @@ print('Test RMSE: %.3f' % rmse)
 
 # model.save('baseline_model')
 
-
-
-# keras2onnx.convert_keras(model, name='Test', doc_string='', target_opset=None, channel_first_inputs=None)
 onnx_model = onnxmltools.convert_keras(model)
-onnxmltools.utils.save_model(onnx_model, 'example.onnx')
+onnxmltools.utils.save_model(onnx_model, 'output/model.onnx')

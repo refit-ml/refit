@@ -811,7 +811,8 @@ data:
       "version": 3
     }
 
-  baxter-dashboard.json: |- 
+
+  baxter-dashboard.json: |-
     {
       "annotations": {
         "list": [
