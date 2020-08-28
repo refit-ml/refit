@@ -103,5 +103,5 @@ class RefitEvaluator(private val model: Model) {
       }
     )
 
-  def toByteArray: Array[Byte] = model.bytes.toByteArray
+  def toByteArray: Array[Byte] = model.toByteArray
 }
