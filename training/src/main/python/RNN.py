@@ -112,7 +112,7 @@ print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
 # baseline model
 model = Sequential()
 model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
-model.add(Dense(1))
+model.add(Dense(1,name="prediction"))
 model.compile(loss='mae', optimizer='adam')
 # fitting model
 history = model.fit(train_X, train_y, epochs=50, batch_size=20, validation_data=(test_X, test_y), verbose=2,
