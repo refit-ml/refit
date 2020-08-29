@@ -9,7 +9,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class SchemaTests extends AnyFlatSpec with should.Matchers {
-  val filename = s"${System.getProperty("user.dir")}/common/data/dummy.yaml"
+  val filename = s"${System.getProperty("user.dir")}/db/data/schema/dummy.yaml"
 
 
   "Schema" should "Parse name" in {
@@ -46,14 +46,14 @@ class SchemaTests extends AnyFlatSpec with should.Matchers {
 
     actual should not be (null)
     actual.fields should not be (null)
-    actual.fields.size should be(6)
+    actual.fields.size should be(9)
     actual.fields.head.name should be("Auto-Increment")
     actual.fields.head.`type` should be(edu.cdl.iot.common.schema.enums.FieldType.Integer)
     actual.fields.head.classification should be(FieldClassification.ThrowAway)
   }
 
   "Schema Parsing" should "Should work for baxter schema" in {
-    val filename = s"${System.getProperty("user.dir")}/common/data/baxter.yaml"
+    val filename = s"${System.getProperty("user.dir")}/db/data/schema/baxter.yaml"
     val input = new FileInputStream(new File(filename))
     val actual = SchemaFactory.parse(input)
 

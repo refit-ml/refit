@@ -1,6 +1,7 @@
 package edu.cdl.iot.inference.transform
 
-import edu.cdl.iot.inference.util.{Helpers, RefitEvaluator}
+import edu.cdl.iot.inference.evaluators.IRefitEvaluator
+import edu.cdl.iot.inference.util.{EvaluatorFactory, Helpers}
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -15,7 +16,7 @@ import scala.collection.JavaConverters._
 
 class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
 
-  private var evaluators: Map[String, RefitEvaluator] = _
+  private var evaluators: Map[String, IRefitEvaluator] = _
   private var evaluatorState: MapState[String, Array[Byte]] = _
 
   override def processElement1(value: SensorData, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
@@ -38,14 +39,14 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     val key = ctx.getCurrentKey
 
     evaluators += (
-      key -> new RefitEvaluator(model))
+      key -> EvaluatorFactory.getEvaluator(model))
 
     println("Model updated")
 
   }
 
   override def open(conf: Configuration): Unit = {
-    evaluators = Map[String, RefitEvaluator]()
+    evaluators = Map[String, IRefitEvaluator]()
   }
 
   override def initializeState(context: FunctionInitializationContext): Unit = {
@@ -54,7 +55,7 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
 
     evaluatorState.keys().asScala.foreach(
       key => evaluators +=
-        (key -> new RefitEvaluator(evaluatorState.get(key))))
+        (key -> EvaluatorFactory.getEvaluator(evaluatorState.get(key))))
 
   }
 

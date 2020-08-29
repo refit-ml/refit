@@ -4,8 +4,9 @@ package edu.cdl.iot.common.schema
 import java.io.{File, FileInputStream, InputStream}
 import java.util.UUID
 
-import edu.cdl.iot.common.schema.enums.{FieldClassification, PartitionScheme}
+import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType, PartitionScheme}
 import edu.cdl.iot.common.schema.enums.FieldClassification.FeatureClassification
+import edu.cdl.iot.common.schema.enums.FieldType.FeatureType
 import edu.cdl.iot.common.schema.yaml.SchemaYaml
 import org.joda.time.DateTime
 import org.yaml.snakeyaml.Yaml
@@ -18,7 +19,8 @@ case class Schema(yaml: SchemaYaml) {
   val projectGuid: UUID = yaml.projectGuid
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
-  val partitionScheme = PartitionScheme.fromString(yaml.partitionScheme)
+  val partitionScheme: PartitionScheme.Value = PartitionScheme.fromString(yaml.partitionScheme)
+  val featureType: FeatureType = FieldType.fromString(yaml.featureType)
 
   def toYaml: String = (new Yaml).dump(yaml)
 

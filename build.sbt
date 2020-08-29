@@ -36,6 +36,10 @@ val pulsarDependencies = Seq(
   "com.sksamuel.pulsar4s" %% "pulsar4s-core" % pulsar4sVersion,
 )
 
+val testDependencies = Seq(
+  "org.scalatest" %% "scalatest" % "3.2.0" % Test
+)
+
 lazy val settings = Seq(
   scalacOptions ++= Seq(
     "-unchecked",
@@ -84,8 +88,8 @@ lazy val common = (project in file("common"))
     libraryDependencies ++= Seq(
       "commons-codec" % "commons-codec" % "1.14",
       "org.yaml" % "snakeyaml" % "1.26",
-      "org.scalatest" %% "scalatest" % "3.2.0" % Test
     ),
+    libraryDependencies ++= testDependencies,
     assembly := null,
   ).dependsOn(protocol)
 
@@ -144,6 +148,7 @@ lazy val inference = (project in file("inference"))
       "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2",
       "com.microsoft.onnxruntime" % "onnxruntime" % "1.4.0"
     ),
+    libraryDependencies ++= testDependencies,
     mainClass in assembly := Some("edu.cdl.iot.inference.Main"),
     assemblyJarName in assembly := "inference.jar",
     assemblyMergeStrategy in assembly := {
@@ -159,7 +164,7 @@ lazy val inference = (project in file("inference"))
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
     }
-  ).dependsOn(protocol)
+  ).dependsOn(protocol, common)
 
 lazy val training = (project in file("training"))
   .settings(
