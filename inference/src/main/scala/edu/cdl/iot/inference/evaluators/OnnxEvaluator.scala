@@ -9,11 +9,14 @@ import edu.cdl.iot.protocol.SensorData.SensorData
 
 import scala.collection.JavaConversions._
 
+object OnnxEvaluator {
+  private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+}
 
 class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
 
-  private val onnxEnv: OrtEnvironment = OrtEnvironment.getEnvironment()
-  private val onnxEvaluator: OrtSession = onnxEnv.createSession(model.bytes.toByteArray, new OrtSession.SessionOptions)
+
+  private val onnxEvaluator: OrtSession = OnnxEvaluator.env.createSession(model.bytes.toByteArray, new OrtSession.SessionOptions)
 
 
   private def getOnnxMap(v: SensorData): Map[String, Float] =
@@ -38,7 +41,7 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
       }
     }
 
-  private def getOnnxTensor(v: SensorData) = OnnxTensor.createTensor(onnxEnv, getOnnxVector(v))
+  private def getOnnxTensor(v: SensorData) = OnnxTensor.createTensor(OnnxEvaluator.env, getOnnxVector(v))
 
   private def getOnnxPrediction(v: SensorData) =
     onnxEvaluator.run(Collections.singletonMap("lstm_1_input", getOnnxTensor(v)))

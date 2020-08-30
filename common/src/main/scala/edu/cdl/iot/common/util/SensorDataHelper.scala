@@ -6,8 +6,6 @@ import edu.cdl.iot.common.schema.{Field, Schema}
 import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType}
 import edu.cdl.iot.protocol.SensorData.SensorData
 
-import scala.util.Random
-
 object SensorDataHelper {
 
   private val featureP = (field: Field) => field.classification == FieldClassification.Feature || field.classification == FieldClassification.Label
@@ -20,8 +18,10 @@ object SensorDataHelper {
 
   def randomInt(): Int = r.nextInt()
 
-  def getRandomReadings(schema: Schema): SensorData = {
-    val features = schema.fields.filter(featureP)
+  def getRandomReadings(schema: Schema, includeLabels: Boolean = false): SensorData = {
+    val features = schema.fields.filter(field =>
+      field.classification == FieldClassification.Feature
+        || (includeLabels && field.classification == FieldClassification.Label))
 
     val doubles = features.filter(doubleP)
       .map(field => field.name.toLowerCase() -> randomDouble())

@@ -11,28 +11,28 @@ import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers {
-  val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.onnx"
-  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/baxter.yaml"
+class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
+  val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.pmml"
+  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/dummy.yaml"
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))
   val bs = ByteString.copyFrom(byteArray)
-  val model = new Model(projectGuid, modelKey, bs, SerializationFormat.ONNX)
+  val model = new Model(projectGuid, modelKey, bs, SerializationFormat.PMML)
 
   val input = new FileInputStream(new File(schemaFileName))
   val schema = SchemaFactory.parse(input)
 
 
-  "Model" should "Return OnnxEvaluator" in {
-    val expected = new OnnxEvaluator(model)
+  "Model" should "Return PmmlEvaluator" in {
+    val expected = new PmmlEvaluator(model)
     val actual = EvaluatorFactory.getEvaluator(model)
     actual.getClass should be(expected.getClass)
   }
 
   "Evaluation" should "return a map" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
-    val input = SensorDataHelper.getRandomReadings(schema, includeLabels = true)
+    val input = SensorDataHelper.getRandomReadings(schema)
     val output = evaluator.getPrediction(input)
     output should not be (null)
   }
