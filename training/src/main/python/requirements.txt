@@ -14,3 +14,4 @@ tensorflow==1.14.0
 tensorflow-estimator==1.14.0
 protobuf==3.8
 onnxmltools
+pyyaml==5.3.1

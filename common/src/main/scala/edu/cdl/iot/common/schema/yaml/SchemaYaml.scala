@@ -8,7 +8,7 @@ import scala.beans.BeanProperty
 import collection.JavaConverters._
 
 class SchemaYaml(@BeanProperty var name: String,
-                 @BeanProperty var projectGuid: UUID,
+                 @BeanProperty var projectGuid: String,
                  @BeanProperty var partitionScheme: String,
                  @BeanProperty var featureType: String,
                  @BeanProperty var fields: java.util.List[FieldYaml],

@@ -16,13 +16,13 @@ import collection.JavaConverters._
 case class Schema(yaml: SchemaYaml) {
 
   val name: String = yaml.name
-  val projectGuid: UUID = yaml.projectGuid
+  val projectGuid: UUID = UUID.fromString(yaml.projectGuid)
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
   val partitionScheme: PartitionScheme.Value = PartitionScheme.fromString(yaml.partitionScheme)
   val featureType: FeatureType = FieldType.fromString(yaml.featureType)
 
-  def toYaml: String = (new Yaml).dump(yaml)
+  def toYaml: String = (new Yaml).dumpAsMap(yaml)
 
   def getPartitionString(date: DateTime): String = {
     val pattern = partitionScheme match {

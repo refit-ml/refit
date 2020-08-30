@@ -53,14 +53,23 @@ def pandas_factory(columns, rows):
     return pd.DataFrame(results, columns=column_names)
 
 
-def get_data(query):
+def get_data(query, includePandasFactory=False):
     auth_provider = PlainTextAuthProvider(
         username='cassandra', password='cassandra')
     cluster = Cluster(contact_points=['127.0.0.1'], port=9042, auth_provider=auth_provider)
     session = cluster.connect('cdl_refit')
-    session.row_factory = pandas_factory
+    if (includePandasFactory):
+        session.row_factory = pandas_factory
     return session.execute(query, timeout=None)._current_rows
 
 
+def get_schema(project_guid):
+    results = map(lambda item: item.schema,
+                  filter(lambda item: item.project_guid == project_guid,
+                         get_data('SELECT project_guid, "schema" FROM project')))
+    return list(results)[0]
+
+
 def get_sensor_data(project_guid):
-    return get_data('SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction FROM sensor_data')
+    query = 'SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction FROM sensor_data'
+    return get_data(query, True)

@@ -38,6 +38,7 @@ from keras.callbacks import EarlyStopping
 
 
 from Helpers import get_sensor_data
+from Schema import Schema
 # import keras2onnx
 
 pd.set_option('display.float_format', lambda x: '%.4f' % x)
@@ -46,13 +47,14 @@ sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
-project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
+schema = Schema("e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93")
+# project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
 # This one is the dummy data project
 # project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
 
-df = get_sensor_data(project_guid)
+df = get_sensor_data(schema.project_guid)
 
 df = df.sort_values('timestamp')
 df
@@ -112,7 +114,7 @@ print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
 # baseline model
 model = Sequential()
 model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
-model.add(Dense(1,name="prediction"))
+model.add(Dense(1,name=schema.prediction_label()))
 model.compile(loss='mae', optimizer='adam')
 # fitting model
 history = model.fit(train_X, train_y, epochs=50, batch_size=20, validation_data=(test_X, test_y), verbose=2,

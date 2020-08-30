@@ -16,7 +16,7 @@ object Main {
     val schema = Prototype.baxter
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
-    val loadSensorData = true
+    val loadSensorData = false
 
 
     println("Create schema fixtures ...")
