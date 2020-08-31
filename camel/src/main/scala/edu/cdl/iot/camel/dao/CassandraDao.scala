@@ -41,8 +41,14 @@ object CassandraDao {
   object queries {
     val createSensorData: String =
       s"""
-         |INSERT INTO $keyspace.sensor_data(project_guid, sensor_id, partition_key, timestamp, data, prediction)
-         |VALUES(?, ?, ?, ?, ?, ?)
+         |UPDATE $keyspace.sensor_data
+         |SET data = ?,
+         |    prediction = ?,
+         |    labels = ?
+         |WHERE project_guid = ?
+         |AND sensor_id = ?
+         |AND partition_key = ?
+         |AND timestamp = ?
     """.stripMargin
 
     val createSensor: String =
@@ -120,19 +126,21 @@ object CassandraDao {
   def savePrediction(schema: Schema,
                      record: Prediction,
                      data: Map[String, String],
-                     predictions: Map[String, String]): Unit = {
+                     predictions: Map[String, String],
+                     labels: Map[String, String]): Unit = {
     val date = TimestampHelper.parseDate(record.timestamp).toDateTime(DateTimeZone.UTC)
 
     val timestamp = TimestampHelper.toTimestamp(date)
 
     session.execute(statements.createSensorData
       .bind(
+        data.asJava,
+        predictions.asJava,
+        labels.asJava,
         record.projectGuid,
         record.sensorId,
         schema.getPartitionString(date),
-        timestamp,
-        data.asJava,
-        predictions.asJava
+        timestamp
       ))
     session.execute(statements.createSensor
       .bind(
@@ -211,12 +219,15 @@ object CassandraDao {
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val timestamp = formatter.format(row.getTimestamp("timestamp"))
         val data = row.getMap("data", classOf[String], classOf[String]).asScala.toMap
-        val predictions = row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap
+        val predictions = helper.transform(row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap)
+          .map(x => s"prediction - ${x._1}" -> x._2)
+        val labels = helper.transform(row.getMap("labels", classOf[String], classOf[String]).asScala.toMap)
+          .map(x => s"actual - ${x._1}" -> x._2)
 
         Map(
           "sensorid" -> sensorId,
           "timestamp" -> timestamp
-        ) ++ helper.transform(data) ++ helper.transform(predictions)
+        ) ++ predictions ++ labels
       })
 
 

@@ -13,7 +13,7 @@ class PredictionRoutes(val context: CamelContext) extends RouteBuilder(context) 
   private val logger: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val record = exchange.getIn().getBody(classOf[Prediction])
-      println(s"Message Received\n\tProject: ${record.projectGuid}\n")
+      println(s"Message Received\n\tProject: ${record.projectGuid}\n\tPrediction: ${record.prediction}")
     }
   }
 

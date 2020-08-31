@@ -4,6 +4,7 @@ import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
 import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.schema.enums.FieldClassification
 import edu.cdl.iot.protocol.Prediction.Prediction
 import org.apache.camel.{Exchange, Processor}
 import edu.cdl.iot.common.security.EncryptionHelper
@@ -51,7 +52,7 @@ object CassandraProcessors {
         sensors.projectGuid,
         sensorId,
         partitions)
-          .filter( x => x.contains(sensors.target.toLowerCase))
+        .filter(x => x.contains(sensors.target.toLowerCase))
 
       GrafanaSensorDataDto(
         sensors.projectGuid,
@@ -73,9 +74,14 @@ object CassandraProcessors {
         new EncryptionHelper(ENCRYPTION_KEY, record.projectGuid)
       })
 
-      val data = helper.transform(PredictionHelper.combineSensorReadings(record))
+      val readings = PredictionHelper.combineSensorReadings(record)
+      val features = readings.filterKeys(key => schema.fields.exists(field => field.name.toLowerCase() == key && field.classification == FieldClassification.Feature))
+      val labels = readings.filterKeys(key => schema.fields.exists(field => field.name.toLowerCase() == key && field.classification == FieldClassification.Label))
+
+      val data = helper.transform(features)
+      val actual = helper.transform(labels)
       val predictions = helper.transform(record.prediction)
-      CassandraDao.savePrediction(schema, record, data, predictions)
+      CassandraDao.savePrediction(schema, record, data, predictions, actual)
     }
   }
 

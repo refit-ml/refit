@@ -5,6 +5,7 @@ import java.util.UUID
 import edu.cdl.iot.common.schema.{Field, Schema}
 import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType}
 import edu.cdl.iot.protocol.SensorData.SensorData
+import org.joda.time.{DateTime, DateTimeZone}
 
 object SensorDataHelper {
 
@@ -24,7 +25,7 @@ object SensorDataHelper {
         || (includeLabels && field.classification == FieldClassification.Label))
 
     val doubles = features.filter(doubleP)
-      .map(field => field.name.toLowerCase() -> randomDouble())
+      .map(field => field.name.toLowerCase() -> (if (field.classification == FieldClassification.Label) Double.NaN else randomDouble()))
       .toMap
     val strings = features.filter(stringP)
       .map(field => field.name.toLowerCase() -> UUID.randomUUID().toString)
@@ -36,7 +37,7 @@ object SensorDataHelper {
     new SensorData(
       schema.projectGuid.toString,
       UUID.randomUUID().toString,
-      "",
+      DateTime.now.toDateTime(DateTimeZone.UTC).toString("yyyy-MM-dd HH:mm:ss"),
       doubles,
       strings,
       ints

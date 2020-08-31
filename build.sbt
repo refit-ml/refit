@@ -40,6 +40,13 @@ val testDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.2.0" % Test
 )
 
+val camelDependencies = Seq(
+  "org.apache.camel" % "camel-core" % camelVersion,
+  "org.apache.camel" % "camel-rest" % camelVersion,
+  "org.apache.camel" % "camel-jackson" % camelVersion,
+  "org.apache.camel" % "camel-netty-http" % camelVersion,
+)
+
 lazy val settings = Seq(
   scalacOptions ++= Seq(
     "-unchecked",
@@ -113,12 +120,7 @@ lazy val camel = (project in file("camel"))
     libraryDependencies ++= commonDependencies,
     libraryDependencies ++= cassandraDependencies,
     libraryDependencies ++= pulsarDependencies,
-    libraryDependencies ++= Seq(
-      "org.apache.camel" % "camel-core" % camelVersion,
-      "org.apache.camel" % "camel-rest" % camelVersion,
-      "org.apache.camel" % "camel-jackson" % camelVersion,
-      "org.apache.camel" % "camel-netty-http" % camelVersion,
-    ),
+    libraryDependencies ++= camelDependencies,
     mainClass in (run / assembly) := Some("edu.cdl.iot.camel.CamelMain"),
     assemblyJarName in assembly := "camel.jar",
     assemblyMergeStrategy in assembly := {
@@ -198,8 +200,9 @@ lazy val ingestion = (project in file("ingestion"))
     baseAssemblySettings,
     libraryDependencies ++= pulsarDependencies,
     libraryDependencies ++= cassandraDependencies,
+    libraryDependencies ++= camelDependencies,
     assemblyJarName in assembly := "ingestion.jar",
-    mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.Main"),
+    mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.CamelMain"),
     assemblyMergeStrategy in assembly := {
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "jandex.idx", xs@_*) => MergeStrategy.last

@@ -15,13 +15,14 @@ CREATE TABLE IF NOT EXISTS org
 
 CREATE TABLE IF NOT EXISTS project
 (
-    org_guid         text,
-    project_guid     text,
-    name             text,
-    "schema"         text,
-    description      text,
-    tags             map<text, text>,
-    timestamp        timestamp,
+    org_guid     text,
+    project_guid text,
+    name         text,
+    "schema"     text,
+    description  text,
+    tags         map<text, text>,
+    model_guid   text,
+    timestamp    timestamp,
     primary key (org_guid, project_guid)
 );
 
@@ -34,14 +35,15 @@ CREATE TABLE IF NOT EXISTS sensor_data
     timestamp     timestamp,
     data          map<text, text>,
     prediction    map<text, text>,
+    labels        map<text, text>,
     PRIMARY KEY ((project_guid, sensor_id, partition_key), timestamp)
 );
 
 CREATE TABLE IF NOT EXISTS sensor
 (
-    project_guid  text,
-    sensor_id     text,
-    created_at     timestamp,
+    project_guid text,
+    sensor_id    text,
+    created_at   timestamp,
     PRIMARY KEY (project_guid, sensor_id)
 );
 
@@ -61,7 +63,9 @@ CREATE TABLE IF NOT EXISTS models
 (
     project_guid text,
     model_guid   text,
+    format       text,
     model        blob,
     timestamp    timestamp,
     PRIMARY KEY (project_guid, model_guid)
 );
+

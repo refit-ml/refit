@@ -4,7 +4,8 @@ import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResponse}
 import edu.cdl.iot.camel.dto.GrafanaSensorDataDto
 import edu.cdl.iot.camel.dto.request.{SearchRequest, TagRequest}
-import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.schema.enums.FieldClassification
+import edu.cdl.iot.common.schema.{Field, Schema}
 import edu.cdl.iot.common.util.TimestampHelper
 import org.apache.camel.{Exchange, Processor}
 
@@ -58,13 +59,21 @@ object GrafanaProcessors {
   }
 
   val searchProcessor: Processor = new Processor {
+
+    val fieldMapper: Field => List[String] =
+      field =>
+        if (field.classification == FieldClassification.Label)
+          List(s"Actual - ${field.name}", s"Prediction - ${field.name}")
+        else
+          List(field.name)
+
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn.getBody(classOf[SearchRequest])
       val schemas = CassandraDao.getProjectSchemas
       exchange.getIn.setBody(
         body.target match {
           case "sensors" => CassandraDao.getAllSensors.toArray
-          case _ => schemas.flatMap(schema => schema.fields.map(i => i.name)).toArray
+          case _ => schemas.flatMap(schema => schema.fields.flatMap(fieldMapper)).toArray
         }
       )
 

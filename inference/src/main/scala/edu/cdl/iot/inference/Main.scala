@@ -23,7 +23,7 @@ object Main {
     val params = ParameterTool.fromArgs(args)
     val config = env.getCheckpointConfig
 
-    val pulsarHost = Helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
+    val pulsarHost = Helpers.env_var("PULSAR_HOST", "127.0.0.1", params)
     val inputTopic = Helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
     val outputTopic = Helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
     val subscribtionName = Helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)

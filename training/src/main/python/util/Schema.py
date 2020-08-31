@@ -1,7 +1,5 @@
 import yaml
 
-from Helpers import get_schema
-
 
 class ImportOptions:
     def __init__(self, dict):
@@ -16,15 +14,16 @@ class Field:
 
 
 class Schema:
-    def __init__(self, projectGuid):
-        schemaYaml = get_schema(projectGuid)
-        dict = yaml.load(schemaYaml)
+    def __init__(self, training_dao, project_guid):
+        (schema_yaml, org_guid) = training_dao.get_schema(project_guid)
+        dict = yaml.load(schema_yaml)
         self.name = dict['name']
         self.project_guid = dict['projectGuid']
         self.partition_scheme = dict['partitionScheme']
         self.import_options = ImportOptions(dict['importOptions'])
         self.feature_type = dict['featureType']
         self.fields = list(map(lambda x: Field(x), dict['fields']))
+        self.org_guid = org_guid
 
     def __repr__(self):
         return "name:%s guid:%s" % (self.name, self.project_guid)
