@@ -14,6 +14,7 @@ object SensorDataHelper {
   private val stringP = (field: Field) => field.`type` == FieldType.String
   private val intP = (field: Field) => field.`type` == FieldType.Integer
   private val r = new scala.util.Random
+  private val sensorId = UUID.randomUUID().toString
 
   def randomDouble(): Double = r.nextDouble()
 
@@ -25,7 +26,7 @@ object SensorDataHelper {
         || (includeLabels && field.classification == FieldClassification.Label))
 
     val doubles = features.filter(doubleP)
-      .map(field => field.name.toLowerCase() -> (if (field.classification == FieldClassification.Label) Double.NaN else randomDouble()))
+      .map(field => field.name.toLowerCase() -> (if (field.classification == FieldClassification.Label) 0.0 else randomDouble()))
       .toMap
     val strings = features.filter(stringP)
       .map(field => field.name.toLowerCase() -> UUID.randomUUID().toString)
@@ -36,7 +37,7 @@ object SensorDataHelper {
 
     new SensorData(
       schema.projectGuid.toString,
-      UUID.randomUUID().toString,
+      sensorId,
       DateTime.now.toDateTime(DateTimeZone.UTC).toString("yyyy-MM-dd HH:mm:ss"),
       doubles,
       strings,

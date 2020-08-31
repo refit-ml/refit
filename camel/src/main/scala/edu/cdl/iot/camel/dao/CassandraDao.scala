@@ -218,7 +218,7 @@ object CassandraDao {
         val helper = decryptionHelper(projectGuid)
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val timestamp = formatter.format(row.getTimestamp("timestamp"))
-        val data = row.getMap("data", classOf[String], classOf[String]).asScala.toMap
+        val data = helper.transform(row.getMap("data", classOf[String], classOf[String]).asScala.toMap)
         val predictions = helper.transform(row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap)
           .map(x => s"prediction - ${x._1}" -> x._2)
         val labels = helper.transform(row.getMap("labels", classOf[String], classOf[String]).asScala.toMap)
@@ -227,7 +227,7 @@ object CassandraDao {
         Map(
           "sensorid" -> sensorId,
           "timestamp" -> timestamp
-        ) ++ predictions ++ labels
+        ) ++ predictions ++ labels ++ data
       })
 
 
