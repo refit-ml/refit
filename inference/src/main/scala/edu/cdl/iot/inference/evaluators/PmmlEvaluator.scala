@@ -46,7 +46,8 @@ class PmmlEvaluator(private val model: Model) extends IRefitEvaluator {
       sensorData.doubles,
       sensorData.strings,
       sensorData.integers,
-      getPmmlPrediction(sensorData)
+      getPmmlPrediction(sensorData),
+      sensorData.labels
     )
 
   def toByteArray: Array[Byte] = model.toByteArray

@@ -14,20 +14,27 @@ object SensorDataHelper {
   private val stringP = (field: Field) => field.`type` == FieldType.String
   private val intP = (field: Field) => field.`type` == FieldType.Integer
   private val r = new scala.util.Random
-  private val sensorId = UUID.randomUUID().toString
 
-  def randomDouble(): Double = r.nextDouble()
+  def randomDouble(start: Double = 0.0, end: Double = 1.0): Double = (r.nextDouble() * (end - start)) + start
 
   def randomInt(): Int = r.nextInt()
 
-  def getRandomReadings(schema: Schema, includeLabels: Boolean = false): SensorData = {
+  def getRandomReadings(schema: Schema, sensorId: String = UUID.randomUUID().toString, includeLabels: Boolean = false): SensorData = {
     val features = schema.fields.filter(field =>
-      field.classification == FieldClassification.Feature
-        || (includeLabels && field.classification == FieldClassification.Label))
+      field.classification == FieldClassification.Feature)
+
+    val labels = schema.fields.filter(field =>
+      field.classification == FieldClassification.Label)
 
     val doubles = features.filter(doubleP)
-      .map(field => field.name.toLowerCase() -> (if (field.classification == FieldClassification.Label) 0.0 else randomDouble()))
+      .map(field => field.name.toLowerCase() -> (field.name.toLowerCase() match {
+        case "temperature" => randomDouble(0.0, 100.0)
+        case "pressure" => randomDouble(1000, 1500)
+        case "wind" => randomDouble(0, 50)
+        case _ => randomDouble()
+      }))
       .toMap
+
     val strings = features.filter(stringP)
       .map(field => field.name.toLowerCase() -> UUID.randomUUID().toString)
       .toMap
@@ -35,13 +42,19 @@ object SensorDataHelper {
       .map(field => field.name.toLowerCase() -> randomInt())
       .toMap
 
+
+    val actual = if (schema.name == "Dummy") labels.map(x => x.name.toLowerCase() -> (if (doubles("temperature") > 75.0) 0 else 1).toString)
+      .toMap
+    else labels.filter(x => includeLabels).map(x => x.name.toLowerCase() -> randomDouble().toString).toMap
+
     new SensorData(
       schema.projectGuid.toString,
       sensorId,
       DateTime.now.toDateTime(DateTimeZone.UTC).toString("yyyy-MM-dd HH:mm:ss"),
       doubles,
       strings,
-      ints
+      ints,
+      actual
     )
   }
 }

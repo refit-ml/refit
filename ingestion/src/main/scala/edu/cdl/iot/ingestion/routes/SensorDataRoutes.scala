@@ -5,10 +5,11 @@ import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 
 class SensorDataRoutes(val context: CamelContext) extends RouteBuilder(context) {
-  private val PROCESS_INTERVAL = 1000
+  private val PROCESS_INTERVAL = 5000
 
   override def configure(): Unit = {
-    from(s"timer://pulsar?period=$PROCESS_INTERVAL")
+    from(s"timer://sensor-data?period=$PROCESS_INTERVAL")
+      .process(SenosrDataProcessors.schemaProcessor)
       .process(SenosrDataProcessors.sensorDataProducer)
       .process(SenosrDataProcessors.sendToPulsar)
   }

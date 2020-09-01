@@ -10,4 +10,5 @@ message Prediction  {
   map<string, string> strings = 6;
   map<string, int32> integers = 7;
   map<string, string> prediction = 8;
+  map<string, string> labels = 9;
 }

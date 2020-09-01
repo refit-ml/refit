@@ -76,7 +76,8 @@ object CassandraProcessors {
 
       val readings = PredictionHelper.combineSensorReadings(record)
       val features = readings.filterKeys(key => schema.fields.exists(field => field.name.toLowerCase() == key && field.classification == FieldClassification.Feature))
-      val labels = readings.filterKeys(key => schema.fields.exists(field => field.name.toLowerCase() == key && field.classification == FieldClassification.Label))
+      val labels = readings
+        .filterKeys(key => schema.fields.exists(field => field.name.toLowerCase() == key && field.classification == FieldClassification.Label)).++(record.labels)
 
       val data = helper.transform(features)
       val actual = helper.transform(labels)

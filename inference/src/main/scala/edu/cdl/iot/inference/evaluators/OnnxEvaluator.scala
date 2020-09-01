@@ -29,7 +29,10 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
     })).++(v.strings.map({
       case (x, d) =>
         x -> d.toFloat
-    }))
+    })).++(v.labels.map({
+        case (x, d) =>
+          x -> d.toFloat
+      }))
 
   private def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
     x.toList.map(tuple => tuple._2).toArray

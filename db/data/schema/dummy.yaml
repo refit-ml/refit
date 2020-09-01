@@ -28,8 +28,8 @@ fields:
     classification: Label
   - name: Probability(1)
     type: Double
-    classification: ThrowAway
+    classification: Label
   - name: Probability(0)
     type: Double
-    classification: ThrowAway
+    classification: Label
 

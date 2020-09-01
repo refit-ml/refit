@@ -13,10 +13,10 @@ object Main {
   def main(args: Array[String]): Unit = {
     val encryptionKey = ConfigHelper.env("ENCRYPTION_KEY", "keyboard_cat")
     val batchSize = 5
-    val schema = Prototype.baxter
+    val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
-    val loadSensorData = true
+    val loadSensorData = false
 
 
     println("Create schema fixtures ...")

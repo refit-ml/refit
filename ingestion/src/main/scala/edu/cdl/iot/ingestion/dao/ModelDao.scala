@@ -1,14 +1,16 @@
 package edu.cdl.iot.ingestion.dao
 
 import com.datastax.driver.core._
+import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.schema.factories.SchemaFactory
 import edu.cdl.iot.common.util.ConfigHelper
 
 import scala.collection.JavaConverters._
 
 object ModelDao {
-  val host = "127.0.0.1"
+  val host: String = ConfigHelper.env("CASSANDRA_HOST", "127.0.0.1")
   val keyspace = "cdl_refit"
-  val user = "cassandra"
+  val user: String = ConfigHelper.env("CASSANDRA_USER", "cassandra")
   val password: String = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
   val port = 9042
 
@@ -37,16 +39,16 @@ object ModelDao {
          |AND model_guid = ?
          |""".stripMargin
 
-    val getProjectModel: String =
+    val getProject: String =
       s"""
-         |SELECT project_guid, model_guid
+         |SELECT project_guid, model_guid, "schema"
          |FROM $keyspace.project
          |""".stripMargin
   }
 
   object statements {
     lazy val getModel: PreparedStatement = session.prepare(queries.getModel)
-    lazy val getProjectModel: PreparedStatement = session.prepare(queries.getProjectModel)
+    lazy val getProject: PreparedStatement = session.prepare(queries.getProject)
   }
 
   def getModel(projectGuid: String, modelGuid: String): Array[Byte] =
@@ -57,7 +59,7 @@ object ModelDao {
       .getBytes("model").array()
 
   def getModelGuid(projectGuid: String): String =
-    session.execute(statements.getProjectModel.bind())
+    session.execute(statements.getProject.bind())
       .all()
       .asScala
       .filter(x => x.getString("project_guid") == projectGuid)
@@ -65,12 +67,20 @@ object ModelDao {
       .head
 
   def getProjects: List[String] =
-    session.execute(statements.getProjectModel.bind())
+    session.execute(statements.getProject.bind())
       .all()
       .asScala
       .filter(x => x.getString("model_guid") != null)
       .map(x => x.getString("project_guid"))
       .toList
+
+  def getProjectSchema(projectGuid: String): Schema =
+    session.execute(statements.getProject.bind())
+      .all
+      .asScala
+      .filter(project => project.getString("project_guid") == projectGuid)
+      .map(project => SchemaFactory.parse(project.getString("schema")))
+      .head
 
 
 }

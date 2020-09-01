@@ -106,3 +106,10 @@ refit:
         memory: "2000Mi"
       requests:
         memory: "500Mi"
+  ingestion:
+    replicas: 1
+    resources:
+      limits:
+        memory: "2000Mi"
+      requests:
+        memory: "500Mi"

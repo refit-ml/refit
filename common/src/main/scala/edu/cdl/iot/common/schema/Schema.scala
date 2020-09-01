@@ -63,6 +63,7 @@ case class Schema(yaml: SchemaYaml) {
 
   def getLabels(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Label)
+      .filter(tuple => tuple._2 < row.length)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 

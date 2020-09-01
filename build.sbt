@@ -180,9 +180,9 @@ lazy val training = (project in file("training"))
       "ml.combust.mleap" %% "mleap-spark-extension" % "0.16.0",
       "com.datastax.spark" %% "spark-cassandra-connector" % "2.5.1",
     ),
-    excludeDependencies ++= Seq(
-      ExclusionRule("org.slf4j", "slf4j-log4j12")
-    ),
+//    excludeDependencies ++= Seq(
+//      ExclusionRule("org.slf4j", "slf4j-log4j12")
+//    ),
     dependencyOverrides ++= {
       Seq(
         "com.fasterxml.jackson.module" % "jackson-module-scala_2.11" % "2.8.1",

@@ -1,11 +1,10 @@
 package edu.cdl.iot.training
 
-import java.io.{File, FileInputStream}
 import java.util.UUID
 
 import com.google.protobuf.ByteString
-import edu.cdl.iot.common.schema.factories.SchemaFactory
-import edu.cdl.iot.protocol.Model.Model
+import edu.cdl.iot.db.fixtures.schema.Prototype
+import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
 import edu.cdl.iot.training.dto.ModelDto
 import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
@@ -34,13 +33,12 @@ object Main {
       .set("spark.cassandra.auth.username", "cassandra")
       .set("spark.cassandra.auth.password", "cassandra")
       .setMaster("local[2]")
+
     val spark = SparkSession.builder.config(conf).getOrCreate()
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val schemaName = "dummy"
-    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/$schemaName.yaml"
-    val schema = SchemaFactory.parse(new FileInputStream(new File(schemaFile)))
+    val schema = Prototype.dummy
 
     val data = SensorData.load(spark)
     val time = TrainingWindow.load(spark)
@@ -51,19 +49,19 @@ object Main {
 
 
     // compare time intervals
-    val transformed = data
-      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-      .join(time,
-        col("end_hour") > time("start")
-          && col("end_hour") < time("end"),
-        "left"
-      )
-      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
+//    val transformed = data
+//      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+//      .join(time,
+//        col("end_hour") > time("start")
+//          && col("end_hour") < time("end"),
+//        "left"
+//      )
+//      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
 
     // Interesting data (this will train the model to flag entries over 70 degrees in temp - For DEMO)
-    //    val transformed = data
-    //      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-    //      .withColumn("operable", when(col("temperature") > 70, 0).otherwise(1))
+        val transformed = data
+          .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+          .withColumn("operable", when(col("temperature") > 70, 0).otherwise(1))
 
 
     val transformedDataSet = transformed
@@ -154,6 +152,13 @@ object Main {
       .mode(SaveMode.Append)
       .save
 
-    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), Model(export.project_guid, export.model_guid, ByteString.copyFrom(export.model)))
+    val dto = Model(
+      export.project_guid,
+      export.model_guid,
+      ByteString.copyFrom(export.model),
+      SerializationFormat.PMML
+    )
+
+    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), dto)
   }
 }
