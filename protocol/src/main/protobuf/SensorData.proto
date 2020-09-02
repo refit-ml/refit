@@ -2,7 +2,7 @@ syntax = "proto3";
 package edu.cdl.iot.protocol;
 
 message SensorData  {
-  string projectGuid = 1;
+  string project_guid = 1;
   string sensor_id = 2;
   string timestamp = 3;
   map<string, double> doubles = 4;

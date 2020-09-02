@@ -7,7 +7,7 @@ enum SerializationFormat {
 }
 
 message Model  {
-  string projectGuid = 1;
+  string project_guid = 1;
   string key = 2;
   bytes bytes = 3;
   SerializationFormat format = 4;

@@ -49,19 +49,19 @@ object Main {
 
 
     // compare time intervals
-//    val transformed = data
-//      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-//      .join(time,
-//        col("end_hour") > time("start")
-//          && col("end_hour") < time("end"),
-//        "left"
-//      )
-//      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
+    //    val transformed = data
+    //      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+    //      .join(time,
+    //        col("end_hour") > time("start")
+    //          && col("end_hour") < time("end"),
+    //        "left"
+    //      )
+    //      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
 
     // Interesting data (this will train the model to flag entries over 70 degrees in temp - For DEMO)
-        val transformed = data
-          .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-          .withColumn("operable", when(col("temperature") > 70, 0).otherwise(1))
+    val transformed = data
+      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+      .withColumn("operable", when(col("temperature") > 10, 0).otherwise(1))
 
 
     val transformedDataSet = transformed
@@ -132,15 +132,13 @@ object Main {
     val export = ModelDto(
       schema.projectGuid.toString,
       UUID.randomUUID.toString,
+      SerializationFormat.PMML.name,
       DateTime.now.getMillis,
       new PMMLBuilder(modelSchema, model).buildByteArray()
     )
 
     println(s"Exporting Model - UUID: '${`export`.model_guid}'")
-    Seq(
-      export,
-      ModelDto(export.project_guid, "__latest__", export.timestamp, export.model)
-    )
+    Seq(export)
       .toDS
       .write
       .format("org.apache.spark.sql.cassandra")
@@ -151,14 +149,5 @@ object Main {
       )
       .mode(SaveMode.Append)
       .save
-
-    val dto = Model(
-      export.project_guid,
-      export.model_guid,
-      ByteString.copyFrom(export.model),
-      SerializationFormat.PMML
-    )
-
-    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), dto)
   }
 }

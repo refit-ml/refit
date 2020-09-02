@@ -53,20 +53,18 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     val evaluatorStateDescriptor = new MapStateDescriptor[String, Array[Byte]]("EvaluatorState", classOf[String], classOf[Array[Byte]])
     evaluatorState = context.getKeyedStateStore.getMapState[String, Array[Byte]](evaluatorStateDescriptor)
     evaluators = Map()
-    if (context.isRestored) {
-      evaluatorState.keys().asScala.foreach(
-        key => evaluators +=
-          (key -> EvaluatorFactory.getEvaluator(evaluatorState.get(key))))
-    }
-
-
+//    if (context.isRestored) {
+//      evaluatorState.keys().asScala.foreach(
+//        key => evaluators +=
+//          (key -> EvaluatorFactory.getEvaluator(evaluatorState.get(key))))
+//    }
   }
 
   override def snapshotState(ctx: FunctionSnapshotContext): Unit = {
-    val id = ctx.getCheckpointId
-    evaluatorState.keys().asScala.foreach(evaluatorState.remove)
-    println(s"Checkpointing: ${id}")
-    evaluators.foreach(x => evaluatorState.put(x._1, x._2.toByteArray))
+//    val id = ctx.getCheckpointId
+//    evaluatorState.keys().asScala.foreach(evaluatorState.remove)
+//    println(s"Checkpointing: ${id}")
+//    evaluators.foreach(x => evaluatorState.put(x._1, x._2.toByteArray))
   }
 
 }

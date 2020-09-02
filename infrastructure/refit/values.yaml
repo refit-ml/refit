@@ -3,7 +3,7 @@
 cassandra:
   image:
     repository: cdliotprototype/cdl-refit-cassandra
-    tag: latest
+    tag: ALPHA-10
   cluster:
     replicaCount: 4
     seedCount: 4
