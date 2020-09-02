@@ -9,7 +9,7 @@ spec:
     - ReadWriteMany
   glusterfs:
     endpoints: gluster-cluster
-    path: /refit/import-volume
+    path: /data_gluster
     readOnly: false
   persistentVolumeReclaimPolicy: Retain
 ---
@@ -19,7 +19,7 @@ metadata:
   name: import-pv-claim
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 100Gi
