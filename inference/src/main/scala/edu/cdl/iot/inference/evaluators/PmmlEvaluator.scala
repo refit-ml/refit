@@ -12,7 +12,7 @@ import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConv
 
 class PmmlEvaluator(private val model: Model) extends IRefitEvaluator {
 
-  private var pmmlEvaluator: ModelEvaluator[_] = new LoadingModelEvaluatorBuilder()
+  private val pmmlEvaluator: ModelEvaluator[_] = new LoadingModelEvaluatorBuilder()
     .load(new ByteArrayInputStream(model.bytes.toByteArray))
     .build()
 
@@ -51,4 +51,8 @@ class PmmlEvaluator(private val model: Model) extends IRefitEvaluator {
     )
 
   def toByteArray: Array[Byte] = model.toByteArray
+
+  override def close: Any = {
+
+  }
 }

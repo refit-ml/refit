@@ -4,14 +4,15 @@ import java.io.{File, FileInputStream}
 import java.nio.file.{Files, Paths}
 
 import com.google.protobuf.ByteString
-import edu.cdl.iot.common.schema.factories.SchemaFactory
+import edu.cdl.iot.common.factories.SchemaFactory
 import edu.cdl.iot.common.util.SensorDataHelper
 import edu.cdl.iot.inference.util.EvaluatorFactory
 import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers {
+class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll {
   val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.onnx"
   val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/baxter.yaml"
   val projectGuid = "fake-project-guid"
@@ -28,6 +29,7 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers {
     val expected = new OnnxEvaluator(model)
     val actual = EvaluatorFactory.getEvaluator(model)
     actual.getClass should be(expected.getClass)
+    expected.close
   }
 
   "Evaluation" should "return a map" in {
@@ -35,11 +37,13 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers {
     val input = SensorDataHelper.getRandomReadings(schema, includeLabels = true)
     val output = evaluator.getPrediction(input)
     output should not be (null)
+    evaluator.close
   }
 
   "Serialization" should "Work" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
     val actual = evaluator.toByteArray
     actual should be (model.toByteArray)
+    evaluator.close
   }
 }

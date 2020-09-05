@@ -1,68 +1,15 @@
 package edu.cdl.iot.db.fixtures.dao
 
-import java.sql.Timestamp
-
-import com.datastax.driver.core.{BatchStatement, BoundStatement, Cluster, HostDistance, PoolingOptions, PreparedStatement, ResultSet, Session}
-import edu.cdl.iot.common.util.ConfigHelper
+import com.datastax.driver.core.{BatchStatement, BoundStatement, PreparedStatement, ResultSet}
+import edu.cdl.iot.common.yaml.CassandraConfig
+import edu.cdl.iot.dao.RefitDao
 import edu.cdl.iot.db.fixtures.dto.{Org, Project, Sensor, SensorData, TrainingWindow}
 
 import collection.JavaConverters.mapAsJavaMapConverter
-import collection.JavaConverters._
 
-object FixtureDao {
-  val host = "127.0.0.1"
-  val keyspace = "cdl_refit"
-  val user = "cassandra"
-  val password = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
-  val port = 9042
+class FixtureDao(private val config: CassandraConfig) extends RefitDao(config) {
 
-  lazy val poolingOptions: PoolingOptions = {
-    new PoolingOptions()
-      .setConnectionsPerHost(HostDistance.LOCAL, 4, 10)
-      .setConnectionsPerHost(HostDistance.REMOTE, 2, 4)
-  }
-
-  lazy val cluster: Cluster = {
-    val builder = Cluster.builder()
-    builder.addContactPoint(host)
-    builder.withCredentials(user, password)
-    builder.withPort(port)
-    builder.build()
-  }
-
-  var session: Session = cluster.connect()
-
-  object queries {
-    val createOrg: String =
-      s"""
-         |INSERT INTO $keyspace.org (org_guid, name, timestamp)
-         |VALUES (?, ?, ?)
-         |""".stripMargin
-
-    val createProject: String =
-      s"""
-         |INSERT INTO $keyspace.project (org_guid, project_guid, name, "schema", timestamp)
-         |VALUES (?, ?, ?, ?, ?)
-         |""".stripMargin
-
-    val createSensorData: String =
-      s"""
-         |INSERT INTO $keyspace.sensor_data (project_guid, sensor_id, partition_key, timestamp, data, prediction)
-         |VALUES (?, ?, ?, ?, ?, ?)
-         |""".stripMargin
-
-    val createTrainingWindow: String =
-      s"""
-         |INSERT INTO $keyspace.training_window (project_guid, sensor_id, partition_key, start, end)
-         |VALUES (?, ?, ?, ?, ?)
-         |""".stripMargin
-
-    val createSensor: String =
-      s"""
-         |INSERT INTO $keyspace.sensor (project_guid, sensor_id, created_at)
-         |VALUES (?, ?, ?)
-         |""".stripMargin
-  }
+  private val queries = FixtureQueries(config.keyspace)
 
   object statements {
     lazy val createOrg: PreparedStatement = session.prepare(queries.createOrg)
@@ -133,12 +80,5 @@ object FixtureDao {
     records.map(createTrainingWindow)
       .foreach(batchedStatement.add)
     session.execute(batchedStatement)
-  }
-
-  def open(): Unit = session = cluster.connect()
-
-  def close(): Unit = {
-    session.close()
-    session = null
   }
 }

@@ -3,7 +3,7 @@ package edu.cdl.iot.common.security
 import java.io.{File, FileInputStream}
 import java.util.UUID
 
-import edu.cdl.iot.common.schema.factories.SchemaFactory
+import edu.cdl.iot.common.factories.SchemaFactory
 import edu.cdl.iot.common.schema.enums.FieldClassification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

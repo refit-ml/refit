@@ -1,0 +1,9 @@
+pulsarHost: 127.0.0.1
+project: local
+encryptionKey: keyboard_cat
+cassandra:
+  keyspace: cdl_refit
+  host: 127.0.0.1
+  port: 9042
+  user: cassandra
+  password: cassandra

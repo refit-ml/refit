@@ -1,13 +1,11 @@
 package edu.cdl.iot.common.schema
 
-
-import java.io.{File, FileInputStream, InputStream}
 import java.util.UUID
 
 import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType, PartitionScheme}
 import edu.cdl.iot.common.schema.enums.FieldClassification.FeatureClassification
 import edu.cdl.iot.common.schema.enums.FieldType.FeatureType
-import edu.cdl.iot.common.schema.yaml.SchemaYaml
+import edu.cdl.iot.common.yaml.SchemaYaml
 import org.joda.time.DateTime
 import org.yaml.snakeyaml.Yaml
 

@@ -1,7 +1,7 @@
 package edu.cdl.iot.db.fixtures.schema
 
 import edu.cdl.iot.common.schema.Schema
-import edu.cdl.iot.common.schema.factories.SchemaFactory
+import edu.cdl.iot.common.factories.SchemaFactory
 
 object Prototype {
 

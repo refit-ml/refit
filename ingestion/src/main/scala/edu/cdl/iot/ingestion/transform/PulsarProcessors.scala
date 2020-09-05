@@ -1,14 +1,14 @@
 package edu.cdl.iot.ingestion.transform
 
 import com.sksamuel.pulsar4s.{ConsumerConfig, MessageId, ProducerConfig, PulsarClient, Subscription, Topic}
-import edu.cdl.iot.common.util.ConfigHelper
+import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.protocol.Model.Model
 import org.apache.camel.{Exchange, Processor}
 import org.apache.pulsar.client.api.{Schema, SubscriptionType}
 
-object PulsarProcessors {
-  private val host = ConfigHelper.env("PULSAR_HOST", "127.0.0.1")
-  private val client = PulsarClient(s"pulsar://${host}:6650")
+class PulsarProcessors(private val config: RefitConfig) {
+  private val client = PulsarClient(s"pulsar://${config.getPulsarHost()}:6650")
+  // TODO: We need to make all the parts of pulsar a part of the RefitConfig
   private val topic = Topic("persistent://sample/standalone/ns1/model-training")
   private val consumerConfig = ConsumerConfig(
     Subscription("ingestion-subscription"),

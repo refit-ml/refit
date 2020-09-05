@@ -2,9 +2,8 @@ package edu.cdl.iot.training
 
 import java.util.UUID
 
-import com.google.protobuf.ByteString
-import edu.cdl.iot.db.fixtures.schema.Prototype
-import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
+import edu.cdl.iot.common.factories.SchemaFactory
+import edu.cdl.iot.protocol.Model.SerializationFormat
 import edu.cdl.iot.training.dto.ModelDto
 import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
@@ -38,7 +37,9 @@ object Main {
 
     spark.sparkContext.setLogLevel("ERROR")
 
-    val schema = Prototype.dummy
+    val schemaName = "dummy"
+
+    val schema = SchemaFactory.getSchema(schemaName)
 
     val data = SensorData.load(spark)
     val time = TrainingWindow.load(spark)

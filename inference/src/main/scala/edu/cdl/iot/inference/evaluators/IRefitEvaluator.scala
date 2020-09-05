@@ -7,4 +7,6 @@ trait IRefitEvaluator {
   def getPrediction(sensorData: SensorData): Prediction
 
   def toByteArray: Array[Byte]
+
+  def close: Any
 }
