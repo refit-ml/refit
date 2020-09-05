@@ -20,7 +20,6 @@ docker push cdliotprototype/cdl-refit-integrations:latest
 docker tag integrations:latest cdliotprototype/cdl-refit-integrations:$tag
 docker push cdliotprototype/cdl-refit-integrations:$tag
 
-
 echo "Build Ingestion"
 docker build -t ingestion ingestion
 docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:latest
@@ -28,7 +27,6 @@ docker push cdliotprototype/cdl-refit-ingestion:latest
 
 docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:$tag
 docker push cdliotprototype/cdl-refit-ingestion:$tag
-
 
 echo "Build inference"
 docker build -t inference inference
