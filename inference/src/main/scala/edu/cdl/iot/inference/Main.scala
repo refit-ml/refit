@@ -22,7 +22,6 @@ object Main {
     val config = env.getCheckpointConfig
     val configFactory = new ConfigFactory()
     val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
-
     val pulsarHost = refitConfig.getPulsarHost()
     val inputTopic = "persistent://sample/standalone/ns1/sensors"
     val outputTopic = "persistent://sample/standalone/ns1/predictions"
