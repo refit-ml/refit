@@ -1,14 +1,15 @@
 package edu.cdl.iot.common.config.implementation
 
+import java.io.InputStream
+
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.yaml.{CassandraConfig, ConfigYaml}
 import org.yaml.snakeyaml.Yaml
 
 
-class ResourceConfig() extends RefitConfig {
-  private val fileName = "/development.yaml"
-  private val fileStream = getClass.getResourceAsStream(fileName)
-  private val config = (new Yaml).loadAs(fileStream, classOf[ConfigYaml])
+
+class ResourceConfig(input: InputStream) extends RefitConfig {
+  private val config = (new Yaml).loadAs(input, classOf[ConfigYaml])
 
   override val getPulsarHost: () => String = () => config.pulsarHost
 

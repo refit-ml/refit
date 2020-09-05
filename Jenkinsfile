@@ -23,7 +23,7 @@ pipeline {
         stage('Assembly') {
             steps {
                 container('build') {
-                    sh 'sbt inference/assembly'
+                    sh 'sbt assembly'
                 }
             }
         }

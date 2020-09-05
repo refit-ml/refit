@@ -23,6 +23,12 @@ services:
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
 
+  inference:
+    build: ./inference/
+    environment:
+      FLINK_HOST: docker.for.mac.localhost
+      PULSAR_HOST: pulsar
+
 #  camel:
 #    build: ./camel/
 #    ports:
