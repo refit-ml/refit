@@ -8,7 +8,7 @@ set -e
 #echo "Start Job \n\t JOB_ID: $JOB_ID\n\t SAVEPOINT: $SAVEPOINT\n\n"
 #
 #flink run -s $SAVEPOINT inference/target/scala-2.11/inference.jar -d
-tag="ALPHA-15"
+tag="ALPHA-17"
 
 echo "Build Assemblies"
 sbt assembly

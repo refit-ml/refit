@@ -12,8 +12,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
-  val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.pmml"
-  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/dummy.yaml"
+  val baseDir = if (sys.env.contains("GITHUB_WORKSPACE")) sys.env("GITHUB_WORKSPACE") else System.getProperty("user.dir")
+  val filename = s"$baseDir/db/data/models/sample.pmml"
+  val schemaFileName = s"$baseDir/db/data/schema/dummy.yaml"
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))
@@ -40,6 +41,6 @@ class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
   "Serialization" should "Work" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
     val actual = evaluator.toByteArray
-    actual should be (model.toByteArray)
+    actual should be(model.toByteArray)
   }
 }

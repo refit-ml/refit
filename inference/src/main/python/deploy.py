@@ -17,11 +17,11 @@ try:
 
     for jobId in jobs:
         print("Stopping job: " + jobId)
-        os.system(f"flink stop -m {flink_host}:6123  -p refit/savepoints/{jobId} {jobId}")
+        os.system(f"flink stop -m {flink_host}:8081  -p refit/savepoints/{jobId} {jobId}")
         print('Job: ' + jobId + ' Stopped')
 
     print("Starting job without savepoint")
-    os.system(f"flink run -m {flink_host}:6123 -d {base_dir}/inference.jar")
+    os.system(f"flink run -m {flink_host}:8081 -d {base_dir}/inference.jar")
 except:
     print(f"There was an error deploying the inference service")
 finally:

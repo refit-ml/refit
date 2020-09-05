@@ -59,6 +59,6 @@ pulsar:
     requests: 
       memory: "500Mi"
 refit:
-  version: ALPHA-15
+  version: ALPHA-17
   integrations:
     replicas: 1
