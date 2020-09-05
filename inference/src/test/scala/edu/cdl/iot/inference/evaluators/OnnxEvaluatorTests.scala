@@ -13,7 +13,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll {
-  val baseDir = if (sys.env.contains("GITHUB_WORKSPACE")) s"${sys.env("GITHUB_WORKSPACE")}/../" else System.getProperty("user.dir")
+  val baseDir = if (sys.env.contains("GITHUB_WORKSPACE")) s"${sys.env("GITHUB_WORKSPACE").replace("iot-prototype/iot-prototype", "iot-prototype")}" else System.getProperty("user.dir")
   val filename = s"$baseDir/db/data/models/sample.onnx"
   val schemaFileName = s"$baseDir/db/data/schema/baxter.yaml"
   val projectGuid = "fake-project-guid"
