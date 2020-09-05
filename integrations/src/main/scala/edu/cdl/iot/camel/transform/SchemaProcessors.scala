@@ -1,6 +1,6 @@
 package edu.cdl.iot.camel.transform
 
-import edu.cdl.iot.camel.dao.CassandraDao
+import edu.cdl.iot.camel.dao.{GrafanaDao, SchemaDao}
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 
 import scala.collection.mutable
 
-class SchemaProcessors(private val dao: CassandraDao) {
+class SchemaProcessors(private val dao: SchemaDao) {
   val SCHEMA_HEADER = "REFIT_SCHEMA"
   val ORG_HEADER = "REFIT_ORG"
   val QUERY_PARTITIONS = "REFIT_QUERY_PARTITIONS"

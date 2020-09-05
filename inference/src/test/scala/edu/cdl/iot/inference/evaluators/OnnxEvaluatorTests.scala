@@ -24,26 +24,23 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAnd
   val input = new FileInputStream(new File(schemaFileName))
   val schema = SchemaFactory.parse(input)
 
+  val evaluator = EvaluatorFactory.getEvaluator(model)
+
 
   "Model" should "Return OnnxEvaluator" in {
-    val expected = new OnnxEvaluator(model)
     val actual = EvaluatorFactory.getEvaluator(model)
-    actual.getClass should be(expected.getClass)
-    expected.close
+    actual.getClass should be(evaluator.getClass)
   }
 
   "Evaluation" should "return a map" in {
-    val evaluator = EvaluatorFactory.getEvaluator(model)
     val input = SensorDataHelper.getRandomReadings(schema, includeLabels = true)
     val output = evaluator.getPrediction(input)
     output should not be (null)
-    evaluator.close
   }
 
   "Serialization" should "Work" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
     val actual = evaluator.toByteArray
-    actual should be (model.toByteArray)
-    evaluator.close
+    actual should be(model.toByteArray)
   }
 }

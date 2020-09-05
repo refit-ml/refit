@@ -1,18 +1,35 @@
 package edu.cdl.iot.camel.transform
 
-import edu.cdl.iot.camel.dao.CassandraDao
+import edu.cdl.iot.camel.dao.{GrafanaDao, SchemaDao}
 import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResponse}
-import edu.cdl.iot.camel.dto.GrafanaSensorDataDto
-import edu.cdl.iot.camel.dto.request.{SearchRequest, TagRequest}
+import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
+import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest, SearchRequest, TagRequest}
+import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.schema.enums.FieldClassification
 import edu.cdl.iot.common.schema.{Field, Schema}
+import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.common.util.TimestampHelper
+import javax.crypto.Cipher
 import org.apache.camel.{Exchange, Processor}
 
+import scala.collection.mutable
 import scala.util.Sorting
 
-class GrafanaProcessors(private val dao: CassandraDao) {
+class GrafanaProcessors(private val config: RefitConfig,
+                        private val schemaDao: SchemaDao,
+                        private val grafanaDao: GrafanaDao) {
 
+  val ENCRYPTION_KEY: String = config.getEncryptionKey()
+  val SCHEMA_HEADER = "REFIT_SCHEMA"
+  val ORG_HEADER = "REFIT_ORG"
+  val QUERY_PARTITIONS_HEADER = "REFIT_QUERY_PARTITIONS"
+  val decryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
+
+
+  private val getEncryptionHelper: String => EncryptionHelper = projectGuid =>
+    decryptionHelpers.getOrElseUpdate(projectGuid, {
+      new EncryptionHelper(ENCRYPTION_KEY, projectGuid, Cipher.DECRYPT_MODE)
+    })
 
   implicit object `ByTimestamp` extends Ordering[Array[Any]] {
     def compare(a: Array[Any], b: Array[Any]): Int = {
@@ -49,6 +66,45 @@ class GrafanaProcessors(private val dao: CassandraDao) {
     record =>
       if (record.`type` == "table") table(record) else timeSeries(record)
 
+
+  private val sensorFilterPredicate: QueryFilters => Boolean =
+    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
+
+  private val getSensorIds: (String, Array[QueryFilters]) => List[String] =
+    (projectGuid: String, filters: Array[QueryFilters]) =>
+      if (filters.exists(sensorFilterPredicate))
+        filters.filter(sensorFilterPredicate)
+          .map(filter => filter.value).toList
+      else
+        grafanaDao.getSensors(projectGuid)
+
+  private val mapToSensorIds: (Schema, QueryRequest) => List[GrafanaSensorsDto] =
+    (schema: Schema, request: QueryRequest) => request.targets
+      .map(x =>
+        GrafanaSensorsDto(
+          schema.projectGuid.toString,
+          x.`type`,
+          x.target,
+          getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
+      .toList
+
+  private val getSensorReadings: (GrafanaSensorsDto, String, List[String]) => GrafanaSensorDataDto =
+    (sensors: GrafanaSensorsDto, sensorId: String, partitions: List[String]) => {
+      val data = grafanaDao.getSensorData(getEncryptionHelper,
+        sensors.projectGuid,
+        sensorId,
+        partitions)
+        .filter(x => x.contains(sensors.target.toLowerCase))
+
+      GrafanaSensorDataDto(
+        sensors.projectGuid,
+        sensors.`type`,
+        sensors.target,
+        sensorId,
+        data
+      )
+    }
+
   val queryProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn().getBody(classOf[List[GrafanaSensorDataDto]])
@@ -68,10 +124,10 @@ class GrafanaProcessors(private val dao: CassandraDao) {
 
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn.getBody(classOf[SearchRequest])
-      val schemas = dao.getProjectSchemas
+      val schemas = schemaDao.getProjectSchemas
       exchange.getIn.setBody(
         body.target match {
-          case "sensors" => dao.getAllSensors.toArray
+          case "sensors" => grafanaDao.getAllSensors.toArray
           case _ => schemas.flatMap(schema => schema.fields.flatMap(fieldMapper)).toArray
         }
       )
@@ -84,22 +140,36 @@ class GrafanaProcessors(private val dao: CassandraDao) {
       val body = exchange.getIn.getBody(classOf[TagRequest])
       exchange.getIn.setBody(
         body.key match {
-          case "sensor" => dao
+          case "sensor" => grafanaDao
             .getAllSensors
             .map(x => new TagResponse(x))
             .toArray
-          case "project" => dao.getProjects
+          case "project" => grafanaDao.getProjects
             .map(x => new TagResponse(x))
             .toArray
-          case "org" => dao.getOrgs
+          case "org" => grafanaDao.getOrgs
             .map(x => new TagResponse(x))
             .toArray
-          case _ => dao.getOrgs
+          case _ => grafanaDao.getOrgs
             .map(x => new TagResponse(x))
             .toArray
         }
       )
+    }
+  }
 
+
+  val grafanaQuery: Processor = new Processor {
+
+    override def process(exchange: Exchange): Unit = {
+      val record = exchange.getIn.getBody(classOf[QueryRequest])
+      val schema = exchange.getIn.getHeader(SCHEMA_HEADER, classOf[Schema])
+      val partitions = exchange.getIn.getHeader(QUERY_PARTITIONS_HEADER, classOf[List[String]])
+
+      val data = mapToSensorIds(schema, record)
+        .flatMap(x => x.sensors.map(y => getSensorReadings(x, y, partitions)))
+
+      exchange.getIn.setBody(data)
     }
   }
 }

@@ -14,7 +14,7 @@ echo "Build Assemblies"
 sbt assembly
 
 echo "Build Integrations"
-docker build -t integrations camel
+docker build -t integrations integrations
 docker tag integrations:latest cdliotprototype/cdl-refit-integrations:latest
 docker push cdliotprototype/cdl-refit-integrations:latest
 docker tag integrations:latest cdliotprototype/cdl-refit-integrations:$tag
@@ -28,6 +28,15 @@ docker push cdliotprototype/cdl-refit-ingestion:latest
 
 docker tag ingestion:latest cdliotprototype/cdl-refit-ingestion:$tag
 docker push cdliotprototype/cdl-refit-ingestion:$tag
+
+
+echo "Build inference"
+docker build -t inference inference
+docker tag inference:latest cdliotprototype/cdl-refit-inference:latest
+docker push cdliotprototype/cdl-refit-inference:latest
+
+docker tag inference:latest cdliotprototype/cdl-refit-inference:$tag
+docker push cdliotprototype/cdl-refit-inference:$tag
 
 echo "Build Cassandra"
 docker build -t cassandra db/src/main/cql/

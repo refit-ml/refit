@@ -1,6 +1,6 @@
 package edu.cdl.iot.camel
 
-import edu.cdl.iot.camel.dao.CassandraDao
+import edu.cdl.iot.camel.dao.{GrafanaDao, PredictionDao, SchemaDao}
 import edu.cdl.iot.camel.factories.ProcessorFactory
 import edu.cdl.iot.camel.routes.{GrafanaRoutes, PredictionRoutes}
 import edu.cdl.iot.common.factories.ConfigFactory
@@ -13,16 +13,19 @@ object CamelMain {
     val config = configFactory.getConfig
 
     val processorFactory = new ProcessorFactory(config)
-    val dao = new CassandraDao(config.getCassandraConfig())
-    val cassandraProcessors = processorFactory.getCassandraProcessors(dao)
-    val grafanaProcessors = processorFactory.getGrafanaProcessors(dao)
+    val grafanaDao = new GrafanaDao(config.getCassandraConfig())
+    val predictionDao = new PredictionDao(config.getCassandraConfig())
+    val schemaDataDao = new SchemaDao(config.getCassandraConfig())
+
+    val predictionProcessors = processorFactory.getPredictionProcessors(predictionDao)
+    val grafanaProcessors = processorFactory.getGrafanaProcessors(schemaDataDao, grafanaDao)
     val pulsarProcessors = processorFactory.getPulsarProcessors
-    val schemaProcessors = processorFactory.getSchemaProcessors(dao)
+    val schemaProcessors = processorFactory.getSchemaProcessors(schemaDataDao)
 
     val context = new DefaultCamelContext
     context.addComponent("netty-http", new NettyHttpComponent)
-    context.addRoutes(new PredictionRoutes(context, pulsarProcessors, schemaProcessors, cassandraProcessors))
-    context.addRoutes(new GrafanaRoutes(context, schemaProcessors, cassandraProcessors, grafanaProcessors))
+    context.addRoutes(new PredictionRoutes(context, pulsarProcessors, schemaProcessors, predictionProcessors))
+    context.addRoutes(new GrafanaRoutes(context, schemaProcessors, grafanaProcessors))
     context.start()
   }
 }

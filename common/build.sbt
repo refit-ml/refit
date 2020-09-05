@@ -10,5 +10,6 @@ lazy val common = (project in file("."))
       "commons-codec" % "commons-codec" % "1.14",
       "org.yaml" % "snakeyaml" % "1.26"
     ),
-    libraryDependencies ++= Dependencies.testDependencies
+    libraryDependencies ++= Dependencies.testDependencies,
+    assembly := null
   ).dependsOn(Shared.protocol)

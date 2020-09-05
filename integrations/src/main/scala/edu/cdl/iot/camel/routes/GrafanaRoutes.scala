@@ -4,7 +4,7 @@ package edu.cdl.iot.camel.routes
 import edu.cdl.iot.camel.dto.request.{QueryRequest, SearchRequest, TagRequest}
 import edu.cdl.iot.camel.dto.response.{AnnotationFixtures, AnnotationResponse, TableFixtures, TimeSerieFixtures}
 import edu.cdl.iot.camel.dto.HealthCheckDto
-import edu.cdl.iot.camel.transform.{CassandraProcessors, GrafanaProcessors, SchemaProcessors}
+import edu.cdl.iot.camel.transform.{GrafanaProcessors, SchemaProcessors}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.{CamelContext, Exchange, Processor}
 import org.apache.camel.model.rest.RestBindingMode
@@ -12,7 +12,6 @@ import org.apache.camel.model.rest.RestBindingMode
 
 class GrafanaRoutes(private val context: CamelContext,
                     private val schemaProcessors: SchemaProcessors,
-                    private val cassandraProcessors: CassandraProcessors,
                     private val grafanaProcessors: GrafanaProcessors) extends RouteBuilder(context) {
   private val port = 3000
   private val ANNOTATION_ROUTE_ID = "direct:grafana-annotations"
@@ -52,7 +51,7 @@ class GrafanaRoutes(private val context: CamelContext,
       .process(schemaProcessors.extractOrg)
       .process(schemaProcessors.extractSchema)
       .process(schemaProcessors.getQueryPartitions)
-      .process(cassandraProcessors.grafanaQuery)
+      .process(grafanaProcessors.grafanaQuery)
       .process(grafanaProcessors.queryProcessor)
 
 

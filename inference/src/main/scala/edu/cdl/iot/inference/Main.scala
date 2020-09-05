@@ -1,14 +1,13 @@
 package edu.cdl.iot.inference
 
 
+import edu.cdl.iot.common.factories.ConfigFactory
 import edu.cdl.iot.inference.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
 import edu.cdl.iot.inference.transform.{EvaluationProcessor, PredictionKeyExtractor, SensorDataMapper}
-import edu.cdl.iot.inference.util.Helpers
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.flink.api.java.functions.KeySelector
-import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
@@ -17,19 +16,19 @@ import org.apache.pulsar.client.impl.conf.{ClientConfigurationData, ProducerConf
 
 object Main {
   def main(args: Array[String]) {
-
+    val resourceFileName = "/inference.yaml"
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    val params = ParameterTool.fromArgs(args)
     val config = env.getCheckpointConfig
-
-    val pulsarHost = Helpers.env_var("PULSAR_HOST", "refit-pulsar-standalone", params)
-    val inputTopic = Helpers.env_var("INPUT_TOPIC", "persistent://sample/standalone/ns1/sensors", params)
-    val outputTopic = Helpers.env_var("OUTPUT_TOPIC", "persistent://sample/standalone/ns1/predictions", params)
-    val subscribtionName = Helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-1", params)
-    val modelTopic = Helpers.env_var("MODEL_TOPIC", "persistent://sample/standalone/ns1/models", params)
-    val subscribtionNameModels = Helpers.env_var("SUBSCRIPTION_NAME", "scala-sub-2", params)
-    val checkpointInterval = Helpers.env_var("CHECKPOINT_INTERVAL", (1000 * 60).toString, params).toInt
+    val configFactory = new ConfigFactory()
+    val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
+    val pulsarHost = refitConfig.getPulsarHost()
+    val inputTopic = "persistent://sample/standalone/ns1/sensors"
+    val outputTopic = "persistent://sample/standalone/ns1/predictions"
+    val subscribtionName = "scala-sub-1"
+    val modelTopic ="persistent://sample/standalone/ns1/models"
+    val subscribtionNameModels = "scala-sub-2"
+    val checkpointInterval = (1000 * 60)
 
     val serviceUrl = s"pulsar://$pulsarHost:6650"
 
