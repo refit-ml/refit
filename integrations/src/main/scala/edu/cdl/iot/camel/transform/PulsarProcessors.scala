@@ -7,7 +7,6 @@ import org.apache.pulsar.client.api.{Schema, SubscriptionType}
 
 class PulsarProcessors(val config: RefitConfig) {
 
-
   private val client = PulsarClient(s"pulsar://${config.getPulsarHost()}:6650")
   private val topic = Topic("persistent://sample/standalone/ns1/predictions")
   private val consumerConfig = ConsumerConfig(
