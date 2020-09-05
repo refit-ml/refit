@@ -2,33 +2,14 @@ package edu.cdl.iot.ingestion.dao
 
 import com.datastax.driver.core._
 import edu.cdl.iot.common.schema.Schema
-import edu.cdl.iot.common.schema.factories.SchemaFactory
-import edu.cdl.iot.common.util.ConfigHelper
+import edu.cdl.iot.common.factories.SchemaFactory
+import edu.cdl.iot.common.yaml.CassandraConfig
+import edu.cdl.iot.dao.RefitDao
 
 import scala.collection.JavaConverters._
 
-object ModelDao {
-  val host: String = ConfigHelper.env("CASSANDRA_HOST", "127.0.0.1")
-  val keyspace = "cdl_refit"
-  val user: String = ConfigHelper.env("CASSANDRA_USER", "cassandra")
-  val password: String = ConfigHelper.env("CASSANDRA_PASSWORD", "cassandra")
-  val port = 9042
-
-  lazy val poolingOptions: PoolingOptions = {
-    new PoolingOptions()
-      .setConnectionsPerHost(HostDistance.LOCAL, 4, 10)
-      .setConnectionsPerHost(HostDistance.REMOTE, 2, 4)
-  }
-
-  lazy val cluster: Cluster = {
-    val builder = Cluster.builder()
-    builder.addContactPoint(host)
-    builder.withCredentials(user, password)
-    builder.withPort(port)
-    builder.build()
-  }
-
-  var session: Session = cluster.connect()
+class ModelDao(private val config: CassandraConfig) extends RefitDao(config) {
+  private val keyspace = config.keyspace
 
   object queries {
     val getModel: String =

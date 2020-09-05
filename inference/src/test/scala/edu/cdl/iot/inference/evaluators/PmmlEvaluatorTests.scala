@@ -4,7 +4,7 @@ import java.io.{File, FileInputStream}
 import java.nio.file.{Files, Paths}
 
 import com.google.protobuf.ByteString
-import edu.cdl.iot.common.schema.factories.SchemaFactory
+import edu.cdl.iot.common.factories.SchemaFactory
 import edu.cdl.iot.common.util.SensorDataHelper
 import edu.cdl.iot.inference.util.EvaluatorFactory
 import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}

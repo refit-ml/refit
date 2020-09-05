@@ -6,9 +6,9 @@ import edu.cdl.iot.db.fixtures.dto.{Org, Project}
 
 object Fixtures {
 
-  def build(): Unit = {
-    organizations.foreach(FixtureDao.createOrg)
-    projects.foreach(FixtureDao.createProject)
+  def build(dao: FixtureDao): Unit = {
+    organizations.foreach(dao.createOrg)
+    projects.foreach(dao.createProject)
   }
 
   val organizations: List[Org] = List(Demo.org)

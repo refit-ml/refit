@@ -10,7 +10,7 @@ import edu.cdl.iot.protocol.SensorData.SensorData
 import scala.collection.JavaConversions._
 
 object OnnxEvaluator {
-  private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+  val env: OrtEnvironment = OrtEnvironment.getEnvironment()
 }
 
 class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
@@ -30,9 +30,9 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
       case (x, d) =>
         x -> d.toFloat
     })).++(v.labels.map({
-        case (x, d) =>
-          x -> d.toFloat
-      }))
+      case (x, d) =>
+        x -> d.toFloat
+    }))
 
   private def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
     x.toList.map(tuple => tuple._2).toArray
@@ -69,4 +69,9 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
     )
 
   def toByteArray: Array[Byte] = model.toByteArray
+
+  override def close: Any = {
+    onnxEvaluator.close()
+    OnnxEvaluator.env.close()
+  }
 }

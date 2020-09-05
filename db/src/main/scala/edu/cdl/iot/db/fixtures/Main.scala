@@ -1,7 +1,7 @@
 package edu.cdl.iot.db.fixtures
 
+import edu.cdl.iot.common.factories.ConfigFactory
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.common.util.ConfigHelper
 import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
 import edu.cdl.iot.db.fixtures.dao.FixtureDao
 import edu.cdl.iot.db.fixtures.dto.Sensor
@@ -11,7 +11,13 @@ import scala.collection.mutable
 
 object Main {
   def main(args: Array[String]): Unit = {
-    val encryptionKey = ConfigHelper.env("ENCRYPTION_KEY", "keyboard_cat")
+    val configFactory = new ConfigFactory()
+    val config = configFactory.getConfig
+
+    val encryptionKey = config.getEncryptionKey()
+    val fixtureDao = new FixtureDao(config.getCassandraConfig())
+
+
     val batchSize = 5
     val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
@@ -20,14 +26,14 @@ object Main {
 
 
     println("Create schema fixtures ...")
-    Fixtures.build()
+    Fixtures.build(fixtureDao)
 
     if (loadTrainingWindow || loadSensorData) {
       if (loadSensorData) {
         println("Importing Sensor Data")
         val data = SensorDataImport.load(schema, encryptionHelper)
         println("Saving Sensor Data")
-        data.grouped(batchSize).map(FixtureDao.createSensorData).toList
+        data.grouped(batchSize).map(fixtureDao.createSensorData).toList
 
         val sensors = new mutable.HashMap[String, Sensor]
 
@@ -37,7 +43,7 @@ object Main {
           })
         })
         println("Create Sensors")
-        sensors.values.toList.grouped(batchSize).map(FixtureDao.createSensor).toList
+        sensors.values.toList.grouped(batchSize).map(fixtureDao.createSensor).toList
 
       }
 
@@ -45,11 +51,11 @@ object Main {
         println("Importing training window data")
         val data = TrainingWindowImport.load(schema)
         println("Saving training window data")
-        data.grouped(batchSize).map(FixtureDao.createTrainingWindow).toList
+        data.grouped(batchSize).map(fixtureDao.createTrainingWindow).toList
       }
     }
     println("Done")
-    FixtureDao.close()
+    fixtureDao.close()
   }
 
 }

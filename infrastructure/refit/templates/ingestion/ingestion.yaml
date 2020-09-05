@@ -26,12 +26,18 @@ spec:
         - name: {{ .Release.Name }}-ingestion
           image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
           env:
+            - name: REFIT_PROJECT
+              value: ingestion
             - name: PULSAR_HOST
               value: {{ .Release.Name }}-pulsar-standalone
             - name: CASSANDRA_HOST
               value: {{ .Release.Name }}-cassandra
-            - name: PROJECT
-              value: ingestion
+            - name: CASSANDRA_PORT
+              value: "9042"
+            - name: CASSANDRA_KEYSPACE
+              value: cdl_refit
+            - name: CASSANDRA_USERNAME
+              value: cassandra
             - name: CASSANDRA_PASSWORD
               valueFrom:
                 secretKeyRef:

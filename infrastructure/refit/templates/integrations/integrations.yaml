@@ -26,12 +26,18 @@ spec:
         - name: {{ .Release.Name }}-integrations
           image: cdliotprototype/cdl-refit-integrations:{{ .Values.refit.version }}
           env:
+            - name: REFIT_PROJECT
+              value: integrations
             - name: PULSAR_HOST
               value: {{ .Release.Name }}-pulsar-standalone
             - name: CASSANDRA_HOST
               value: {{ .Release.Name }}-cassandra
-            - name: PROJECT
-              value: integrations
+            - name: CASSANDRA_PORT
+              value: "9042"
+            - name: CASSANDRA_KEYSPACE
+              value: cdl_refit
+            - name: CASSANDRA_USERNAME
+              value: cassandra
             - name: CASSANDRA_PASSWORD
               valueFrom:
                 secretKeyRef:

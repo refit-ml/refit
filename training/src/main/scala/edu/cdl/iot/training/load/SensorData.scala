@@ -1,15 +1,10 @@
 package edu.cdl.iot.training.load
 
 import java.util.UUID
-
-import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.db.fixtures.schema.Prototype
-import javax.crypto.Cipher
 import org.apache.spark.sql.{DataFrame, Encoders, SparkSession}
 
 object SensorData {
   def load(session: SparkSession): DataFrame = {
-//    val encryptionHelper = new EncryptionHelper("keyboard_cat", Prototype.dummy.projectGuid.toString, Cipher.DECRYPT_MODE)
 
     session
       .read
