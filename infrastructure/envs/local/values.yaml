@@ -62,3 +62,4 @@ refit:
   version: ALPHA-17
   integrations:
     replicas: 1
+  schemaConfigMap: test-schemas

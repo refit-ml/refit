@@ -113,3 +113,5 @@ refit:
         memory: "2000Mi"
       requests:
         memory: "500Mi"
+  schemaConfigMap: __demo__
+    # name: pathToSchemaFile
