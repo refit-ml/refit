@@ -9,5 +9,6 @@ object EnvConstants {
   val CASSANDRA_PASSWORD = "CASSANDRA_PASSWORD"
   val ENCRYPTION_KEY = "ENCRYPTION_KEY"
   val PROJECT = "PROJECT"
+  val DEMO = "REFIT_DEMO"
 }
 

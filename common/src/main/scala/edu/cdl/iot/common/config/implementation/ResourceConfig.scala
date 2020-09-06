@@ -7,7 +7,6 @@ import edu.cdl.iot.common.yaml.{CassandraConfig, ConfigYaml}
 import org.yaml.snakeyaml.Yaml
 
 
-
 class ResourceConfig(input: InputStream) extends RefitConfig {
   private val config = (new Yaml).loadAs(input, classOf[ConfigYaml])
 
@@ -18,4 +17,6 @@ class ResourceConfig(input: InputStream) extends RefitConfig {
   override val getProject: () => String = () => config.project
 
   override val getCassandraConfig: () => CassandraConfig = () => config.cassandra
+
+  override val runDemo: () => Boolean = () => config.demo
 }

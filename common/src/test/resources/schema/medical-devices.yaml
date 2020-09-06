@@ -1,0 +1,160 @@
+org: Center for Deep Learning
+orgGuid: 62ab599b-787f-4f05-ab09-60dbde85d9db
+name: Medical Devices
+projectGuid: e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93
+partitionScheme: HOUR
+importOptions:
+  includesHeader: true
+featureType: Double
+fields:
+  # -- Keys
+  - name: Session-ID
+    type: Integer
+    classification: Key
+  # -- Timestamp
+  - name: Timestamp
+    type: String
+    classification: Timestamp
+  # -- Targets
+  - name: Target
+    type: Double
+    classification: Label
+  # -- Features
+  - name: weekday_enc
+    type: Double
+    classification: Feature
+  - name: weekday_enc2
+    type: Double
+    classification: Feature
+  - name: groupedDrugName_enc
+    type: Double
+    classification: Feature
+  - name: groupedDrugName_enc2
+    type: Double
+    classification: Feature
+  - name: groupedDrugName_enc3
+    type: Double
+    classification: Feature
+  - name: groupedDrugName_enc4
+    type: Double
+    classification: Feature
+  - name: groupedDrugName_enc5
+    type: Double
+    classification: Feature
+  - name: hospital_enc
+    type: Double
+    classification: Feature
+  - name: pumpID_enc
+    type: Double
+    classification: Feature
+  - name: pumpID_enc2
+    type: Double
+    classification: Feature
+  - name: pumpID_enc3
+    type: Double
+    classification: Feature
+  - name: pumpID_enc4
+    type: Double
+    classification: Feature
+  - name: pumpID_enc5
+    type: Double
+    classification: Feature
+  - name: pumpID_enc6
+    type: Double
+    classification: Feature
+  - name: pumpID_enc7
+    type: Double
+    classification: Feature
+  - name: pumpID_enc8
+    type: Double
+    classification: Feature
+  - name: pumpID_enc9
+    type: Double
+    classification: Feature
+  - name: pumpID_enc10
+    type: Double
+    classification: Feature
+  - name: pumpID_enc11
+    type: Double
+    classification: Feature
+  - name: pumpID_enc12
+    type: Double
+    classification: Feature
+  - name: pumpID_enc13
+    type: Double
+    classification: Feature
+  - name: pumpID_enc14
+    type: Double
+    classification: Feature
+  - name: pumpID_enc15
+    type: Double
+    classification: Feature
+  - name: pumpID_enc16
+    type: Double
+    classification: Feature
+  - name: pumpID_enc17
+    type: Double
+    classification: Feature
+  - name: pumpID_enc18
+    type: Double
+    classification: Feature
+  - name: pumpID_enc19
+    type: Double
+    classification: Feature
+  - name: pumpID_enc20
+    type: Double
+    classification: Feature
+  - name: pumpID_enc21
+    type: Double
+    classification: Feature
+  - name: pumpID_enc22
+    type: Double
+    classification: Feature
+  - name: pumpID_enc23
+    type: Double
+    classification: Feature
+  - name: pumpID_enc24
+    type: Double
+    classification: Feature
+  - name: pumpID_enc25
+    type: Double
+    classification: Feature
+  - name: pumpID_enc26
+    type: Double
+    classification: Feature
+  - name: pumpID_enc27
+    type: Double
+    classification: Feature
+  - name: advisory_enc
+    type: Double
+    classification: Feature
+  - name: advisory_enc2
+    type: Double
+    classification: Feature
+  - name: advisory_enc3
+    type: Double
+    classification: Feature
+  - name: advisory_enc4
+    type: Double
+    classification: Feature
+  - name: advisory_enc5
+    type: Double
+    classification: Feature
+  - name: advisory_enc6
+    type: Double
+    classification: Feature
+  - name: advisory_enc7
+    type: Double
+    classification: Feature
+  - name: advisory_enc8
+    type: Double
+    classification: Feature
+  - name: advisory_enc9
+    type: Double
+    classification: Feature
+  - name: advisory_enc10
+    type: Double
+    classification: Feature
+  - name: advisory_enc11
+    type: Double
+    classification: Feature

@@ -12,8 +12,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
+  val schemaDirectory = s"${System.getProperty("user.dir")}/common/src/main/resources/schema"
+
   val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.pmml"
-  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/dummy.yaml"
+  val schemaFileName = s"$schemaDirectory/demo.yaml"
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))

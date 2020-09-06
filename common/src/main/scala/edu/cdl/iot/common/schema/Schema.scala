@@ -12,7 +12,8 @@ import org.yaml.snakeyaml.Yaml
 import collection.JavaConverters._
 
 case class Schema(yaml: SchemaYaml) {
-
+  val org: String = yaml.org
+  val orgGuid: UUID = UUID.fromString(yaml.orgGuid)
   val name: String = yaml.name
   val projectGuid: UUID = UUID.fromString(yaml.projectGuid)
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)

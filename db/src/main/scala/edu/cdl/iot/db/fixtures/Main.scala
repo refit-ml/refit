@@ -1,59 +1,49 @@
 package edu.cdl.iot.db.fixtures
 
-import edu.cdl.iot.common.factories.ConfigFactory
-import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
+import edu.cdl.iot.common.factories.{ConfigFactory, SchemaFactory}
+import edu.cdl.iot.common.util.TimestampHelper
+import edu.cdl.iot.db.fixtures.`import`.ImportHelper
 import edu.cdl.iot.db.fixtures.dao.FixtureDao
-import edu.cdl.iot.db.fixtures.dto.Sensor
-import edu.cdl.iot.db.fixtures.schema.Prototype
+import edu.cdl.iot.db.fixtures.dto.{Org, Project}
+import org.joda.time.DateTime
 
-import scala.collection.mutable
 
 object Main {
+  val loadTrainingWindow = false
+  val loadSensorData = false
+  val schemaDirectory = "SCHEMA_DIRECTORY"
+
   def main(args: Array[String]): Unit = {
     val configFactory = new ConfigFactory()
     val config = configFactory.getConfig
 
-    val encryptionKey = config.getEncryptionKey()
     val fixtureDao = new FixtureDao(config.getCassandraConfig())
 
 
-    val batchSize = 5
-    val schema = Prototype.dummy
-    val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
-    val loadTrainingWindow = false
-    val loadSensorData = false
+    val schemas =
+      if (sys.env.contains(schemaDirectory))
+        SchemaFactory.getSchemas(sys.env(schemaDirectory))
+      else SchemaFactory.getSchemas
 
+    
+    val orgs = schemas.map(x => Org(x.orgGuid,
+      TimestampHelper.toTimestamp(DateTime.now()),
+      x.org
+    ))
+    val projects = schemas.map(Project.fromSchema)
 
-    println("Create schema fixtures ...")
-    Fixtures.build(fixtureDao)
+    println("Create Orgs")
+    orgs.foreach(fixtureDao.createOrg)
+    println("Create Projects")
+    projects.foreach(fixtureDao.createProject)
 
-    if (loadTrainingWindow || loadSensorData) {
-      if (loadSensorData) {
-        println("Importing Sensor Data")
-        val data = SensorDataImport.load(schema, encryptionHelper)
-        println("Saving Sensor Data")
-        data.grouped(batchSize).map(fixtureDao.createSensorData).toList
-
-        val sensors = new mutable.HashMap[String, Sensor]
-
-        data.foreach(x => {
-          sensors.getOrElseUpdate(x.sensor_id, {
-            Sensor(x.project_guid, x.sensor_id, x.timestamp)
-          })
-        })
-        println("Create Sensors")
-        sensors.values.toList.grouped(batchSize).map(fixtureDao.createSensor).toList
-
-      }
-
-      if (loadTrainingWindow) {
-        println("Importing training window data")
-        val data = TrainingWindowImport.load(schema)
-        println("Saving training window data")
-        data.grouped(batchSize).map(fixtureDao.createTrainingWindow).toList
-      }
+    if (loadSensorData || loadTrainingWindow) {
+      println("Import data")
+      schemas.foreach(schema => {
+        ImportHelper.importData(config, fixtureDao, schema, loadSensorData, loadTrainingWindow)
+      })
     }
+
     println("Done")
     fixtureDao.close()
   }

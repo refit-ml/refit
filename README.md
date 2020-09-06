@@ -44,3 +44,6 @@ In order to write code, unit tests, and run your code in a developer friendly en
 - Shell: All of our build/test scripts will be written in shell
     - If you are on a Mac/Linux machine then you will not need to install anything
     - If you are on Windows you will want to install the [Ubuntu Subsystem](https://ubuntu.com/tutorials/tutorial-ubuntu-on-windows#1-overview)
+    
+# Deployment
+To provide your own schemas to REFIT you must first create a configmap with all of the schema files. `kubectl create configmap test-schemas --from-file schemas`. In your values.yaml, set the `refit.schemaConfigMap` value equal to your configmap name.

@@ -48,6 +48,10 @@ spec:
                 secretKeyRef:
                   key: password
                   name: {{ .Release.Name }}-encryption-key
+            {{- if eq .Values.refit.schemaConfigMap "__demo__" }}
+            - name: REFIT_DEMO
+              value: "true"
+            {{- end }}
           resources:
             limits:
               memory: {{ .Values.refit.ingestion.resources.limits.memory }}

@@ -23,4 +23,14 @@ object SchemaFactory {
     val fileStream = getClass.getResourceAsStream(fileName)
     SchemaFactory.parse(fileStream)
   }
+
+  def getSchemas: List[Schema] = getSchemas(getClass.getResource("/schema/").getPath)
+
+  def getSchemas(rootDirectory: String): List[Schema] = {
+    val directory = new File(rootDirectory)
+    directory
+      .listFiles()
+      .map(file => parse(new FileInputStream(file)))
+      .toList
+  }
 }
