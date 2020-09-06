@@ -2,7 +2,7 @@ name: Releases
 
 on:
   release:
-    types: [published, created]
+    types: [published, created, edited]
 
 jobs:
   inference:
