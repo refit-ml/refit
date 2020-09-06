@@ -12,4 +12,6 @@ trait RefitConfig {
 
   val getProject: () => String
 
+  val runDemo: () => Boolean
+
 }

@@ -9,11 +9,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 class SchemaTests extends AnyFlatSpec with should.Matchers {
-  val filename = s"${System.getProperty("user.dir")}/db/data/schema/dummy.yaml"
+  val baseDirectory = s"${System.getProperty("user.dir")}/common/src/main/resources/schema"
+  val filename = s"$baseDirectory/demo.yaml"
 
 
   "Schema" should "Parse name" in {
-    val expected = "Dummy"
+    val expected = "Demo"
     val input = new FileInputStream(new File(filename))
     val actual = SchemaFactory.parse(input)
     actual should not be (null)
@@ -53,7 +54,7 @@ class SchemaTests extends AnyFlatSpec with should.Matchers {
   }
 
   "Schema Parsing" should "Should work for medical devices schema" in {
-    val filename = s"${System.getProperty("user.dir")}/db/data/schema/medical-devices.yaml"
+    val filename = s"$baseDirectory/medical-devices.yaml"
     val input = new FileInputStream(new File(filename))
     val actual = SchemaFactory.parse(input)
 

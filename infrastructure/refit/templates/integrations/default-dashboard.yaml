@@ -808,7 +808,7 @@ data:
       "version": 4
     }
 
-  baxter-dashboard.json: |-
+  medical-device-dashboard.json: |-
     {
       "annotations": {
         "list": [
@@ -1693,7 +1693,7 @@ data:
               {
                 "key": "project",
                 "operator": "=",
-                "value": "Baxter Data Project - e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
+                "value": "Medical Device Project - e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
               }
             ],
             "hide": 0,
@@ -1749,7 +1749,7 @@ data:
         ]
       },
       "timezone": "browser",
-      "title": "Baxter Dashboard",
+      "title": "Medical Device Dashboard",
       "uid": "eHHfJ5HMa",
       "version": 15
     }

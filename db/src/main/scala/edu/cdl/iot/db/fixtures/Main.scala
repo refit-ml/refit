@@ -11,6 +11,7 @@ import org.joda.time.DateTime
 object Main {
   val loadTrainingWindow = false
   val loadSensorData = false
+  val schemaDirectory = "SCHEMA_DIRECTORY"
 
   def main(args: Array[String]): Unit = {
     val configFactory = new ConfigFactory()
@@ -18,7 +19,13 @@ object Main {
 
     val fixtureDao = new FixtureDao(config.getCassandraConfig())
 
-    val schemas = SchemaFactory.getSchemas
+
+    val schemas =
+      if (sys.env.contains(schemaDirectory))
+        SchemaFactory.getSchemas(sys.env(schemaDirectory))
+      else SchemaFactory.getSchemas
+
+    
     val orgs = schemas.map(x => Org(x.orgGuid,
       TimestampHelper.toTimestamp(DateTime.now()),
       x.org

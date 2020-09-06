@@ -20,4 +20,5 @@ class EnvironmentConfig extends RefitConfig {
     sys.env(EnvConstants.CASSANDRA_USER),
     sys.env(EnvConstants.CASSANDRA_PASSWORD)
   )
+  override val runDemo: () => Boolean = () => sys.env(EnvConstants.DEMO).toBoolean
 }
