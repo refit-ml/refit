@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
-          dockerfile: inference/Dockerfile
+          path: inference
 
   ingestion:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          dockerfile: ingestion/Dockerfile
+          path: ingestion
 
   integrations:
     runs-on: ubuntu-latest
@@ -63,13 +63,18 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          dockerfile: integrations/Dockerfile
+          path: integrations
 
   cassandra:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Compile Source Code
+        run: sbt db/compile
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
@@ -78,4 +83,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
-          dockerfile: db/Dockerfile
+          path: db
