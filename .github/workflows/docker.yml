@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
-          dockerfile: inference/dockerfile
+          dockerfile: inference/Dockerfile
 
   ingestion:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          dockerfile: ingestion/dockerfile
+          dockerfile: ingestion/Dockerfile
 
   integrations:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          dockerfile: integrations/dockerfile
+          dockerfile: integrations/Dockerfile
 
   cassandra:
     runs-on: ubuntu-latest
@@ -78,4 +78,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
-          dockerfile: cassandra/dockerfile
+          dockerfile: db/Dockerfile
