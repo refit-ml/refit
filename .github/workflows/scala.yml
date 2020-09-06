@@ -18,7 +18,7 @@ jobs:
     - name: Compile Source Code
       run: sbt compile
       
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

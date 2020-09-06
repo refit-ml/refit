@@ -1,9 +1,4 @@
-FROM flink:1.10.1-scala_2.11
-
-RUN apt-get update
-RUN apt-get install wait-for-it -y
-RUN apt-get install python3 python3-pip -y
-RUN pip3 install --upgrade pip setuptools
+FROM cdliotprototype/cdl-refit-flink:1.10.1
 
 COPY ./target/scala-2.11/inference.jar /app/inference.jar
 COPY ./src/main/python/deploy.py /app/deploy.py

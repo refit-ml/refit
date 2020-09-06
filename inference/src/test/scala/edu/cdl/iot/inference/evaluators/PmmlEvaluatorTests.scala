@@ -40,6 +40,6 @@ class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
   "Serialization" should "Work" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
     val actual = evaluator.toByteArray
-    actual should be (model.toByteArray)
+    actual should be(model.toByteArray)
   }
 }
