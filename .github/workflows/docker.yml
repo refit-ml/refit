@@ -18,7 +18,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
-          tag_with_sha: true
           dockerfile: inference/dockerfile
 
   ingestion:
@@ -34,7 +33,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          tag_with_sha: true
           dockerfile: ingestion/dockerfile
 
   integrations:
@@ -50,7 +48,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          tag_with_sha: true
           dockerfile: integrations/dockerfile
 
   cassandra:
@@ -66,5 +63,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
-          tag_with_sha: true
           dockerfile: cassandra/dockerfile
