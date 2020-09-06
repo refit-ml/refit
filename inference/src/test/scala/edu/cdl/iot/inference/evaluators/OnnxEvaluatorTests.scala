@@ -14,7 +14,7 @@ import org.scalatest.matchers.should
 
 class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAndAfterAll {
   val filename = s"${System.getProperty("user.dir")}/db/data/models/sample.onnx"
-  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/baxter.yaml"
+  val schemaFileName = s"${System.getProperty("user.dir")}/db/data/schema/medical-devices.yaml"
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))

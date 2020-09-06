@@ -52,8 +52,8 @@ class SchemaTests extends AnyFlatSpec with should.Matchers {
     actual.fields.head.classification should be(FieldClassification.ThrowAway)
   }
 
-  "Schema Parsing" should "Should work for baxter schema" in {
-    val filename = s"${System.getProperty("user.dir")}/db/data/schema/baxter.yaml"
+  "Schema Parsing" should "Should work for medical devices schema" in {
+    val filename = s"${System.getProperty("user.dir")}/db/data/schema/medical-devices.yaml"
     val input = new FileInputStream(new File(filename))
     val actual = SchemaFactory.parse(input)
 
