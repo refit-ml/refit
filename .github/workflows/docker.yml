@@ -74,7 +74,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Compile Source Code
-        run: sbt db/compile
+        run: sbt db/test
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
