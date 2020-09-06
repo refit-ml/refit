@@ -1,0 +1,86 @@
+cassandra: 
+  cluster:
+    replicaCount: 6
+    seedCount: 6
+  persistence:
+    enabled: false
+    # storageClass: glusterfs
+  nodeSelector: 
+    coredns: enabled
+  dbUser:
+    user: cassandra
+  resources:
+    limits:
+      memory: "10000Mi"
+    requests:
+      memory: "5000Mi"
+redis: 
+  usePassword: true
+  password: redis
+  master: 
+    nodeSelector: 
+      coredns: enabled
+    persistence:
+      enabled: false
+      # storageClass: glusterfs
+  slave: 
+    nodeSelector: 
+      coredns: enabled
+    persistence:
+      enabled: false
+      # storageClass: glusterfs
+  cluster: 
+    slaveCount: 2
+  metrics:
+    enabled: false
+  resources:
+    limits:
+      memory: "10000Mi"
+    requests:
+      memory: "5000Mi"
+
+grafana: 
+  nodeSelector:
+    coredns: enabled
+  persistence:
+    enabled: false
+  plugins:
+    - simpod-json-datasource
+  resources:
+    limits:
+      memory: "10000Mi"
+    requests:
+      memory: "5000Mi"
+
+flink: 
+  flinkVersion: 1.10.1
+  scalaVersion: 2.11
+  nodeSelector:
+    coredns: enabled
+  jobManager: 
+    limits: 
+      memory: "10000Mi"
+    requests: 
+      memory: "5000Mi"
+  taskManager: 
+    replicas: 3
+    limits: 
+      memory: "10000Mi"
+    requests: 
+      memory: "5000Mi"
+pulsar:
+  pulsarVersion: 2.6.0
+  nodeSelector:
+    coredns: enabled
+  resources: 
+    limits: 
+      memory: "10000Mi"
+    requests: 
+      memory: "5000Mi"
+
+refit:
+  version: ALPHA-8
+  nodeSelector:
+    coredns: enabled
+  integrations:
+    replicas: 8

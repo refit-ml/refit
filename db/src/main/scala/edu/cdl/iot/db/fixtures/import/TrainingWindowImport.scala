@@ -1,32 +1,29 @@
 package edu.cdl.iot.db.fixtures.`import`
 
 import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.db.fixtures.dto.TrainingWindow
-import org.apache.spark.sql.{Dataset, Encoders, SaveMode, SparkSession}
+
+import scala.io.Source
 
 object TrainingWindowImport {
-  def load(session: SparkSession, schema: Schema): Dataset[TrainingWindow] = session
-    .read
-    .format("CSV")
-    .option("header", "true")
-    .load(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}-training-window.csv")
-    .map(d =>
+  def load(schema: Schema): List[TrainingWindow] = {
+    val bufferedSource = Source.fromFile(s"${System.getProperty("user.dir")}/db/data/import/${schema.getFileName}-training-window.csv")
+    val lines = bufferedSource.getLines()
+    if (schema.importOptions.includesHeader) lines.drop(1)
+    val result = lines.map(line => {
+      val row = line.split(",").map(_.trim)
       TrainingWindow(
         schema.projectGuid.toString,
-        d(0).toString,
-        d(1).toString,
-        d(2).toString,
-        d(3).toString
-      ))(Encoders.product[TrainingWindow])
+        row(0),
+        row(1),
+        TimestampHelper.parse(row(2)),
+        TimestampHelper.parse(row(3))
+      )
+    }).toList
 
-  def save(dataSet: Dataset[TrainingWindow]): Unit = dataSet
-    .write.format("org.apache.spark.sql.cassandra")
-    .options(
-      Map(
-        "keyspace" -> "cdl_refit",
-        "table" -> "training_window")
-    )
-    .mode(SaveMode.Append)
-    .save
+    bufferedSource.close
+    result
+  }
 
 }

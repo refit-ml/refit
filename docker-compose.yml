@@ -7,16 +7,33 @@ services:
       - "6650:6650"
     command: >
       bin/pulsar standalone
-    deploy:
-      restart_policy:
-        condition: on-failure
-
   cassandra:
-    build: ./infrastructure/cassandra/src/
-    ports: 
+    build: ./db/src/main/cql/
+    ports:
       - "7000:7000"
       - "9042:9042"
       - "9160:9160"
+  grafana:
+    image: grafana/grafana:7.1.1
+    ports:
+      - 8000:3000
+    user: "104"
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
+
+#  inference:
+#    build: ./inference/
+#    environment:
+#      FLINK_HOST: docker.for.mac.localhost
+#      PULSAR_HOST: pulsar
+#  camel:
+#    build: ./camel/
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      CASSANDRA_HOST: cassandra
+#      PULSAR_HOST: pulsar
+
 
 
 networks:

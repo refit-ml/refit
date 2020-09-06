@@ -1,28 +1,84 @@
 package edu.cdl.iot.db.fixtures.dao
 
-import java.sql.Timestamp
+import com.datastax.driver.core.{BatchStatement, BoundStatement, PreparedStatement, ResultSet}
+import edu.cdl.iot.common.yaml.CassandraConfig
+import edu.cdl.iot.dao.RefitDao
+import edu.cdl.iot.db.fixtures.dto.{Org, Project, Sensor, SensorData, TrainingWindow}
 
-import org.skife.jdbi.v2.sqlobject.{Bind, SqlUpdate}
+import collection.JavaConverters.mapAsJavaMapConverter
 
-trait FixtureDao {
-  @SqlUpdate("insert into org (org_guid, name, timestamp) VALUES (:guid, :name, :timestamp)")
-  def createOrg(@Bind("guid") guid: String,
-                @Bind("name") name: String,
-                @Bind("timestamp") timestamp: Timestamp)
+class FixtureDao(private val config: CassandraConfig) extends RefitDao(config) {
 
-  @SqlUpdate("insert into project (org_guid, project_guid, name, timestamp) values (:org, :guid, :name, :timestamp);")
-  def createProject(@Bind("org") orgGuid: String,
-                    @Bind("guid") guid: String,
-                    @Bind("name") name: String,
-                    @Bind("timestamp") timestamp: Timestamp)
+  private val queries = FixtureQueries(config.keyspace)
 
-  @SqlUpdate("INSERT INTO sensor_data" +
-    "(project_guid, sensor_id, partition_key, timestamp, data, prediction) " +
-    "values (:project, :sensorId, :partitionKey, :timestamp, :data, :prediction);")
-  def createSensorData(@Bind("project") projectGuid: String,
-                       @Bind("sensorId") sensotId: String,
-                       @Bind("partitionKey") partitionKey: String,
-                       @Bind("timestamp") timestamp: Timestamp,
-                       @Bind("data") data: java.util.Map[String, String],
-                       @Bind("prediction") prediction: java.util.Map[String, String])
+  object statements {
+    lazy val createOrg: PreparedStatement = session.prepare(queries.createOrg)
+    lazy val createProject: PreparedStatement = session.prepare(queries.createProject)
+    lazy val createSensorData: PreparedStatement = session.prepare(queries.createSensorData)
+    lazy val createTrainingWindow: PreparedStatement = session.prepare(queries.createTrainingWindow)
+    lazy val createSensor: PreparedStatement = session.prepare(queries.createSensor)
+  }
+
+  def createOrg(record: Org): ResultSet =
+    session.execute(statements.createOrg.bind(
+      record.orgGuid.toString,
+      record.name,
+      record.timestamp
+    ))
+
+  def createProject(record: Project): ResultSet =
+    session.execute(statements.createProject.bind(
+      record.orgGuid.toString,
+      record.projectGuid.toString,
+      record.name,
+      record.schema.toYaml,
+      record.timestamp
+    ))
+
+  def createSensorData(record: SensorData): BoundStatement =
+    statements.createSensorData.bind(
+      record.project_guid,
+      record.sensor_id,
+      record.partition_key,
+      record.timestamp,
+      record.data.asJava,
+      record.prediction.asJava
+    )
+
+  def createSensorData(records: Seq[SensorData]): ResultSet = {
+    val batchedStatement = new BatchStatement()
+    records.toList.map(createSensorData)
+      .foreach(batchedStatement.add)
+    session.execute(batchedStatement)
+  }
+
+  def createSensor(record: Sensor): BoundStatement =
+    statements.createSensor.bind(
+      record.projectGuid,
+      record.sensorId,
+      record.createdAt
+    )
+
+  def createSensor(records: List[Sensor]): ResultSet = {
+    val batchStatement = new BatchStatement()
+    records.map(createSensor)
+      .foreach(batchStatement.add)
+    session.execute(batchStatement)
+  }
+
+  def createTrainingWindow(record: TrainingWindow): BoundStatement =
+    statements.createTrainingWindow.bind(
+      record.project_guid,
+      record.sensor_id,
+      record.partition_key,
+      record.start,
+      record.end
+    )
+
+  def createTrainingWindow(records: List[TrainingWindow]): ResultSet = {
+    val batchedStatement = new BatchStatement()
+    records.map(createTrainingWindow)
+      .foreach(batchedStatement.add)
+    session.execute(batchedStatement)
+  }
 }

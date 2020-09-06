@@ -1,12 +1,9 @@
 package edu.cdl.iot.training
 
-import java.io.{File, FileInputStream}
-import java.util.UUID
 import java.util.UUID
 
-import com.google.protobuf.ByteString
-import edu.cdl.iot.common.schema.SchemaFactory
-import edu.cdl.iot.protocol.Model.Model
+import edu.cdl.iot.common.factories.SchemaFactory
+import edu.cdl.iot.protocol.Model.SerializationFormat
 import edu.cdl.iot.training.dto.ModelDto
 import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
@@ -14,8 +11,8 @@ import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
-import org.apache.spark.sql.{Encoders, SaveMode, SparkSession}
-import org.apache.spark.sql.functions.{to_timestamp, _}
+import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DoubleType
 import org.joda.time.DateTime
 import org.jpmml.sparkml.PMMLBuilder
@@ -35,13 +32,14 @@ object Main {
       .set("spark.cassandra.auth.username", "cassandra")
       .set("spark.cassandra.auth.password", "cassandra")
       .setMaster("local[2]")
+
     val spark = SparkSession.builder.config(conf).getOrCreate()
 
     spark.sparkContext.setLogLevel("ERROR")
 
     val schemaName = "dummy"
-    val schemaFile = s"${System.getProperty("user.dir")}/db/data/schema/${schemaName}.yaml"
-    val schema = SchemaFactory.parse(new FileInputStream(new File(schemaFile)))
+
+    val schema = SchemaFactory.getSchema(schemaName)
 
     val data = SensorData.load(spark)
     val time = TrainingWindow.load(spark)
@@ -52,19 +50,19 @@ object Main {
 
 
     // compare time intervals
-    val transformed = data
-      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-      .join(time,
-        col("end_hour") > time("start")
-          && col("end_hour") < time("end"),
-        "left"
-      )
-      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
-
-    // Interesting data (this will train the model to flag entries over 70 degrees in temp - For DEMO)
     //    val transformed = data
     //      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
-    //      .withColumn("operable", when(col("temperature") > 70, 0).otherwise(1))
+    //      .join(time,
+    //        col("end_hour") > time("start")
+    //          && col("end_hour") < time("end"),
+    //        "left"
+    //      )
+    //      .withColumn("operable", when(isnull(col("start")), 1).otherwise(0))
+
+    // Interesting data (this will train the model to flag entries over 70 degrees in temp - For DEMO)
+    val transformed = data
+      .withColumn("end_hour", col("timestamp") + expr("INTERVAL 30 minutes"))
+      .withColumn("operable", when(col("temperature") > 10, 0).otherwise(1))
 
 
     val transformedDataSet = transformed
@@ -135,15 +133,13 @@ object Main {
     val export = ModelDto(
       schema.projectGuid.toString,
       UUID.randomUUID.toString,
+      SerializationFormat.PMML.name,
       DateTime.now.getMillis,
       new PMMLBuilder(modelSchema, model).buildByteArray()
     )
 
     println(s"Exporting Model - UUID: '${`export`.model_guid}'")
-    Seq(
-      export,
-      ModelDto(export.project_guid, "__latest__", export.timestamp, export.model)
-    )
+    Seq(export)
       .toDS
       .write
       .format("org.apache.spark.sql.cassandra")
@@ -154,7 +150,5 @@ object Main {
       )
       .mode(SaveMode.Append)
       .save
-
-    actions.Pulsar.sendModel(env_var("PULSAR_HOST", "127.0.0.1"), Model(export.project_guid, export.model_guid, ByteString.copyFrom(export.model)))
   }
 }

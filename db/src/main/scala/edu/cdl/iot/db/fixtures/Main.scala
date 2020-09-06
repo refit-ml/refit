@@ -1,58 +1,51 @@
 package edu.cdl.iot.db.fixtures
 
-import java.io.{File, FileInputStream}
+import edu.cdl.iot.common.factories.{ConfigFactory, SchemaFactory}
+import edu.cdl.iot.common.util.TimestampHelper
+import edu.cdl.iot.db.fixtures.`import`.ImportHelper
+import edu.cdl.iot.db.fixtures.dao.FixtureDao
+import edu.cdl.iot.db.fixtures.dto.{Org, Project}
+import org.joda.time.DateTime
 
-import edu.cdl.iot.common.schema.SchemaFactory
-import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.db.fixtures.`import`.{SensorDataImport, TrainingWindowImport}
-import edu.cdl.iot.db.fixtures.schema.Prototype
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
 
 object Main {
+  val loadTrainingWindow = false
+  val loadSensorData = false
+  val schemaDirectory = "SCHEMA_DIRECTORY"
+
   def main(args: Array[String]): Unit = {
+    val configFactory = new ConfigFactory()
+    val config = configFactory.getConfig
 
-    val cassandraHost = "127.0.0.1"
-    val cassandraUsername = "cassandra"
-    val cassandraPassword = "cassandra"
-    val cassandraKeyspace = "cdl_refit"
-    val encryptionKey = "keyboard_cat"
-
-    val schema = Prototype.baxter
-    val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
-    val loadTrainingWindow = false
-    val loadSensorData = true
+    val fixtureDao = new FixtureDao(config.getCassandraConfig())
 
 
-    println("Create schema fixtures ...")
-    Fixtures.build(cassandraHost, cassandraUsername, cassandraPassword, cassandraKeyspace)
+    val schemas =
+      if (sys.env.contains(schemaDirectory))
+        SchemaFactory.getSchemas(sys.env(schemaDirectory))
+      else SchemaFactory.getSchemas
 
-    if (loadTrainingWindow || loadSensorData) {
-      val conf = new SparkConf()
-        .setAppName("baselineModel")
-        .set("spark.cassandra.connection.host", cassandraHost)
-        .set("spark.cassandra.auth.username", cassandraUsername)
-        .set("spark.cassandra.auth.password", cassandraPassword)
-        .setMaster("local[2]")
-      val session = SparkSession.builder.config(conf).getOrCreate()
-      session.sparkContext.setLogLevel("ERROR")
+    
+    val orgs = schemas.map(x => Org(x.orgGuid,
+      TimestampHelper.toTimestamp(DateTime.now()),
+      x.org
+    ))
+    val projects = schemas.map(Project.fromSchema)
 
+    println("Create Orgs")
+    orgs.foreach(fixtureDao.createOrg)
+    println("Create Projects")
+    projects.foreach(fixtureDao.createProject)
 
-      if (loadSensorData) {
-        println("Importing Sensor Data")
-        val data = SensorDataImport.load(session, schema, encryptionHelper)
-        data.show(5)
-        println("Saving Sensor Data")
-        SensorDataImport.save(data)
-      }
-
-      if (loadTrainingWindow) {
-        println("Importing training window data")
-        val data = TrainingWindowImport.load(session, schema)
-        data.show(5)
-        println("Saving training window data")
-        TrainingWindowImport.save(data)
-      }
+    if (loadSensorData || loadTrainingWindow) {
+      println("Import data")
+      schemas.foreach(schema => {
+        ImportHelper.importData(config, fixtureDao, schema, loadSensorData, loadTrainingWindow)
+      })
     }
+
+    println("Done")
+    fixtureDao.close()
   }
+
 }

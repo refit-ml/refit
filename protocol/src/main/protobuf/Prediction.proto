@@ -2,12 +2,13 @@ syntax = "proto3";
 package edu.cdl.iot.protocol;
 
 message Prediction  {
-  string projectGuid = 1;
+  string project_guid = 1;
   string sensor_id = 2;
   string timestamp = 3;
-  string modelGuid = 4;
+  string model_guid = 4;
   map<string, double> doubles = 5;
   map<string, string> strings = 6;
   map<string, int32> integers = 7;
   map<string, string> prediction = 8;
+  map<string, string> labels = 9;
 }
