@@ -24,5 +24,11 @@ jobs:
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
       # You can test your matrix by printing the current Python version
+      - name: Set directory
+        run:  cd training/src/main/python/
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run Tests
-        run:  python -m unittest discover training/src/main/python/test
+        run:  python -m unittest discover test
