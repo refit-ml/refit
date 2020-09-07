@@ -1,6 +1,6 @@
 org: Center for Deep Learning
 orgGuid: 62ab599b-787f-4f05-ab09-60dbde85d9db
-name: Medical Devices
+name: Medical-Devices
 projectGuid: e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93
 partitionScheme: HOUR
 importOptions:
