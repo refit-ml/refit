@@ -25,4 +25,4 @@ jobs:
           architecture: 'x64'
       # You can test your matrix by printing the current Python version
       - name: Run Tests
-        run:  python -m unittest discover test
+        run:  python -m unittest discover training/src/main/python/test
