@@ -12,15 +12,15 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.7.3
+      - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
           # Semantic version range syntax or exact version of a Python version
-          python-version: '3.7.3'
+          python-version: '3.7'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
       # You can test your matrix by printing the current Python version
