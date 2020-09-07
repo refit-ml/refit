@@ -14,52 +14,39 @@ object GrafanaProcessors {
   private val SCHEMA_HEADER = "REFIT_SCHEMA"
 
 
-  implicit object `ByTimestamp` extends Ordering[Array[Any]] {
-    def compare(a: Array[Any], b: Array[Any]): Int = {
-      val a_long: Long = a(1).toString.toLong
-      val b_long: Long = b(1).toString.toLong
-      a_long compare b_long
-    }
-  }
-
-
   val getDataValue: (String, String) => Any = (target: String, data: String) => if (target.toLowerCase == "sensorid") data else data.toDouble
+
+  val toTimeSeriesFormat: (String, GrafanaSensorDataDto) => TimeSerieResponse =
+    (target: String, record: GrafanaSensorDataDto) =>
+      new TimeSerieResponse(s"${target} - ${record.sensorId}",
+        record.data.map(data => {
+          Array[Any](
+            getDataValue(target, data(target)),
+            TimestampHelper.parseDate(data("timestamp")).getMillis
+          )
+        }).toArray)
+
 
   // need to return list of time series responses (same for table)
   val timeSeries: GrafanaSensorDataDto => List[TimeSerieResponse] =
-    record => {
-      val data = record.data.map(data => {
-        Array[Any](
-          getDataValue(record.targets, data(record.targets),
-          TimestampHelper.parseDate(data("timestamp")).getMillis
-        )
-      }).toArray
-
-      Sorting.quickSort(data)(`ByTimestamp`)
+    record => record.targets.map(target => toTimeSeriesFormat(target, record))
 
 
-      new List[TimeSerieResponse(
-        s"${record.targets} - ${record.sensorId}",
-        data
-      )]
-    }
-
-  val table: GrafanaSensorDataDto => List[TableResponse] =
+  val table: GrafanaSensorDataDto => TableResponse =
     (record: GrafanaSensorDataDto) => {
-      val data = record.data.map(data => {
-        Array[Any](
-          // list of strings -> target
-          getDataValue(record.targets, data(record.targets.toLowerCase))
-        )
+      val columns: Array[TableColumn] = _ // Be from our targets create this list
+      val rows: Array[Array[Any]] = _ // loop on data, then for each target extract that column into the row
+      val data = record.data.map(row => {
+        val value = row("my_target")
       }).toArray
 
-      new TableResponse(Array(new TableColumn(record.targets, "String")), data)
-  }
+      new TableResponse(columns, rows)
+    }
 
   // return list of objects
   val getResponse: GrafanaSensorDataDto => List[Object] =
     record =>
-      if (record.`type` == "table") table(record) else timeSeries(record)
+      if (record.`type` == "table") List(table(record)) else timeSeries(record)
 
   val queryProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
