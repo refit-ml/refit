@@ -1,3 +1,6 @@
+import string
+from functools import reduce
+
 import pandas as pd
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
@@ -16,6 +19,7 @@ def __get_values(row, index):
 
 
 def __extend_row(row, data_index, prediction_index, encryption_helper):
+    # try:
     result = list(row)
     data_values = list(map(lambda x: encryption_helper.transform(x), __get_values(row, data_index)))
     prediction_values = list(map(lambda x: encryption_helper.transform(x), __get_values(row, prediction_index)))
@@ -24,6 +28,12 @@ def __extend_row(row, data_index, prediction_index, encryption_helper):
     result.pop(max(data_index, prediction_index))
     result.pop(min(data_index, prediction_index))
     return result
+    # except UnicodeDecodeError:
+    #     print(f"Unicode Error decoding - Skip")
+    #     return None
+    # except KeyError:
+    #     print(f"Key Error decoding - Skip")
+    #     return None
 
 
 def __create_column_definition(rows, column_names, data_index, prediction_index, encryption_helper):
@@ -49,7 +59,8 @@ def pandas_factory(columns, rows):
     data_index = columns.index('data')
     prediction_index = columns.index('prediction')
     column_names = __create_column_definition(rows, columns, data_index, prediction_index, encryption_helper)
-    results = map(lambda row: __extend_row(row, data_index, prediction_index, encryption_helper), rows)
+    results = filter(None,
+                     map(lambda row: __extend_row(row, data_index, prediction_index, encryption_helper), rows))
     return pd.DataFrame(results, columns=column_names)
 
 
@@ -75,9 +86,30 @@ class TrainingDao:
                              self.query('SELECT org_guid, project_guid, "schema" FROM project')))
         return list(results)[0]
 
-    def get_sensor_data(self, project_guid):
-        query = 'SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction FROM sensor_data'
-        return self.query(query, pandas_factory)
+    def get_sensors(self, project_guid: string):
+        query = 'SELECT sensor_id ' \
+                'FROM sensor ' \
+                'WHERE project_guid = %s'
+        return map(lambda x: x.sensor_id, self.query(query, parameters=[project_guid]))
+
+    def get_sensor_partition(self, project_guid: string, sensor: string, partition: string):
+        query = 'SELECT project_guid, sensor_id, partition_key, timestamp, data, prediction ' \
+                'FROM sensor_data ' \
+                'WHERE project_guid = %s ' \
+                'AND sensor_id = %s ' \
+                'AND partition_key = %s'
+        return self.query(query, pandas_factory,
+                          parameters=[project_guid, sensor, partition])
+
+    def get_sensor_data(self, project_guid: string, partitions: list, sensors: list = None):
+        if not sensors:
+            sensors = self.get_sensors(project_guid)
+        return pd.concat(
+            map(lambda sensor: pd.concat(
+                map(lambda partition: self.get_sensor_partition(project_guid,
+                                                                sensor,
+                                                                partition),
+                    partitions)), sensors))
 
     def save_model(self, schema, model_guid, model_bytes, model_format):
         query = 'INSERT INTO models (project_guid, model_guid, format, model, timestamp)' \

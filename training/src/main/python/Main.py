@@ -5,21 +5,28 @@ import onnxmltools
 
 from training.keras.RNN import RNN
 from util import ModelFactory
-from util.Schema import Schema
+from util.Schema import SchemaFactory
 from dao.TrainingDao import TrainingDao
 
 # Script constants
 trainingDao = TrainingDao()
-schema = Schema(trainingDao, "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93")
+schemaFactory = SchemaFactory(trainingDao)
+schema = schemaFactory.getSchema("e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93")
 model_guid = str(uuid.uuid4())
 timestamp = datetime.now()
 model_format = "ONNX"
 training_script = RNN()
 
 # Pre-Train script
+(start, end) = training_script.time_window()
+
+partitions = schema.get_partitions_in_range(start, end)
+
 training_script.pre_train(schema, model_guid)
 
-df = trainingDao.get_sensor_data(schema.project_guid)
+# df = trainingDao.get_sensor_data(schema.project_guid, partitions, sensors=["077097114254883151"])
+
+df = trainingDao.get_sensor_data(schema.project_guid, partitions)
 
 # Train Script
 model = training_script.train(schema, model_guid, df)

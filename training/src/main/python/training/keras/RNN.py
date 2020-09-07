@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # In[124]:
-
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -27,6 +27,9 @@ sns.set_style('white')
 
 
 class RNN(TrainingScript):
+    def time_window(self) -> (datetime, datetime):
+        return datetime(2015, 3, 4, 0), datetime(2015, 3, 5, 0)
+
     def model_format(self):
         return ModelFormat.KERAS
 

@@ -1,4 +1,13 @@
+from datetime import datetime
+
+from enums.ModelFormat import ModelFormat
+
+
 class TrainingScript:
+    def time_window(self) -> (datetime, datetime):
+        # Pass back the time window you want to import
+        pass
+
     def pre_train(self, schema, model_guid):
         pass
 
@@ -8,6 +17,6 @@ class TrainingScript:
     def finalize(self, schema, model_guid):
         pass
 
-    def model_format(self):
+    def model_format(self) -> ModelFormat:
         # Pass back the ModelFormat enum
         pass

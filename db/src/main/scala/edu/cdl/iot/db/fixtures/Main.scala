@@ -1,5 +1,7 @@
 package edu.cdl.iot.db.fixtures
 
+import java.util.UUID
+
 import edu.cdl.iot.common.factories.{ConfigFactory, SchemaFactory}
 import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.db.fixtures.`import`.ImportHelper
@@ -26,7 +28,7 @@ object Main {
         if (sys.env.contains(schemaDirectory))
           SchemaFactory.getSchemas(sys.env(schemaDirectory))
         else SchemaFactory.getSchemas
-
+      
 
       val orgs = schemas.map(x => Org(x.orgGuid,
         TimestampHelper.toTimestamp(DateTime.now()),
