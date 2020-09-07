@@ -51,7 +51,7 @@ object CassandraProcessors {
         sensors.projectGuid,
         sensorId,
         partitions)
-          .filter( x => x.contains(sensors.target.toLowerCase))
+          .filter( x => x.contains(sensors.target.toLowerCase)) //filter to check if anything in the target check in list of strings
 
       GrafanaSensorDataDto(
         sensors.projectGuid,

@@ -8,7 +8,7 @@ object CamelMain {
   def main(args: Array[String]) {
     val context = new DefaultCamelContext
     context.addComponent("netty-http", new NettyHttpComponent)
-    context.addRoutes(new PredictionRoutes(context))
+    //context.addRoutes(new PredictionRoutes(context))
     context.addRoutes(new GrafanaRoutes(context))
     context.start()
   }

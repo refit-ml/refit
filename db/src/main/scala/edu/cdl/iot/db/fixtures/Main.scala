@@ -16,7 +16,7 @@ object Main {
     val schema = Prototype.dummy
     val encryptionHelper = new EncryptionHelper(encryptionKey, schema.projectGuid.toString)
     val loadTrainingWindow = false
-    val loadSensorData = false
+    val loadSensorData = true
 
 
     println("Create schema fixtures ...")

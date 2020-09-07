@@ -2,7 +2,7 @@ package edu.cdl.iot.camel.transform
 
 import edu.cdl.iot.camel.dao.CassandraDao
 import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResponse}
-import edu.cdl.iot.camel.dto.GrafanaSensorDataDto
+import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, TableColumn}
 import edu.cdl.iot.camel.dto.request.{SearchRequest, TagRequest}
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.TimestampHelper
@@ -25,43 +25,47 @@ object GrafanaProcessors {
 
   val getDataValue: (String, String) => Any = (target: String, data: String) => if (target.toLowerCase == "sensorid") data else data.toDouble
 
-  val timeSeries: GrafanaSensorDataDto => TimeSerieResponse =
+  // need to return list of time series responses (same for table)
+  val timeSeries: GrafanaSensorDataDto => List[TimeSerieResponse] =
     record => {
       val data = record.data.map(data => {
         Array[Any](
-          getDataValue(record.target, data(record.target.toLowerCase)),
+          getDataValue(record.targets, data(record.targets),
           TimestampHelper.parseDate(data("timestamp")).getMillis
         )
       }).toArray
 
       Sorting.quickSort(data)(`ByTimestamp`)
-      new TimeSerieResponse(
-        s"${record.target} - ${record.sensorId}",
+
+
+      new List[TimeSerieResponse(
+        s"${record.targets} - ${record.sensorId}",
         data
-      )
+      )]
     }
 
-  val table: GrafanaSensorDataDto => TableResponse =
+  val table: GrafanaSensorDataDto => List[TableResponse] =
     (record: GrafanaSensorDataDto) => {
-      println("I am here!!!")
       val data = record.data.map(data => {
         Array[Any](
-          getDataValue(record.target, data(record.target.toLowerCase)),
-          TimestampHelper.parseDate(data("timestamp")).getMillis
+          // list of strings -> target
+          getDataValue(record.targets, data(record.targets.toLowerCase))
         )
       }).toArray
 
-      new TableResponse(Array(s"${record.target} - ${record.sensorId}"), Array(Array(data)))
+      new TableResponse(Array(new TableColumn(record.targets, "String")), data)
   }
 
-  val getResponse: GrafanaSensorDataDto => Object =
+  // return list of objects
+  val getResponse: GrafanaSensorDataDto => List[Object] =
     record =>
       if (record.`type` == "table") table(record) else timeSeries(record)
 
   val queryProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn().getBody(classOf[List[GrafanaSensorDataDto]])
-      val response = body.map(getResponse).toArray
+      // change to flatmap
+      val response = body.flatMap(getResponse).toArray
       exchange.getIn.setBody(response)
     }
   }
