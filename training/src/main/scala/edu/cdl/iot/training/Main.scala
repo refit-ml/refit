@@ -137,7 +137,7 @@ object Main {
   
     
     //val model = pipeline.fit(trainDf)
-    val model = cv.fit(trainDF)
+    val model = cv.fit(trainDf)
 
     val predictions = model.transform(testDf)
 
