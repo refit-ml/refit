@@ -136,8 +136,8 @@ object Main {
       .setNumFolds(10)
   
     
-    //val model = pipeline.fit(trainDf)
-    val model = cv.fit(trainDf)
+    val model = pipeline.fit(trainDf)
+    //val tuned_model = cv.fit(trainDf)
 
     val predictions = model.transform(testDf)
 
