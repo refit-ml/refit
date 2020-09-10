@@ -123,7 +123,7 @@ object Main {
       .setLabelCol("label")
       .setPredictionCol("prediction")
       .setMetricName("accuracy")
-    val accuracy = evaluator.evaluate(predictions)
+  
     val evaluator2 = new MulticlassClassificationEvaluator()
       .setLabelCol("label")
       .setPredictionCol("prediction")
@@ -141,7 +141,7 @@ object Main {
 
     val predictions = model.transform(testDf)
 
-
+    val accuracy = evaluator.evaluate(predictions)
     val f1 = evaluator2.evaluate(predictions)
     println("F1 score = " + f1)
     println("Test Accuracy = " + accuracy)
