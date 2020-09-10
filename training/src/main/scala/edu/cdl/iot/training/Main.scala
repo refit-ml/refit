@@ -107,12 +107,17 @@ object Main {
       .setNumTrees(20)
       .setFeatureSubsetStrategy("auto")
       .setSeed(813)
+    
+    // add grid search
+    val paramGrid = new ParamGridBuilder()
+      .addGrid(classifier.maxBins, Array(25, 31))
+      .addGrid(classifier.maxDepth, Array(5, 10))
+      .addGrid(classifier.numTrees, Array(20, 60))
+      .addGrid(classifier.impurity, Array("entropy", "gini"))
+      .build()
 
     val pipeline = new Pipeline().setStages(Array[PipelineStage](labelIndexer, assembler, classifier))
-    val model = pipeline.fit(trainDf)
-
-    val predictions = model.transform(testDf)
-
+    
     val evaluator = new MulticlassClassificationEvaluator()
       .setLabelCol("label")
       .setPredictionCol("prediction")
@@ -122,6 +127,19 @@ object Main {
       .setLabelCol("label")
       .setPredictionCol("prediction")
       .setMetricName("f1")
+
+    val cv = new CrossValidator()
+      .setEstimator(pipeline)
+      .setEvaluator(evaluator)
+      .setEstimatorParamMaps(paramGrid)
+      .setNumFolds(10)
+  
+    
+    //val model = pipeline.fit(trainDf)
+    val model = cv.fit(trainDF)
+
+    val predictions = model.transform(testDf)
+
 
     val f1 = evaluator2.evaluate(predictions)
     println("F1 score = " + f1)
