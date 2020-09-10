@@ -9,6 +9,7 @@ import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
+import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.sql.{SaveMode, SparkSession}
