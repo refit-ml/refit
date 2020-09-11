@@ -34,12 +34,11 @@ object GrafanaProcessors {
 
   val table: GrafanaSensorDataDto => TableResponse =
     (record: GrafanaSensorDataDto) => {
-      val columns: Array[TableColumn] = _ // Be from our targets create this list
-      val rows: Array[Array[Any]] = _ // loop on data, then for each target extract that column into the row
-      val data = record.data.map(row => {
-        val value = row("my_target")
-      }).toArray
-
+      // Be from our targets create this list
+      val columns: Array[TableColumn] = record.targets.map(target => new TableColumn(target, record.`type`)).toArray
+      // loop on data, then for each target extract that column into the row
+      val rows = record.data.map(row =>
+        record.targets.map( colName => row(colName).asInstanceOf[Any]).toArray ).toArray
       new TableResponse(columns, rows)
     }
 
@@ -67,7 +66,6 @@ object GrafanaProcessors {
           case _ => schemas.flatMap(schema => schema.fields.map(i => i.name)).toArray
         }
       )
-
     }
   }
 

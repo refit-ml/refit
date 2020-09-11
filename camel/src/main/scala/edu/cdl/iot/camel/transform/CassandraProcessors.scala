@@ -30,15 +30,13 @@ object CassandraProcessors {
       else
         CassandraDao.getSensors(projectGuid)
 
-  private val mapToSensorIds: (Schema, QueryRequest) => List[GrafanaSensorsDto] =
-    (schema: Schema, request: QueryRequest) => request.targets
-      .map(x =>
+  private val mapToSensorIds: (Schema, QueryRequest) => GrafanaSensorsDto =
+    (schema: Schema, request: QueryRequest) =>
         GrafanaSensorsDto(
           schema.projectGuid.toString,
-          x.`type`,
-          x.target,
-          getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
-      .toList
+          request.targets.head.`type`,
+          request.targets.map(x => x.target).toList,
+          getSensorIds(schema.projectGuid.toString, request.adhocFilters))
 
   private val getEncryptionHelper: String => EncryptionHelper = projectGuid =>
     decryptionHelpers.getOrElseUpdate(projectGuid, {
@@ -51,12 +49,12 @@ object CassandraProcessors {
         sensors.projectGuid,
         sensorId,
         partitions)
-          .filter( x => x.contains(sensors.target.toLowerCase)) //filter to check if anything in the target check in list of strings
+          .filter( x => sensors.targets.exists(y => x.contains(y))) //filter to check if anything in the target check in list of strings
 
       GrafanaSensorDataDto(
         sensors.projectGuid,
         sensors.`type`,
-        sensors.target,
+        sensors.targets,
         sensorId,
         data
       )
@@ -86,8 +84,9 @@ object CassandraProcessors {
       val schema = exchange.getIn.getHeader(SCHEMA_HEADER, classOf[Schema])
       val partitions = exchange.getIn.getHeader(QUERY_PARTITIONS_HEADER, classOf[List[String]])
 
-      val data = mapToSensorIds(schema, record)
-        .flatMap(x => x.sensors.map(y => getSensorReadings(x, y, partitions)))
+      val sensors = mapToSensorIds(schema, record)
+
+      val data = sensors.sensors.map(x => getSensorReadings(sensors, x, partitions))
 
       exchange.getIn.setBody(data)
     }
