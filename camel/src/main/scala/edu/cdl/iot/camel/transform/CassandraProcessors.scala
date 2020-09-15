@@ -45,11 +45,12 @@ object CassandraProcessors {
 
   private val getSensorReadings: (GrafanaSensorsDto, String, List[String]) => GrafanaSensorDataDto =
     (sensors: GrafanaSensorsDto, sensorId: String, partitions: List[String]) => {
-      val data = CassandraDao.getSensorData(getEncryptionHelper,
+      val result = CassandraDao.getSensorData(getEncryptionHelper,
         sensors.projectGuid,
         sensorId,
         partitions)
-          .filter( x => sensors.targets.exists(y => x.contains(y))) //filter to check if anything in the target check in list of strings
+
+      val data = result.filter( x => sensors.targets.exists(y => x.contains(y.toLowerCase))) //filter to check if anything in the target check in list of strings
 
       GrafanaSensorDataDto(
         sensors.projectGuid,

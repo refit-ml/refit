@@ -21,7 +21,7 @@ object GrafanaProcessors {
       new TimeSerieResponse(s"${target} - ${record.sensorId}",
         record.data.map(data => {
           Array[Any](
-            getDataValue(target, data(target)),
+            getDataValue(target, data(target.toLowerCase)),
             TimestampHelper.parseDate(data("timestamp")).getMillis
           )
         }).toArray)
@@ -38,7 +38,7 @@ object GrafanaProcessors {
       val columns: Array[TableColumn] = record.targets.map(target => new TableColumn(target, record.`type`)).toArray
       // loop on data, then for each target extract that column into the row
       val rows = record.data.map(row =>
-        record.targets.map( colName => row(colName).asInstanceOf[Any]).toArray ).toArray
+        record.targets.map( colName => row(colName.toLowerCase).asInstanceOf[Any]).toArray ).toArray
       new TableResponse(columns, rows)
     }
 
