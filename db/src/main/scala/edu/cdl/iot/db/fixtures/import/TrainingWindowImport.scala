@@ -20,8 +20,8 @@ object TrainingWindowImport {
         val row = line.split(",").map(_.trim)
         TrainingWindow(
           schema.projectGuid.toString,
-          row(0),
           row(1),
+          schema.getPartitionString(TimestampHelper.parseDate(row(2))),
           TimestampHelper.parse(row(2)),
           TimestampHelper.parse(row(3))
         )

@@ -12,7 +12,7 @@ import org.joda.time.DateTime
 
 object Main {
   val loadTrainingWindow = true
-  val loadSensorData = true
+  val loadSensorData = false
   val schemaDirectory = "SCHEMA_DIRECTORY"
 
   def main(args: Array[String]): Unit = {

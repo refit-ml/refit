@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # In[124]:
+import string
 from datetime import datetime
 
 import numpy as np
@@ -28,7 +29,10 @@ sns.set_style('white')
 
 class RNN(TrainingScript):
     def time_window(self) -> (datetime, datetime):
-        return datetime(2015, 3, 4, 0), datetime(2015, 3, 5, 0)
+        return datetime(2020, 6, 28, 0), datetime(2020, 6, 30, 0)
+
+    def project_guid(self) -> string:
+        return 'b6ee5bab-08dd-49b0-98b6-45cd0a28b12f'
 
     def model_format(self):
         return ModelFormat.KERAS
