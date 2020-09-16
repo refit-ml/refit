@@ -2,8 +2,21 @@ package edu.cdl.iot.camel.dto.response
 
 import org.joda.time.{Duration, Instant}
 
+import scala.util.Sorting
+
+
+object `ByTimestamp` extends Ordering[Array[Any]] {
+  def compare(a: Array[Any], b: Array[Any]): Int = {
+    val a_long: Long = a(1).toString.toLong
+    val b_long: Long = b(1).toString.toLong
+    a_long compare b_long
+  }
+}
+
 class TimeSerieResponse(target: String,
                         datapoints: Array[Array[Any]]) {
+
+  Sorting.quickSort(datapoints)(`ByTimestamp`)
 
   def this() = this(null, null)
 
