@@ -1,5 +1,6 @@
 package edu.cdl.iot.common.util
 
+import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.protocol.Prediction.Prediction
 
 object PredictionHelper {

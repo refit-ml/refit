@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ingestion
+  labels:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+spec:
+  replicas: {{ .Values.refit.ingestion.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: ingestion
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: ingestion
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-ingestion
+          image: cdliotprototype/cdl-refit-ingestion:{{ .Values.refit.version }}
+          env:
+            - name: REFIT_PROJECT
+              value: ingestion
+            - name: PULSAR_HOST
+              value: {{ .Release.Name }}-pulsar-standalone
+            - name: CASSANDRA_HOST
+              value: {{ .Release.Name }}-cassandra
+            - name: CASSANDRA_PORT
+              value: "9042"
+            - name: CASSANDRA_KEYSPACE
+              value: cdl_refit
+            - name: CASSANDRA_USERNAME
+              value: cassandra
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: cassandra-password
+                  name: refit-cassandra-credentials
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: {{ .Release.Name }}-encryption-key
+            {{- if eq .Values.refit.schemaConfigMap "__demo__" }}
+            - name: REFIT_DEMO
+              value: "true"
+            {{- end }}
+          resources:
+            limits:
+              memory: {{ .Values.refit.ingestion.resources.limits.memory }}
+            requests:
+              memory: {{ .Values.refit.ingestion.resources.requests.memory }}
+          ports:
+            - containerPort: 3000
+              name: api
+      {{- with .Values.refit.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ingestion
+  labels:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+  annotations:
+    meta.helm.sh/release-name: "{{ .Release.Name }}"
+    meta.helm.sh/release-namespace: "{{ .Release.Namespace }}"
+spec:
+  type: ClusterIP
+  ports:
+    - name: api
+      port: 3000
+  selector:
+    app: {{ .Release.Name }}
+    component: ingestion

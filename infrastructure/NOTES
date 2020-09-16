@@ -1,9 +1,9 @@
-kubectl port-forward service/refit-cassandra 9042:9042 9160:9160 &
-kubectl port-forward service/refit-flink-jobmanager 8081:8081 &
-# kubectl port-forward service/refit-pulsar-standalone 6650:6650 &
-# kubectl port-forward service/jenkins 8000:80
-# kubectl port-forward service/refit-grafana 8000:80
-# k port-forward service/redis-master 6379:6379
+kubectl port-forward service/refit-cassandra 9042:9042 9160:9160 
+kubectl port-forward service/refit-flink-jobmanager 8081:8081 
+kubectl port-forward service/refit-pulsar-standalone 6650:6650 
+kubectl port-forward service/jenkins 8000:80
+kubectl port-forward service/refit-grafana 8000:80
+k port-forward service/redis-master 6379:6379
 
 
 #   These will let you see the cluster dashboard
@@ -20,3 +20,9 @@ k label nodes minikube coredns=enabled
 kubectl get secret refit-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 kubectl get secret refit-cassandra-credentials -o jsonpath="{.data.cassandra-password}" | base64 --decode ; echo
 kubectl get secret refit-encryption-key -o jsonpath="{.data.password}" | base64 --decode ; echo
+
+
+ model 68f0286b-ddc8-4dae-bf6e-9bde28e795f4 -> temp > 40 
+ model d46c6d3d-d3c2-4e6a-8132-9076b54d1745 -> temp > 75
+ model 7fd8c924-7b21-440c-a53e-a5b54819c15c -> temp > 70 (legacy)
+ model d5fc07b4-34a9-4b4e-9930-4134a3d51a8f -> temp > 10 - DO NOT USE

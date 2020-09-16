@@ -3,7 +3,7 @@ package edu.cdl.iot.common.schema
 import edu.cdl.iot.common.schema.enums.FieldClassification.FeatureClassification
 import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType}
 import edu.cdl.iot.common.schema.enums.FieldType.FeatureType
-import edu.cdl.iot.common.schema.yaml.FieldYaml
+import edu.cdl.iot.common.yaml.FieldYaml
 
 
 case class Field(yaml: FieldYaml) {

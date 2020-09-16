@@ -1,26 +1,27 @@
 package edu.cdl.iot.common.schema
 
-
-import java.io.{File, FileInputStream, InputStream}
 import java.util.UUID
 
-import edu.cdl.iot.common.schema.enums.{FieldClassification, PartitionScheme}
+import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType, PartitionScheme}
 import edu.cdl.iot.common.schema.enums.FieldClassification.FeatureClassification
-import edu.cdl.iot.common.schema.yaml.SchemaYaml
+import edu.cdl.iot.common.schema.enums.FieldType.FeatureType
+import edu.cdl.iot.common.yaml.SchemaYaml
 import org.joda.time.DateTime
 import org.yaml.snakeyaml.Yaml
 
 import collection.JavaConverters._
 
 case class Schema(yaml: SchemaYaml) {
-
+  val org: String = yaml.org
+  val orgGuid: UUID = UUID.fromString(yaml.orgGuid)
   val name: String = yaml.name
-  val projectGuid: UUID = yaml.projectGuid
+  val projectGuid: UUID = UUID.fromString(yaml.projectGuid)
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
-  val partitionScheme = PartitionScheme.fromString(yaml.partitionScheme)
+  val partitionScheme: PartitionScheme.Value = PartitionScheme.fromString(yaml.partitionScheme)
+  val featureType: FeatureType = FieldType.fromString(yaml.featureType)
 
-  def toYaml: String = (new Yaml).dump(yaml)
+  def toYaml: String = (new Yaml).dumpAsMap(yaml)
 
   def getPartitionString(date: DateTime): String = {
     val pattern = partitionScheme match {
@@ -61,6 +62,7 @@ case class Schema(yaml: SchemaYaml) {
 
   def getLabels(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Label)
+      .filter(tuple => tuple._2 < row.length)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 

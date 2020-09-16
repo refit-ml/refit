@@ -24,7 +24,7 @@ object CamelMain {
 
     val context = new DefaultCamelContext
     context.addComponent("netty-http", new NettyHttpComponent)
-    //context.addRoutes(new PredictionRoutes(context, pulsarProcessors, schemaProcessors, predictionProcessors))
+    context.addRoutes(new PredictionRoutes(context, pulsarProcessors, schemaProcessors, predictionProcessors))
     context.addRoutes(new GrafanaRoutes(context, schemaProcessors, grafanaProcessors))
     context.start()
   }

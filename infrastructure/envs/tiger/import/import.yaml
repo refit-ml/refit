@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: import-pv
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  glusterfs:
+    endpoints: gluster-cluster
+    path: /data_gluster
+    readOnly: false
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: import-pv-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: import
+spec:
+  volumes:
+    - name: pv-storage
+      persistentVolumeClaim:
+        claimName: import-pv-claim
+  containers:
+    - name: import-container
+      image: dklabjan/keras-gpu
+      command: ["sleep"]
+      args: ["infinity"]
+      volumeMounts:
+        - mountPath: "/gluster/data"
+          name: pv-storage
+  nodeSelector:
+    coredns: enabled
