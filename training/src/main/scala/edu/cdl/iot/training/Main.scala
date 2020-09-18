@@ -9,6 +9,7 @@ import edu.cdl.iot.training.load.{SensorData, TrainingWindow}
 import org.apache.spark.SparkConf
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.RandomForestClassifier
+import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{StringIndexer, VectorAssembler}
 import org.apache.spark.sql.{SaveMode, SparkSession}
@@ -107,22 +108,40 @@ object Main {
       .setNumTrees(20)
       .setFeatureSubsetStrategy("auto")
       .setSeed(813)
+    
+    // add grid search
+    val paramGrid = new ParamGridBuilder()
+      .addGrid(classifier.maxBins, Array(25, 31))
+      .addGrid(classifier.maxDepth, Array(5, 10))
+      .addGrid(classifier.numTrees, Array(20, 60))
+      .addGrid(classifier.impurity, Array("entropy", "gini"))
+      .build()
 
     val pipeline = new Pipeline().setStages(Array[PipelineStage](labelIndexer, assembler, classifier))
-    val model = pipeline.fit(trainDf)
-
-    val predictions = model.transform(testDf)
-
+    
     val evaluator = new MulticlassClassificationEvaluator()
       .setLabelCol("label")
       .setPredictionCol("prediction")
       .setMetricName("accuracy")
-    val accuracy = evaluator.evaluate(predictions)
+  
     val evaluator2 = new MulticlassClassificationEvaluator()
       .setLabelCol("label")
       .setPredictionCol("prediction")
       .setMetricName("f1")
 
+    val cv = new CrossValidator()
+      .setEstimator(pipeline)
+      .setEvaluator(evaluator)
+      .setEstimatorParamMaps(paramGrid)
+      .setNumFolds(10)
+  
+    
+    val model = pipeline.fit(trainDf)
+    //val tuned_model = cv.fit(trainDf)
+
+    val predictions = model.transform(testDf)
+
+    val accuracy = evaluator.evaluate(predictions)
     val f1 = evaluator2.evaluate(predictions)
     println("F1 score = " + f1)
     println("Test Accuracy = " + accuracy)
