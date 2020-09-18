@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[124]:
 from datetime import datetime
 
 import numpy as np
@@ -11,31 +7,14 @@ from matplotlib import pyplot
 import seaborn as sns
 import warnings
 
-from time import time
-import matplotlib.ticker as tkr
-from scipy import stats
-from statsmodels.tsa.stattools import adfuller
-from sklearn import preprocessing
-from statsmodels.tsa.stattools import pacf
 from pandas import DataFrame
 from pandas import concat
-from numpy import concatenate
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import mean_squared_error
-from sklearn import preprocessing
-import math
-import keras
 import config
 from math import sqrt
 from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
 from keras.layers import *
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_error
-from keras.callbacks import EarlyStopping
 
 from api.refit import Refit
 
@@ -45,7 +24,7 @@ sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
-project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
+project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
 # This one is the dummy data project
 # project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
@@ -149,4 +128,4 @@ inv_y = inv_y[:, 0]
 rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
 print('Test RMSE: %.3f' % rmse)
 
-model.save('baseline_model')
+# model.save('baseline_model')

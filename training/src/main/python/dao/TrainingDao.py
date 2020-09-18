@@ -110,11 +110,10 @@ class TrainingDao:
                 'WHERE project_guid = %s ' \
                 'AND sensor_id = %s ' \
                 'AND partition_key = %s'
-        return self.query_async(session, query, sensor_data_factory,
-                                parameters=[project_guid, sensor, partition])
+        return self.query_async(session, query, parameters=[project_guid, sensor, partition])
 
     def get_sensor_data(self, project_guid: string, partitions: list, sensors: list = None) -> DataFrame:
-        session = self.__get_session(sensor_data_factory())
+        session = self.__get_session(sensor_data_factory)
         if not sensors:
             sensors = self.get_sensors(project_guid)
         return pd.concat(

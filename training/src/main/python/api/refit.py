@@ -7,6 +7,7 @@ import onnxmltools
 from enums.ModelFormat import ModelFormat
 from enums.SerializationFormat import SerializationFormat
 from util import ModelFactory
+from util.DataFrameHelpers import extract_timestamps, extract_flag
 from util.Schema import SchemaFactory
 from dao.TrainingDao import TrainingDao
 
@@ -20,11 +21,22 @@ class Refit():
 
     def get_sensor_data(self, start: datetime, end: datetime, sensors: list = None):
         partitions = self.schema.get_partitions_in_range(start, end)
-        return self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
+        df = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
+        df = extract_timestamps(df, ['timestamp'])
+        return df.drop(['data', 'prediction'], axis=1)
 
     def get_training_windows(self, start: datetime, end: datetime, sensors: list = None):
         partitions = self.schema.get_partitions_in_range(start, end)
-        return self.training_dao.get_training_data(self.project_guid, partitions, sensors)
+        df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
+        df = extract_timestamps(df, ['start', 'end'])
+        return df
+
+    def sensor_data_with_flag(self, start: datetime, end: datetime, sensors: list = None, flag_name: string = 'operable'):
+        partitions = self.schema.get_partitions_in_range(start, end)
+        sensor_data = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors).drop(['data', 'prediction'], axis=1)
+        training_window = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
+        return extract_flag(sensor_data, training_window, flag_name)
+
 
     def save(self,
              model,
