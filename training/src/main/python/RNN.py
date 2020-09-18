@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # In[124]:
-
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -37,34 +37,38 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from keras.callbacks import EarlyStopping
 
-
-from Helpers import get_sensor_data
+from api.refit import Refit
 
 pd.set_option('display.float_format', lambda x: '%.4f' % x)
 warnings.filterwarnings('ignore')
 sns.set_context("paper", font_scale=1.3)
 sns.set_style('white')
-#get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('matplotlib', 'inline')
 
 project_guid = "e41aa8e4-d79b-4bcc-b5d4-45eb457e6f93"
 
 # This one is the dummy data project
 # project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
+refit = Refit(project_guid)
 
-df = get_sensor_data(project_guid)
-df = df.sort_values('timestamp')
+start = datetime(2020, 9, 18)
+end = datetime(2020, 9, 19)
+sensors = ['5163', '5164', '5165', '5166', '5167', '5168', '5169', '5170']
+
+df = refit.get_sensor_data(start, end, sensors).sort_values('timestamp')
 df2 = df.drop(['project_guid', 'sensor_id', 'partition_key', 'timestamp'], axis=1)
 num_features = len(df2.columns)
 
 df3 = pd.DataFrame()
-for i in range(0,num_features):
-    avg_str = 'avg_'+ df2.columns.values[i]
-    std_str = 'std_'+ df2.columns.values[i]
-    df3[avg_str] = df2.iloc[:,i].rolling(window=5).mean()
-    df3[std_str] = df2.iloc[:,i].rolling(window=5).std()
+for i in range(0, num_features):
+    avg_str = 'avg_' + df2.columns.values[i]
+    std_str = 'std_' + df2.columns.values[i]
+    df3[avg_str] = df2.iloc[:, i].rolling(window=5).mean()
+    df3[std_str] = df2.iloc[:, i].rolling(window=5).std()
 
-df2 = pd.concat([df2, df3],axis=1)
+df2 = pd.concat([df2, df3], axis=1)
+
 
 # convert series to supervised learning
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
@@ -99,7 +103,7 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 scaled = scaler.fit_transform(values)
 # frame as supervised learning
 reframed = series_to_supervised(scaled, 1, 1)
-reframed.drop(reframed.columns[num_features*3:-1], axis=1, inplace=True)
+reframed.drop(reframed.columns[num_features * 3:-1], axis=1, inplace=True)
 print(reframed.head())
 
 # split into train and test sets
