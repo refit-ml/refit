@@ -5,6 +5,7 @@ from datetime import datetime
 import onnxmltools
 from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseError
+from pandas import DataFrame
 
 from refit.enums.ModelFormat import ModelFormat
 from refit.enums.SerializationFormat import SerializationFormat
@@ -26,20 +27,20 @@ class Refit():
         self.schemaFactory = SchemaFactory(self.training_dao)
         self.schema = self.schemaFactory.getSchema(project_guid)
 
-    def get_sensor_data(self, start: datetime, end: datetime, sensors: list = None):
+    def get_sensor_data(self, start: datetime, end: datetime, sensors: list = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['timestamp'])
         return df.drop(['data', 'prediction'], axis=1)
 
-    def get_training_windows(self, start: datetime, end: datetime, sensors: list = None):
+    def get_training_windows(self, start: datetime, end: datetime, sensors: list = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['start', 'end'])
         return df
 
     def sensor_data_with_flag(self, start: datetime, end: datetime, sensors: list = None,
-                              flag_name: string = 'operable'):
+                              flag_name: string = 'operable') -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
         sensor_data = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors).drop(
             ['data', 'prediction'], axis=1)
@@ -49,7 +50,7 @@ class Refit():
     def save(self,
              model,
              model_format: ModelFormat = ModelFormat.KERAS,
-             serialization_format: SerializationFormat = SerializationFormat.ONNX):
+             serialization_format: SerializationFormat = SerializationFormat.ONNX) -> bytearray:
         model_guid = str(uuid.uuid4())
         file_name = f"models/{model_guid}.onnx"
         onnx_model = ModelFactory.get_onnx_model(model_format, model)
@@ -61,7 +62,7 @@ class Refit():
         self.training_dao.save_model(self.schema, model_guid, model_bytes, model_format)
         return model_bytes
 
-    def import_file(self, file_path: string, object_name: string):
+    def import_file(self, file_path: string, object_name: string) -> bool:
         client = Minio(minio_host,
                        access_key=minio_access_key,
                        secret_key=minio_secret_key,
@@ -81,3 +82,4 @@ class Refit():
         except ResponseError as err:
             print("Error putting file")
             print(err)
+        return True
