@@ -2,7 +2,7 @@ package edu.cdl.iot.camel.transform
 
 import edu.cdl.iot.camel.dao.{GrafanaDao, SchemaDao}
 import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResponse}
-import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto}
+import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto, TableColumn}
 import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest, SearchRequest, TagRequest}
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.schema.enums.FieldClassification
@@ -42,29 +42,35 @@ class GrafanaProcessors(private val config: RefitConfig,
 
   val getDataValue: (String, String) => Any = (target: String, data: String) => if (target.toLowerCase == "sensorid") data else data.toDouble
 
-  val timeSeries: GrafanaSensorDataDto => TimeSerieResponse =
-    record => {
-      val data = record.data.map(data => {
-        Array[Any](
-          getDataValue(record.target, data(record.target.toLowerCase)),
-          TimestampHelper.parseDate(data("timestamp")).getMillis
-        )
-      }).toArray
+  val toTimeSeriesFormat: (String, GrafanaSensorDataDto) => TimeSerieResponse =
+    (target: String, record: GrafanaSensorDataDto) =>
+      new TimeSerieResponse(s"${target} - ${record.sensorId}",
+        record.data.map(data => {
+          Array[Any](
+            getDataValue(target, data(target.toLowerCase)),
+            TimestampHelper.parseDate(data("timestamp")).getMillis
+          )
+        }).toArray)
 
-      Sorting.quickSort(data)(`ByTimestamp`)
-      new TimeSerieResponse(
-        s"${record.target} - ${record.sensorId}",
-        data
-      )
+
+  // need to return list of time series responses (same for table)
+  val timeSeries: GrafanaSensorDataDto => List[TimeSerieResponse] =
+    record => record.targets.map(target => toTimeSeriesFormat(target, record))
+
+
+  val table: GrafanaSensorDataDto => TableResponse =
+    (record: GrafanaSensorDataDto) => {
+      // Be from our targets create this list
+      val columns: Array[TableColumn] = record.targets.map(target => new TableColumn(target, record.`type`)).toArray
+      // loop on data, then for each target extract that column into the row
+      val rows = record.data.map(row =>
+        record.targets.map( colName => row(colName.toLowerCase).asInstanceOf[Any]).toArray ).toArray
+      new TableResponse(columns, rows)
     }
 
-  val table: GrafanaSensorDataDto => TableResponse = (record: GrafanaSensorDataDto) => {
-    new TableResponse(Array(), Array())
-  }
-
-  val getResponse: GrafanaSensorDataDto => Object =
+  val getResponse: GrafanaSensorDataDto => List[Object] =
     record =>
-      if (record.`type` == "table") table(record) else timeSeries(record)
+      if (record.`type` == "table") List(table(record)) else timeSeries(record)
 
 
   private val sensorFilterPredicate: QueryFilters => Boolean =
@@ -78,28 +84,27 @@ class GrafanaProcessors(private val config: RefitConfig,
       else
         grafanaDao.getSensors(projectGuid)
 
-  private val mapToSensorIds: (Schema, QueryRequest) => List[GrafanaSensorsDto] =
-    (schema: Schema, request: QueryRequest) => request.targets
-      .map(x =>
-        GrafanaSensorsDto(
-          schema.projectGuid.toString,
-          x.`type`,
-          x.target,
-          getSensorIds(schema.projectGuid.toString, request.adhocFilters)))
-      .toList
+  private val mapToSensorIds: (Schema, QueryRequest) => GrafanaSensorsDto =
+    (schema: Schema, request: QueryRequest) =>
+      GrafanaSensorsDto(
+        schema.projectGuid.toString,
+        request.targets.head.`type`,
+        request.targets.map(x => x.target).toList,
+        getSensorIds(schema.projectGuid.toString, request.adhocFilters))
 
   private val getSensorReadings: (GrafanaSensorsDto, String, List[String]) => GrafanaSensorDataDto =
     (sensors: GrafanaSensorsDto, sensorId: String, partitions: List[String]) => {
-      val data = grafanaDao.getSensorData(getEncryptionHelper,
+      val result = grafanaDao.getSensorData(getEncryptionHelper,
         sensors.projectGuid,
         sensorId,
         partitions)
-        .filter(x => x.contains(sensors.target.toLowerCase))
+
+      val data = result.filter(x => sensors.targets.exists(y => x.contains(y.toLowerCase)))
 
       GrafanaSensorDataDto(
         sensors.projectGuid,
         sensors.`type`,
-        sensors.target,
+        sensors.targets,
         sensorId,
         data
       )
@@ -108,7 +113,7 @@ class GrafanaProcessors(private val config: RefitConfig,
   val queryProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val body = exchange.getIn().getBody(classOf[List[GrafanaSensorDataDto]])
-      val response = body.map(getResponse).toArray
+      val response = body.flatMap(getResponse).toArray
       exchange.getIn.setBody(response)
     }
   }
@@ -166,8 +171,9 @@ class GrafanaProcessors(private val config: RefitConfig,
       val schema = exchange.getIn.getHeader(SCHEMA_HEADER, classOf[Schema])
       val partitions = exchange.getIn.getHeader(QUERY_PARTITIONS_HEADER, classOf[List[String]])
 
-      val data = mapToSensorIds(schema, record)
-        .flatMap(x => x.sensors.map(y => getSensorReadings(x, y, partitions)))
+      val sensors = mapToSensorIds(schema, record)
+
+      val data = sensors.sensors.map(x => getSensorReadings(sensors, x, partitions))
 
       exchange.getIn.setBody(data)
     }

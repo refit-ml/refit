@@ -2,7 +2,6 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:436",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -16,15 +15,15 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1598242418716,
+  "id": 1,
+  "iteration": 1598924775323,
   "links": [],
   "panels": [
     {
       "aliasColors": {
-        "count": "#e0752d"
+        "Pressure": "#e24d42"
       },
-      "bars": true,
+      "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "REFIT",
@@ -43,17 +42,17 @@
         "y": 0
       },
       "hiddenSeries": false,
-      "id": 6,
+      "id": 7,
       "legend": {
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "show": true,
         "total": false,
         "values": false
       },
-      "lines": false,
+      "lines": true,
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
@@ -68,12 +67,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "$$hashKey": "object:926",
           "data": "",
           "hide": false,
           "rawQuery": true,
+          "refId": "A",
+          "target": "Actual - Operable",
+          "type": "timeseries"
+        },
+        {
+          "data": "",
           "refId": "B",
-          "target": "SensorID",
+          "target": "Prediction - Operable",
           "type": "timeseries"
         }
       ],
@@ -81,9 +85,9 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Sensor Activity",
+      "title": "Operable",
       "tooltip": {
-        "shared": false,
+        "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
@@ -91,24 +95,21 @@
       "type": "graph",
       "xaxis": {
         "buckets": null,
-        "mode": "histogram",
+        "mode": "time",
         "name": null,
-        "show": false,
+        "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:941",
-          "decimals": 0,
           "format": "short",
-          "label": "Readings",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:942",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -118,8 +119,8 @@
         }
       ],
       "yaxis": {
-        "align": true,
-        "alignLevel": 1
+        "align": false,
+        "alignLevel": null
       }
     },
     {
@@ -200,7 +201,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:234",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -209,7 +209,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:235",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -299,7 +298,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:312",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -308,7 +306,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:313",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -398,7 +395,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:363",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -407,7 +403,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:364",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -423,9 +418,9 @@
     },
     {
       "aliasColors": {
-        "Pressure": "#e24d42"
+        "count": "#e0752d"
       },
-      "bars": false,
+      "bars": true,
       "dashLength": 10,
       "dashes": false,
       "datasource": "REFIT",
@@ -444,17 +439,17 @@
         "y": 18
       },
       "hiddenSeries": false,
-      "id": 7,
+      "id": 6,
       "legend": {
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
-        "show": true,
+        "show": false,
         "total": false,
         "values": false
       },
-      "lines": true,
+      "lines": false,
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
@@ -472,8 +467,8 @@
           "data": "",
           "hide": false,
           "rawQuery": true,
-          "refId": "A",
-          "target": "Operable",
+          "refId": "B",
+          "target": "SensorID",
           "type": "timeseries"
         }
       ],
@@ -481,9 +476,9 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Operable",
+      "title": "Sensor Activity",
       "tooltip": {
-        "shared": true,
+        "shared": false,
         "sort": 0,
         "value_type": "individual"
       },
@@ -491,23 +486,22 @@
       "type": "graph",
       "xaxis": {
         "buckets": null,
-        "mode": "time",
+        "mode": "histogram",
         "name": null,
-        "show": true,
+        "show": false,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:90",
+          "decimals": 0,
           "format": "short",
-          "label": null,
+          "label": "Readings",
           "logBase": 1,
           "max": null,
           "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:91",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -517,8 +511,8 @@
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": true,
+        "alignLevel": 1
       }
     },
     {
@@ -573,7 +567,7 @@
           "hide": false,
           "rawQuery": true,
           "refId": "A",
-          "target": "Probability(1)",
+          "target": "Prediction - Probability(1)",
           "type": "timeseries"
         }
       ],
@@ -598,7 +592,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:90",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -607,7 +600,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:91",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -673,7 +665,7 @@
           "hide": false,
           "rawQuery": true,
           "refId": "A",
-          "target": "Probability(0)",
+          "target": "Prediction - Probability(0)",
           "type": "timeseries"
         }
       ],
@@ -698,7 +690,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:90",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -707,7 +698,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:91",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -722,7 +712,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "10s",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -760,7 +750,14 @@
       },
       {
         "datasource": "REFIT",
-        "filters": [],
+        "filters": [
+          {
+            "condition": "",
+            "key": "sensor",
+            "operator": "=",
+            "value": "1000"
+          }
+        ],
         "hide": 0,
         "label": "Sensor(s)",
         "name": "sensor",
@@ -800,5 +797,5 @@
   "timezone": "browser",
   "title": "REFIT Dashboard",
   "uid": "eHHfJ5HMz",
-  "version": 3
+  "version": 4
 }

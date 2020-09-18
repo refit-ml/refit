@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  pulsar:
+  refit-pulsar-standalone:
     image: apachepulsar/pulsar:2.6.0
     ports:
       - "8080:8080"
@@ -20,21 +20,77 @@ services:
     user: "104"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
+  inference:
+    build: ./inference/
+    environment:
+      FLINK_HOST: flink-jobmanager
+      PULSAR_HOST: refit-pulsar-standalone
+    depends_on:
+      - flink-jobmanager
+  ingestion:
+    build: ./ingestion/
+    environment:
+      PULSAR_HOST: refit-pulsar-standalone
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      ENCRYPTION_KEY: keyboard_cat
+      PROJECT: ingestion
+      REFIT_DEMO: "true"
 
-#  inference:
-#    build: ./inference/
-#    environment:
-#      FLINK_HOST: docker.for.mac.localhost
-#      PULSAR_HOST: pulsar
-#  camel:
-#    build: ./camel/
-#    ports:
-#      - "3000:3000"
-#    environment:
-#      CASSANDRA_HOST: cassandra
-#      PULSAR_HOST: pulsar
+  integrations:
+    build: ./integrations/
+    environment:
+      PULSAR_HOST: refit-pulsar-standalone
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      ENCRYPTION_KEY: keyboard_cat
+      PROJECT: integrations
+
+  db:
+    build: ./db/
+    environment:
+      PULSAR_HOST: refit-pulsar-standalone
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      ENCRYPTION_KEY: keyboard_cat
+      PROJECT: db
+      SCHEMA_DIRECTORY: /schemas/
+    depends_on:
+      - cassandra
+    volumes:
+      - ./common/src/main/resources/schema/:/schemas/
 
 
+
+  flink-jobmanager:
+    image: flink:1.10.1-scala_2.11
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+
+  flink-taskmanager:
+    image: flink:1.10.1-scala_2.11
+    depends_on:
+      - flink-jobmanager
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 2
 
 networks:
   default:
