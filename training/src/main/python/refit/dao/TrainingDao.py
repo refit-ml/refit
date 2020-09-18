@@ -5,7 +5,7 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from pandas import DataFrame
 
-from util.EncryptionHelper import EncryptionHelper, EncryptionMode
+from ..util.EncryptionHelper import EncryptionHelper, EncryptionMode
 
 encryption_key = "keyboard_cat"
 

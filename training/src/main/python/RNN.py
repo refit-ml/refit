@@ -16,7 +16,7 @@ from keras.models import Sequential
 from keras.layers import *
 from sklearn.metrics import mean_squared_error
 
-from api.refit import Refit
+from refit.api import Refit
 
 pd.set_option('display.float_format', lambda x: '%.4f' % x)
 warnings.filterwarnings('ignore')

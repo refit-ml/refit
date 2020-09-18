@@ -1,6 +1,6 @@
 import onnxmltools
 
-from enums.ModelFormat import ModelFormat
+from refit.enums import ModelFormat
 
 
 def get_onnx_model(model_format, model):

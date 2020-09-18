@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import yaml
 
-from dao.TrainingDao import TrainingDao
+from refit.dao.TrainingDao import TrainingDao
 
 
 class ImportOptions:

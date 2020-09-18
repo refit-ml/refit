@@ -8,6 +8,7 @@ out
 venv/
 *.pyc
 
+.ipynb_checkpoints/
 db/data/
 data/
 baseline_model/
