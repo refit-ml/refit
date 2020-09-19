@@ -7,12 +7,15 @@ services:
       - "6650:6650"
     command: >
       bin/pulsar standalone
+
   cassandra:
     build: ./db/src/main/cql/
     ports:
       - "7000:7000"
       - "9042:9042"
       - "9160:9160"
+    volumes:
+      - cassandra:/bitnami
   grafana:
     image: grafana/grafana:7.1.1
     ports:
@@ -20,56 +23,6 @@ services:
     user: "104"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
-  inference:
-    build: ./inference/
-    environment:
-      FLINK_HOST: flink-jobmanager
-      PULSAR_HOST: refit-pulsar-standalone
-    depends_on:
-      - flink-jobmanager
-  ingestion:
-    build: ./ingestion/
-    environment:
-      PULSAR_HOST: refit-pulsar-standalone
-      CASSANDRA_HOST: cassandra
-      CASSANDRA_PORT: 9042
-      CASSANDRA_USER: cassandra
-      CASSANDRA_PASSWORD: cassandra
-      CASSANDRA_KEYSPACE: cdl_refit
-      ENCRYPTION_KEY: keyboard_cat
-      PROJECT: ingestion
-      REFIT_DEMO: "true"
-
-  integrations:
-    build: ./integrations/
-    environment:
-      PULSAR_HOST: refit-pulsar-standalone
-      CASSANDRA_HOST: cassandra
-      CASSANDRA_PORT: 9042
-      CASSANDRA_USER: cassandra
-      CASSANDRA_PASSWORD: cassandra
-      CASSANDRA_KEYSPACE: cdl_refit
-      ENCRYPTION_KEY: keyboard_cat
-      PROJECT: integrations
-
-  db:
-    build: ./db/
-    environment:
-      PULSAR_HOST: refit-pulsar-standalone
-      CASSANDRA_HOST: cassandra
-      CASSANDRA_PORT: 9042
-      CASSANDRA_USER: cassandra
-      CASSANDRA_PASSWORD: cassandra
-      CASSANDRA_KEYSPACE: cdl_refit
-      ENCRYPTION_KEY: keyboard_cat
-      PROJECT: db
-      SCHEMA_DIRECTORY: /schemas/
-    depends_on:
-      - cassandra
-    volumes:
-      - ./common/src/main/resources/schema/:/schemas/
-
-
 
   flink-jobmanager:
     image: flink:1.10.1-scala_2.11
@@ -91,6 +44,7 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 2
+
   minio:
     image: minio/minio:RELEASE.2020-09-17T04-49-20Z
     volumes:
@@ -107,9 +61,79 @@ services:
       timeout: 20s
       retries: 3
 
+  inference:
+    build: ./inference/
+    environment:
+      WAIT_FLINK_HOST: flink-jobmanager
+      FLINK_HOST: flink-jobmanager
+      WAIT_PULSAR_HOST: refit-pulsar-standalone
+    depends_on:
+      - flink-jobmanager
+      - refit-pulsar-standalone
+      - cassandra
+
+  ingestion:
+    build: ./ingestion/
+    environment:
+      WAIT_PULSAR_HOST: refit-pulsar-standalone
+      WAIT_CASSANDRA_HOST: cassandra
+      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
+      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
+      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
+      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
+      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
+      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      MINIO_HOST: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_IMPORT: raw-import
+      ENCRYPTION_KEY: keyboard_cat
+      REFIT_DEMO: "false"
+      PROJECT: ingestion
+    depends_on:
+      - flink-jobmanager
+      - refit-pulsar-standalone
+      - cassandra
+    ports:
+      - "3001:3001"
+
+  integrations:
+    build: ./integrations/
+    environment:
+      WAIT_PULSAR_HOST: refit-pulsar-standalone
+      WAIT_CASSANDRA_HOST: cassandra
+      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
+      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
+      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
+      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
+      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
+      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      MINIO_HOST: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_IMPORT: raw-import
+      ENCRYPTION_KEY: keyboard_cat
+      REFIT_DEMO: "true"
+      PROJECT: integrations
+    depends_on:
+      - flink-jobmanager
+      - refit-pulsar-standalone
+      - cassandra
+
 networks:
   default:
     driver: bridge
-  
-volumes: 
-  minio-1: 
+
+volumes:
+  minio-1:
+  cassandra:

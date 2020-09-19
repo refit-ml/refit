@@ -1,6 +1,7 @@
 package edu.cdl.iot.ingestion.routes
 
 import edu.cdl.iot.ingestion.constants.PulsarConstants
+import edu.cdl.iot.ingestion.dao.ImportDao
 import edu.cdl.iot.ingestion.dto.request.ImportRequest
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
 import edu.cdl.iot.ingestion.transform.ImportProcessors
@@ -30,6 +31,8 @@ class ImportRoutes(val context: CamelContext,
 
     from(s"timer://sensor-data?period=${PulsarConstants.POLL_INTERVAL_MILLS}")
       .process(importProcessors.consumeImportRequests)
+      .process(importProcessors.deseralizeImportRequest)
       .process(importProcessors.ackImportRequest)
+      .process(importProcessors.doImport)
   }
 }

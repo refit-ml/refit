@@ -1,10 +1,23 @@
-pulsarHost: 127.0.0.1
 project: local
 encryptionKey: keyboard_cat
-demo: true
+demo: false
 cassandra:
   keyspace: cdl_refit
   host: 127.0.0.1
   port: 9042
   user: cassandra
   password: cassandra
+minio:
+  host: "http://127.0.0.1:9000"
+  buckets:
+    import: raw-import
+  accessKey: minio
+  secretKey: minio123
+pulsar:
+  host: "pulsar://127.0.0.1:6650"
+  topics:
+    import: "persistent://sample/standalone/ns1/import"
+    models: "persistent://sample/standalone/ns1/models"
+    data: "persistent://sample/standalone/ns1/data"
+    predictions: "persistent://sample/standalone/ns1/predictions"
+    publishModels: "persistent://sample/standalone/ns1/publish-models"

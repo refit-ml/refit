@@ -8,6 +8,7 @@ cassandra:
   user: cassandra
   password: cassandra
 minio:
+  host: "http://127.0.0.1:9000"
   buckets:
     import: raw-import
   accessKey: minio

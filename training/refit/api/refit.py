@@ -1,8 +1,10 @@
+import json
 import string
 import uuid
 from datetime import datetime
 
 import onnxmltools
+import requests
 from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseError
 from pandas import DataFrame
@@ -62,7 +64,7 @@ class Refit():
         self.training_dao.save_model(self.schema, model_guid, model_bytes, model_format)
         return model_bytes
 
-    def import_file(self, file_path: string, object_name: string) -> bool:
+    def __upload_file(self, file_path: string, object_name: string):
         client = Minio(minio_host,
                        access_key=minio_access_key,
                        secret_key=minio_secret_key,
@@ -83,3 +85,16 @@ class Refit():
             print("Error putting file")
             print(err)
         return True
+
+    def import_file(self, file_path: string, object_name: string, delete_when_complete: bool = True) -> str:
+        path = f"import/{self.project_guid}/{object_name}"
+        if not self.__upload_file(file_path, path):
+            raise Exception("Error Uploading file to bucket")
+        url = "http://localhost:3001/import"
+        payload = json.dumps({
+            "projectGuid": self.project_guid,
+            "filePath": path,
+            "deleteWhenComplete": delete_when_complete
+        })
+        response = requests.post(url, payload)
+        return response.text

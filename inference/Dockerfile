@@ -8,4 +8,4 @@ WORKDIR /app
 
 RUN pip3 install -r requirements.txt
 
-CMD wait-for-it ${PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${FLINK_HOST}:8081 -t 300 -s -- python3 /app/deploy.py
+CMD wait-for-it ${WAIT_PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${WAIT_FLINK_HOST}:8081 -t 300 -s -- python3 /app/deploy.py

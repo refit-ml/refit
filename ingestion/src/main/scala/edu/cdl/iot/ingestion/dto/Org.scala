@@ -1,4 +1,4 @@
-package  edu.cdl.iot.db.fixtures.dto
+package edu.cdl.iot.ingestion.dto
 
 import java.sql.Timestamp
 import java.util.UUID

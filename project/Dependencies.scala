@@ -1,4 +1,25 @@
 object Dependencies {
+  val shared = Seq(
+    Libraries.protobuf,
+    Libraries.joda
+  )
+
+  val cassandraDependencies = Seq(
+    Libraries.cassandra
+  )
+
+  val pulsarDependencies = Seq(
+    Libraries.pulsar
+  )
+
+  val testDependencies = Seq(
+    Libraries.scalaTest
+  )
+
+  val common = Seq(
+    Libraries.codec,
+    Libraries.snakeYaml
+  )
 
   val training = Seq(
     Libraries.sparkCore,
@@ -20,34 +41,13 @@ object Dependencies {
     Libraries.scalaTest
   )
 
-  val shared = Seq(
-    Libraries.protobuf,
-    Libraries.joda
-  )
-
-  val common = Seq(
-    Libraries.codec,
-    Libraries.snakeYaml
-  )
-
-  val cassandraDependencies = Seq(
-    Libraries.cassandra
-  )
-
-  val pulsarDependencies = Seq(
-    Libraries.pulsar
-  )
-
-  val testDependencies = Seq(
-    Libraries.scalaTest
-  )
-
   val ingestion = Seq(
     Libraries.camelCore,
     Libraries.camelJackson,
     Libraries.camelNetty,
     Libraries.camelRest,
-    Libraries.pulsar
+    Libraries.pulsar,
+    Libraries.minio
   )
 
   val integrations = Seq(

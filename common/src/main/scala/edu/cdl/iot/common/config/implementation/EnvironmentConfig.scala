@@ -2,7 +2,7 @@ package edu.cdl.iot.common.config.implementation
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
-import edu.cdl.iot.common.yaml.{CassandraConfig, PulsarConfig, PulsarTopic}
+import edu.cdl.iot.common.yaml.{CassandraConfig, MinioBucket, MinioConfig, PulsarConfig, PulsarTopic}
 
 
 class EnvironmentConfig extends RefitConfig {
@@ -30,4 +30,12 @@ class EnvironmentConfig extends RefitConfig {
     sys.env(EnvConstants.CASSANDRA_PASSWORD)
   )
   override val runDemo: () => Boolean = () => sys.env(EnvConstants.DEMO).toBoolean
+  override val getMinioConfig: () => MinioConfig = () => new MinioConfig(
+    sys.env(EnvConstants.MINIO_HOST),
+    sys.env(EnvConstants.MINIO_ACCESS_KEY),
+    sys.env(EnvConstants.MINIO_SECRET_KEY),
+    new MinioBucket(
+      sys.env(EnvConstants.MINIO_BUCKET_IMPORT)
+    )
+  )
 }
