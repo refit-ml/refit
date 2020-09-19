@@ -12,7 +12,7 @@ import edu.cdl.iot.ingestion.util.ImportHelper
 import edu.cdl.iot.protocol.ImportRequest.{ImportRequest => ImportEnvelope}
 import org.apache.camel.{Exchange, Processor}
 import org.apache.pulsar.client.api.{Schema, SubscriptionType}
-import io.minio.MinioClient
+import io.minio.{MinioClient, RemoveObjectArgs}
 
 class ImportProcessors(private val config: RefitConfig,
                        private val importDao: ImportDao) {
@@ -83,16 +83,31 @@ class ImportProcessors(private val config: RefitConfig,
       val schema = importDao.getSchema(request.projectGuid)
       val encryptionHelper = new EncryptionHelper(config.getEncryptionKey(), request.projectGuid)
       val sensorDataFactory = new SensorDataFactory(schema, encryptionHelper)
-      val iterator = ImportHelper.getMinioLineIterator(minioClient, minioConfig.buckets.`import`, request.filePath)
 
-      iterator
-        .drop(1)
-        .map(x => sensorDataFactory.fromCsv(x))
-        .foreach(x => {
-          println("Try Send")
-          sensorDataProducer.send(x.toByteArray)
-          println("Sent!")
-        })
+      try {
+        print("Get file stream")
+        val iterator = ImportHelper.getMinioLineIterator(minioClient, minioConfig.buckets.`import`, request.filePath)
+        print("Process Stream")
+        iterator
+          .drop(1)
+          .map(x => sensorDataFactory.fromCsv(x))
+          .foreach(x => {
+            println("Try Send")
+            sensorDataProducer.send(x.toByteArray)
+            println("Sent!")
+          })
+      }
+      finally {
+        if (request.deleteWhenComplete) {
+          println("Request finished: Removing file")
+          val removeRequest = RemoveObjectArgs.builder()
+            .bucket(minioConfig.buckets.`import`)
+            .`object`(request.filePath)
+            .build()
+          minioClient.removeObject(removeRequest)
+        }
+      }
+
 
     }
   }
