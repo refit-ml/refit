@@ -1,18 +1,18 @@
 package edu.cdl.iot.ingestion.transform
 
 import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
-import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.SensorDataHelper
+import edu.cdl.iot.common.yaml.PulsarConfig
 import edu.cdl.iot.ingestion.dao.ModelDao
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.camel.{Exchange, Processor}
 
 // This is a class to just produce fake data
-class SenosrDataProcessors(config: RefitConfig,
+class SenosrDataProcessors(config: PulsarConfig,
                            modelDao: ModelDao) {
-  private val client = PulsarClient(s"pulsar://${config.getPulsarHost()}:6650")
-  private val producerTopic = Topic(s"persistent://sample/standalone/ns1/sensors")
+  private val client = PulsarClient(config.host)
+  private val producerTopic = Topic(config.topics.models)
 
   private val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 

@@ -11,7 +11,7 @@ class ProcessorFactory(private val config: RefitConfig) {
 
   def getPredictionProcessors(predictionDao: PredictionDao) = new PredictionProcessors(config, predictionDao)
 
-  def getPulsarProcessors = new PulsarProcessors(config)
+  def getPulsarProcessors = new PulsarProcessors(config.getPulsarConfig())
 
   def getSchemaProcessors(dao: SchemaDao) = new SchemaProcessors(dao)
 

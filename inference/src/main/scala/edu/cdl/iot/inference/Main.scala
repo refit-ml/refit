@@ -13,6 +13,15 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.pulsar.{FlinkPulsarProducer, PulsarSourceBuilder}
 import org.apache.pulsar.client.impl.conf.{ClientConfigurationData, ProducerConfigurationData}
 
+object Subscriptions {
+  val data = "inference-data"
+  val models = "inference-models"
+}
+
+object Sources {
+  val data = "Event Data"
+  val models = "Model Updates"
+}
 
 object Main {
   def main(args: Array[String]) {
@@ -22,16 +31,13 @@ object Main {
     val config = env.getCheckpointConfig
     val configFactory = new ConfigFactory()
     val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
-    val pulsarHost = refitConfig.getPulsarHost()
-    val inputTopic = "persistent://sample/standalone/ns1/sensors"
-    val outputTopic = "persistent://sample/standalone/ns1/predictions"
-    val subscribtionName = "scala-sub-1"
-    val modelTopic ="persistent://sample/standalone/ns1/models"
-    val subscribtionNameModels = "scala-sub-2"
+    val pulsarConfig = refitConfig.getPulsarConfig()
+    val pulsarHost = pulsarConfig.host
+    val inputTopic = pulsarConfig.topics.data
+    val outputTopic = pulsarConfig.topics.predictions
+    val modelTopic = pulsarConfig.topics.models
+
     val checkpointInterval = (1000 * 60)
-
-    val serviceUrl = s"pulsar://$pulsarHost:6650"
-
     println(s"pulsar host: $pulsarHost")
 
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
@@ -39,28 +45,28 @@ object Main {
 
 
     val modelSrc = PulsarSourceBuilder.builder(new ModelSchema)
-      .serviceUrl(serviceUrl)
+      .serviceUrl(pulsarHost)
       .topic(modelTopic)
-      .subscriptionName(subscribtionNameModels)
+      .subscriptionName(Subscriptions.models)
       .build()
 
 
     val model = env
-      .addSource(modelSrc, "Models")
+      .addSource(modelSrc, Sources.models)
       .broadcast()
-      .keyBy(new KeySelector[Model, String ] {
+      .keyBy(new KeySelector[Model, String] {
         override def getKey(value: Model): String = value.projectGuid
       })
 
     val eventSrc = PulsarSourceBuilder.builder(new SensorDataSchema)
-      .serviceUrl(serviceUrl)
+      .serviceUrl(pulsarHost)
       .topic(inputTopic)
-      .subscriptionName(subscribtionName)
+      .subscriptionName(Subscriptions.data)
       .build()
 
     val input = env
-      .addSource(eventSrc, "Events")
-      .keyBy(new KeySelector[SensorData, String ] {
+      .addSource(eventSrc, Sources.data)
+      .keyBy(new KeySelector[SensorData, String] {
         override def getKey(value: SensorData): String = value.projectGuid
       })
 
@@ -71,7 +77,7 @@ object Main {
 
     val ccd = new ClientConfigurationData()
 
-    ccd.setServiceUrl(serviceUrl)
+    ccd.setServiceUrl(pulsarHost)
 
     val pcd = new ProducerConfigurationData()
 

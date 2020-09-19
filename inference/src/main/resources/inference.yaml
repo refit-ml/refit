@@ -1,2 +1,22 @@
-pulsarHost: refit-pulsar-standalone
-project: inference
+project: local
+encryptionKey: keyboard_cat
+demo: true
+cassandra:
+  keyspace: cdl_refit
+  host: 127.0.0.1
+  port: 9042
+  user: cassandra
+  password: cassandra
+minio:
+  buckets:
+    import: raw-import
+  accessKey: minio
+  secretKey: minio123
+pulsar:
+  host: pulsar://refit-pulsar-standalone:6650
+  topics:
+    import: persistent://sample/standalone/ns1/import
+    models: persistent://sample/standalone/ns1/models
+    data: persistent://sample/standalone/ns1/data
+    predictions: persistent://sample/standalone/ns1/predictions
+    publishModels: persistent://sample/standalone/ns1/publish-models

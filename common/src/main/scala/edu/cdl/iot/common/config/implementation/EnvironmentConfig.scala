@@ -2,12 +2,21 @@ package edu.cdl.iot.common.config.implementation
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
-import edu.cdl.iot.common.yaml.CassandraConfig
+import edu.cdl.iot.common.yaml.{CassandraConfig, PulsarConfig, PulsarTopic}
 
 
 class EnvironmentConfig extends RefitConfig {
 
-  override val getPulsarHost: () => String = () => sys.env(EnvConstants.PULSAR_HOST)
+  override val getPulsarConfig: () => PulsarConfig = () => new PulsarConfig(
+    sys.env(EnvConstants.PULSAR_HOST),
+    new PulsarTopic(
+      sys.env(EnvConstants.MODELS_TOPIC),
+      sys.env(EnvConstants.DATA_TOPIC),
+      sys.env(EnvConstants.PREDICTIONS_TOPIC),
+      sys.env(EnvConstants.IMPORT_TOPIC),
+      sys.env(EnvConstants.MODEL_PUBLISH_TOPIC)
+    )
+  )
 
   override val getEncryptionKey: () => String = () => sys.env(EnvConstants.ENCRYPTION_KEY)
 
