@@ -81,7 +81,7 @@ class ImportDao(private val config: CassandraConfig) extends RefitDao(config) {
       record.end
     )
 
-  def createTrainingWindow(records: List[TrainingWindow]): ResultSet = {
+  def createTrainingWindow(records: Seq[TrainingWindow]): ResultSet = {
     val batchedStatement = new BatchStatement()
     records.map(createTrainingWindow)
       .foreach(batchedStatement.add)

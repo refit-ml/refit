@@ -5,8 +5,7 @@ import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.ingestion.dto.TrainingWindow
 
-class TrainingWindowFactory(val schema: Schema,
-                            val encryptionHelper: EncryptionHelper) {
+class TrainingWindowFactory(val schema: Schema) {
 
   def fromDelimited(row: Array[String]): TrainingWindow = {
     TrainingWindow(

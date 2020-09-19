@@ -80,21 +80,39 @@ class Refit():
             raise
 
         try:
-            client.fput_object(bucket_name, f"import/{self.project_guid}/{object_name}", file_path)
+            client.fput_object(bucket_name, object_name, file_path)
         except ResponseError as err:
             print("Error putting file")
             print(err)
         return True
 
+    def __get_file_path(self, object_name: string):
+        return f"import/{self.project_guid}/{object_name}"
+
     def import_file(self, file_path: string, object_name: string, delete_when_complete: bool = True) -> str:
-        path = f"import/{self.project_guid}/{object_name}"
+        path = self.__get_file_path(object_name)
         if not self.__upload_file(file_path, path):
             raise Exception("Error Uploading file to bucket")
         url = "http://localhost:3001/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
-            "deleteWhenComplete": delete_when_complete
+            "deleteWhenComplete": delete_when_complete,
+            "importType": "sensor_data"
+        })
+        response = requests.post(url, payload)
+        return response.text
+
+    def import_training_window(self, file_path: string, object_name: string, delete_when_complete: bool = True):
+        path = self.__get_file_path(object_name)
+        if not self.__upload_file(file_path, path):
+            raise Exception("Error Uploading file to bucket")
+        url = "http://localhost:3001/import"
+        payload = json.dumps({
+            "projectGuid": self.project_guid,
+            "filePath": path,
+            "deleteWhenComplete": delete_when_complete,
+            "importType": "training_window"
         })
         response = requests.post(url, payload)
         return response.text

@@ -3,11 +3,11 @@ package edu.cdl.iot.ingestion.transform
 import com.sksamuel.pulsar4s.{ConsumerConfig, MessageId, ProducerConfig, PulsarClient, Subscription, Topic}
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.security.EncryptionHelper
-import edu.cdl.iot.ingestion.constants.PulsarConstants
+import edu.cdl.iot.ingestion.constants.{ImportConstants, PulsarConstants}
 import edu.cdl.iot.ingestion.dao.ImportDao
 import edu.cdl.iot.ingestion.dto.request.ImportRequest
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
-import edu.cdl.iot.ingestion.factories.SensorDataFactory
+import edu.cdl.iot.ingestion.factories.{SensorDataFactory, TrainingWindowFactory}
 import edu.cdl.iot.ingestion.util.ImportHelper
 import edu.cdl.iot.protocol.ImportRequest.{ImportRequest => ImportEnvelope}
 import org.apache.camel.{Exchange, Processor}
@@ -28,13 +28,12 @@ class ImportProcessors(private val config: RefitConfig,
   )
 
   private val sensorDataTopicConfig = ProducerConfig(sensorDataTopic)
-
   private val importProducerConfig = ProducerConfig(importTopic)
-
   private val importConsumer = client.consumer(importConsumerConfig)(Schema.BYTES)
   private val importProducer = client.producer(importProducerConfig)(Schema.BYTES)
   private val sensorDataProducer = client.producer(sensorDataTopicConfig)(Schema.BYTES)
 
+  private var processingImport = false
 
   private val minioClient = MinioClient.builder
     .endpoint(minioConfig.host)
@@ -51,12 +50,15 @@ class ImportProcessors(private val config: RefitConfig,
 
   val consumeImportRequests: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
-      val response = importConsumer.receive
-      if (response.isSuccess && response.get != null) {
-        println("Consume Import")
-        val message = response.get
-        exchange.getIn.setBody(message.data)
-        exchange.getIn.setHeader(PulsarConstants.MESSAGE_ID_HEADER, message.messageId)
+      if (!processingImport) {
+        val response = importConsumer.receive
+        if (response.isSuccess && response.get != null) {
+          println("Consume Import")
+          val message = response.get
+          exchange.getIn.setBody(message.data)
+          exchange.getIn.setHeader(PulsarConstants.MESSAGE_ID_HEADER, message.messageId)
+          processingImport = true
+        }
       }
     }
   }
@@ -78,25 +80,47 @@ class ImportProcessors(private val config: RefitConfig,
   }
 
   val doImport: Processor = new Processor {
+
+    def processSensorDataDataImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
+      val sensorDataFactory = new SensorDataFactory(schema)
+      iterator
+        .drop(1)
+        .map(x => sensorDataFactory.fromCsv(x))
+        .foreach(x => {
+          sensorDataProducer.send(x.toByteArray)
+        })
+    }
+
+    def processTrainingWindowImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
+      val trainingWindowFactory = new TrainingWindowFactory(schema)
+      iterator
+        .drop(1)
+        .map(x => trainingWindowFactory.fromCsv(x))
+        .grouped(ImportConstants.BATCH_SIZE)
+        .foreach(x => {
+          importDao.createTrainingWindow(x)
+        })
+    }
+
     override def process(exchange: Exchange): Unit = {
       val request = exchange.getIn.getBody(classOf[ImportEnvelope])
       val schema = importDao.getSchema(request.projectGuid)
-      val encryptionHelper = new EncryptionHelper(config.getEncryptionKey(), request.projectGuid)
-      val sensorDataFactory = new SensorDataFactory(schema, encryptionHelper)
 
       try {
-        print("Get file stream")
+        println("Get file stream")
         val iterator = ImportHelper.getMinioLineIterator(minioClient, minioConfig.buckets.`import`, request.filePath)
-        print("Process Stream")
-        iterator
-          .drop(1)
-          .map(x => sensorDataFactory.fromCsv(x))
-          .foreach(x => {
-            println("Try Send")
-            sensorDataProducer.send(x.toByteArray)
-            println("Sent!")
-          })
+        println("Process Stream")
+        if (request.importTrainingWindow)
+          processTrainingWindowImport(iterator, schema)
+        else
+          processSensorDataDataImport(iterator, schema)
+        println("Done processing stream")
       }
+        catch {
+          case ex: Throwable => {
+            println(ex.toString)
+          }
+        }
       finally {
         if (request.deleteWhenComplete) {
           println("Request finished: Removing file")
@@ -106,9 +130,8 @@ class ImportProcessors(private val config: RefitConfig,
             .build()
           minioClient.removeObject(removeRequest)
         }
+        processingImport = false
       }
-
-
     }
   }
 

@@ -2,11 +2,9 @@ package edu.cdl.iot.ingestion.factories
 
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.schema.enums.FieldType
-import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.protocol.SensorData.SensorData
 
-class SensorDataFactory(val schema: Schema,
-                        val encryptionHelper: EncryptionHelper) {
+class SensorDataFactory(val schema: Schema) {
 
   def fromDelimited(row: Array[String]): SensorData = {
     val key = schema.getKey(row)
