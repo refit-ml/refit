@@ -100,7 +100,7 @@ services:
       - refit-pulsar-standalone
       - cassandra
     ports:
-      - "3001:3001"
+      - "3030:3030"
 
   integrations:
     build: ./integrations/

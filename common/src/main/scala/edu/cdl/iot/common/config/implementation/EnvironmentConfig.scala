@@ -35,7 +35,8 @@ class EnvironmentConfig extends RefitConfig {
     sys.env(EnvConstants.MINIO_ACCESS_KEY),
     sys.env(EnvConstants.MINIO_SECRET_KEY),
     new MinioBucket(
-      sys.env(EnvConstants.MINIO_BUCKET_IMPORT)
+      sys.env(EnvConstants.MINIO_BUCKET_IMPORT),
+      sys.env(EnvConstants.MINIO_BUCKET_MODELS)
     )
   )
 }

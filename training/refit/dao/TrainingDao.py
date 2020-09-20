@@ -136,12 +136,6 @@ class TrainingDao:
                                                                   partition),
                     partitions)), sensors))
 
-    def save_model(self, schema, model_guid, model_bytes, model_format):
-        query = 'INSERT INTO models (project_guid, model_guid, format, model, timestamp)' \
-                'VALUES (%s, %s, %s, %s, toTimestamp(now()))'
-
-        self.query(query, parameters=[schema.project_guid, model_guid, model_format, model_bytes])
-
+    def save_model(self, schema, model_guid):
         query = 'UPDATE project set model_guid = %s where org_guid = %s and project_guid = %s'
-
         self.query(query, parameters=[model_guid, schema.org_guid, schema.project_guid])

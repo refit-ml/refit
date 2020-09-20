@@ -11,8 +11,9 @@ class MinioConfig(@BeanProperty var host: String,
   }
 }
 
-class MinioBucket(@BeanProperty var `import`: String) extends Serializable {
+class MinioBucket(@BeanProperty var `import`: String,
+                  @BeanProperty var models: String) extends Serializable {
   def this() {
-    this(null)
+    this(null, null)
   }
 }

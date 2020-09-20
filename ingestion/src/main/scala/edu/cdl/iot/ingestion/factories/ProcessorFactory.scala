@@ -10,7 +10,7 @@ class ProcessorFactory(private val config: RefitConfig) {
 
   def getImportDao = new ImportDao(config.getCassandraConfig())
 
-  def getModelProcessors(modelDao: ModelDao) = new ModelProcessors(modelDao)
+  def getModelProcessors(modelDao: ModelDao) = new ModelProcessors(config)
 
   def getPulsarProcessors = new PulsarProcessors(config.getPulsarConfig())
 

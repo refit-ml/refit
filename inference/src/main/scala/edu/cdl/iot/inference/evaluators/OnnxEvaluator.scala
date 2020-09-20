@@ -2,7 +2,8 @@ package edu.cdl.iot.inference.evaluators
 
 import java.util.Collections
 
-import ai.onnxruntime.{OnnxTensor, OrtEnvironment, OrtSession}
+import ai.onnxruntime.TensorInfo.OnnxTensorType
+import ai.onnxruntime.{ OnnxSequence, OnnxTensor, OrtEnvironment, OrtSession}
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -29,33 +30,54 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
     })).++(v.strings.map({
       case (x, d) =>
         x -> d.toFloat
-    })).++(v.labels.map({
-      case (x, d) =>
-        x -> d.toFloat
     }))
 
   private def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
     x.toList.map(tuple => tuple._2).toArray
 
-  private def getOnnxVector(v: SensorData): Array[Array[Array[Float]]] =
+  private def getOnnxVector(v: SensorData): Array[Array[Float]] =
     Array.fill(1) {
-      Array.fill(1) {
-        mapEntryToScalar(getOnnxMap(v))
-      }
+      mapEntryToScalar(getOnnxMap(v))
     }
 
   private def getOnnxTensor(v: SensorData) = OnnxTensor.createTensor(OnnxEvaluator.env, getOnnxVector(v))
 
-  private def getOnnxPrediction(v: SensorData) =
-    onnxEvaluator.run(Collections.singletonMap("lstm_1_input", getOnnxTensor(v)))
-      .iterator().toList.map(x => x.getKey -> x.getValue
-      .asInstanceOf[OnnxTensor]
-      .getFloatBuffer
-      .array
+  private def getOnnxPrediction(v: SensorData) = {
+    val tensor = getOnnxTensor(v)
+    val i = Collections.singletonMap("input", tensor)
+    onnxEvaluator
+      .run(i)
+      .iterator()
       .toList
-      .map(x => x.toString)
-      .head
-    ).toMap
+      .map(x => x.getKey -> x.getValue)
+      .flatMap(entry => {
+        val c = entry._2.getClass.toString
+        val sequenceClass = classOf[OnnxSequence].toString
+
+        val result = if(sequenceClass == c) entry._2.asInstanceOf[OnnxSequence].getValue.map(x => x.toString).toArray
+        else {
+          val output = entry._2.asInstanceOf[OnnxTensor]
+          val outputType = output.getInfo.onnxType
+
+          val buffer = outputType match {
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8 => output.getIntBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16 => output.getIntBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32 => output.getIntBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64 => output.getLongBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT => output.getFloatBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 => output.getFloatBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16 => output.getFloatBuffer.array
+            case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE => output.getDoubleBuffer.array
+          }
+          buffer.map(x => x.toString)
+        }
+
+        result.map(x => entry._1 -> x)
+      })
+      .toMap
+
+
+  }
 
   def getPrediction(sensorData: SensorData): Prediction =
     new Prediction(sensorData.projectGuid,

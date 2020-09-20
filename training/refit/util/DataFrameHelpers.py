@@ -7,7 +7,7 @@ import pandas as pd
 def extract_flag(sensor_data: DataFrame, windows: DataFrame, flag_name: string) -> DataFrame:
     df = sensor_data.merge(windows, how='left', on=['sensor_id', 'partition_key'])
     df[flag_name] = (df.timestamp <= df.start) | (df.timestamp >= df.end)
-    df = df.drop(['project_guid_y', 'start', 'end'], axis=1)
+    df = df.drop(['project_guid_y', 'project_guid_x', 'start', 'end'], axis=1)
     return df
 
 

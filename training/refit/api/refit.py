@@ -10,13 +10,14 @@ from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseEr
 from pandas import DataFrame
 
 from refit.enums.ModelFormat import ModelFormat
-from refit.enums.SerializationFormat import SerializationFormat
 from refit.util import ModelFactory
 from ..util.DataFrameHelpers import extract_timestamps, extract_flag
 from ..util.Schema import SchemaFactory
 from refit.dao.TrainingDao import TrainingDao
 
-bucket_name = "raw-import"
+import_bucket = "raw-import"
+model_bucket = "refit-models"
+
 minio_host = "127.0.0.1:9000"
 minio_access_key = "minio"
 minio_secret_key = "minio123"
@@ -52,19 +53,24 @@ class Refit():
     def save(self,
              model,
              model_format: ModelFormat = ModelFormat.KERAS,
-             serialization_format: SerializationFormat = SerializationFormat.ONNX) -> bytearray:
+             initial_types: list = None) -> string:
         model_guid = str(uuid.uuid4())
         file_name = f"models/{model_guid}.onnx"
-        onnx_model = ModelFactory.get_onnx_model(model_format, model)
+        onnx_model = ModelFactory.get_onnx_model(model_format, model, initial_types=initial_types)
         onnxmltools.utils.save_model(onnx_model, file_name)
-        in_file = open(file_name, "rb")
-        model_bytes = bytearray(in_file.read())
-        in_file.close()
-        # TODO: Move this to save to minio
-        self.training_dao.save_model(self.schema, model_guid, model_bytes, model_format)
-        return model_bytes
+        path = f"{self.project_guid}/models/{model_guid}/model.onnx"
+        self.__upload_file(model_bucket, path, file_name)
+        self.training_dao.save_model(self.schema, model_guid)
+        payload = json.dumps({
+            "projectGuid": self.project_guid,
+            "modelGuid": model_guid,
+            "path": path
+        })
+        url = "http://localhost:3030/models"
+        requests.post(url, payload)
+        return "Model Published"
 
-    def __upload_file(self, file_path: string, object_name: string):
+    def __upload_file(self, bucket_name: string, object_name: string, file_path: string):
         client = Minio(minio_host,
                        access_key=minio_access_key,
                        secret_key=minio_secret_key,
@@ -91,9 +97,9 @@ class Refit():
 
     def import_file(self, file_path: string, object_name: string, delete_when_complete: bool = True) -> str:
         path = self.__get_file_path(object_name)
-        if not self.__upload_file(file_path, path):
+        if not self.__upload_file(import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = "http://localhost:3001/import"
+        url = "http://localhost:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
@@ -105,9 +111,9 @@ class Refit():
 
     def import_training_window(self, file_path: string, object_name: string, delete_when_complete: bool = True):
         path = self.__get_file_path(object_name)
-        if not self.__upload_file(file_path, path):
+        if not self.__upload_file(import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = "http://localhost:3001/import"
+        url = "http://localhost:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
