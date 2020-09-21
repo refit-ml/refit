@@ -35,3 +35,4 @@ class RefitConfig():
         self.minio_bucket_models = os.environ['MINIO_BUCKET_MODELS']
         self.minio_bucket_schema = os.environ['MINIO_BUCKET_SCHEMA']
         self.encryption_key = os.environ['ENCRYPTION_KEY']
+        self.ingestion_host = os.environ['INGESTION_HOST']
