@@ -1,6 +1,6 @@
 import unittest
 
-from refit.util import EncryptionMode, EncryptionHelper
+from refit.util.EncryptionHelper import EncryptionMode, EncryptionHelper
 
 
 class TestStringMethods(unittest.TestCase):
