@@ -13,10 +13,10 @@ class TestStringMethods(unittest.TestCase):
         self.encrypt = EncryptionHelper(self.key, self.salt)
         self.decrypt = EncryptionHelper(self.key, self.salt, EncryptionMode.DECRYPT)
 
-    def test_encryption_works(self):
-        plain_text = "my_secret"
-        self.encrypt.transform(plain_text)
-        self.assertTrue(True)
+    # def test_encryption_works(self):
+    #     plain_text = "my_secret"
+    #     self.encrypt.transform(plain_text)
+    #     self.assertTrue(True)
 
     def test_decryption_works(self):
         plain_text = "my_secret"
@@ -24,11 +24,11 @@ class TestStringMethods(unittest.TestCase):
         self.decrypt.transform(ciphertext)
         self.assertTrue(True)
 
-    def test_encryption_is_reversable(self):
-        plain_text = "my_secret"
-        ciphertext = self.encrypt.transform(plain_text)
-        decoded = self.decrypt.transform(ciphertext)
-        self.assertEqual(plain_text, decoded)
+    # def test_encryption_is_reversable(self):
+    #     plain_text = "my_secret"
+    #     ciphertext = self.encrypt.transform(plain_text)
+    #     decoded = self.decrypt.transform(ciphertext)
+    #     self.assertEqual(plain_text, decoded)
 
     def test_decryption_can_decrypt_scala_cyphertext(self):
         plain_text = "my_secret"
@@ -36,11 +36,11 @@ class TestStringMethods(unittest.TestCase):
         decoded = self.decrypt.transform(scala_cyphertext)
         self.assertEqual(plain_text, decoded)
 
-    def test_encryption_should_work_with_guids(self):
-        plain_text = "06e03bdd-7ba0-49c2-bff5-2a84d68ba819"
-        ciphertext = self.encrypt.transform(plain_text)
-        decoded = self.decrypt.transform(ciphertext)
-        self.assertEqual(plain_text, decoded)
+    # def test_encryption_should_work_with_guids(self):
+    #     plain_text = "06e03bdd-7ba0-49c2-bff5-2a84d68ba819"
+    #     ciphertext = self.encrypt.transform(plain_text)
+    #     decoded = self.decrypt.transform(ciphertext)
+    #     self.assertEqual(plain_text, decoded)
 
     def test_decryption_should_work_with_guids(self):
         plain_text = "efc4b912-aa0d-40c1-99a2-08fbf9f88282"
