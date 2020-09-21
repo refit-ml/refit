@@ -20,6 +20,7 @@ k label nodes minikube coredns=enabled
 kubectl get secret refit-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 kubectl get secret refit-cassandra-credentials -o jsonpath="{.data.cassandra-password}" | base64 --decode ; echo
 kubectl get secret refit-encryption-key -o jsonpath="{.data.password}" | base64 --decode ; echo
+kubectl get secret refit-minio -o jsonpath="{.data.password}" | base64 --decode ; echo
 
 
  model 68f0286b-ddc8-4dae-bf6e-9bde28e795f4 -> temp > 40 
