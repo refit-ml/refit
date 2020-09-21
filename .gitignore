@@ -8,6 +8,13 @@ out
 venv/
 *.pyc
 
+training/notebooks/refit/
+
+.local/
+.ipython/
+.jupyter/
+.cache/
+.ipynb_checkpoints/
 db/data/
 data/
 baseline_model/

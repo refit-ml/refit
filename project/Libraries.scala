@@ -27,6 +27,7 @@ object Libraries {
 
   val codec = "commons-codec" % "commons-codec" % Versions.codec
   val snakeYaml = "org.yaml" % "snakeyaml" % Versions.snakeYaml
+  val minio = "io.minio" % "minio" % Versions.minio
 
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test

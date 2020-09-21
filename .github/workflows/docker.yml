@@ -65,26 +65,6 @@ jobs:
           tag_with_ref: true
           path: integrations
 
-  db:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Compile Source Code
-        run: sbt db/assembly
-
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: cdliotprototype/cdl-refit-db
-          tag_with_ref: true
-          path: db
-
   cassandra:
     runs-on: ubuntu-latest
     steps:
@@ -97,3 +77,16 @@ jobs:
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
           path: db/src/main/cql
+
+  notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: cdliotprototype/cdl-refit-notebook
+          tag_with_ref: true
+          path: training

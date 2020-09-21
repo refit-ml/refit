@@ -55,8 +55,17 @@ case class Schema(yaml: SchemaYaml) {
 
   private def getClassifications(lst: List[(Field, Int)], featureClassification: FeatureClassification) = lst.filter(p => p._1.classification == featureClassification)
 
+  private def withFeatureType(lst: List[(Field, Int)], featureType: FeatureType) = lst.filter(p => p._1.`type` == featureType)
+
   def getFeatures(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Feature)
+      .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
+      .toMap
+
+  def getFeaturesWithType(row: Array[String], featureType: FeatureType): Map[String, String] =
+    withFeatureType(
+      getClassifications(fields.zipWithIndex, FieldClassification.Feature),
+      featureType)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 

@@ -1,0 +1,8 @@
+#! /bin/sh
+
+
+cp -r /libs/refit/ ./refit/
+pip3 install -r refit/requirements.txt
+
+echo "Refit Installed, You can now run the following to import REFIT"
+echo "from refit.api.refit import Refit"

@@ -1,34 +1,33 @@
 package edu.cdl.iot.ingestion.transform
 
 import com.sksamuel.pulsar4s.{ConsumerConfig, MessageId, ProducerConfig, PulsarClient, Subscription, Topic}
-import edu.cdl.iot.common.config.RefitConfig
+import edu.cdl.iot.common.yaml.PulsarConfig
+import edu.cdl.iot.ingestion.constants.PulsarConstants
 import edu.cdl.iot.protocol.Model.Model
 import org.apache.camel.{Exchange, Processor}
 import org.apache.pulsar.client.api.{Schema, SubscriptionType}
 
-class PulsarProcessors(private val config: RefitConfig) {
-  private val client = PulsarClient(s"pulsar://${config.getPulsarHost()}:6650")
+class PulsarProcessors(private val config: PulsarConfig) {
+  private val client = PulsarClient(config.host)
   // TODO: We need to make all the parts of pulsar a part of the RefitConfig
-  private val topic = Topic("persistent://sample/standalone/ns1/model-training")
+  private val topic = Topic(config.topics.publishModels)
   private val consumerConfig = ConsumerConfig(
-    Subscription("ingestion-subscription"),
+    Subscription(PulsarConstants.SUBSCRIPTION_NAME),
     Seq(topic),
     subscriptionType = Option.apply(SubscriptionType.Shared)
   )
-  private val producerTopic = Topic(s"persistent://sample/standalone/ns1/models")
+  private val producerTopic = Topic(config.topics.models)
   private val producerConfig = ProducerConfig(producerTopic)
   private val consumer = client.consumer(consumerConfig)(Schema.BYTES)
   private val producer = client.producer(producerConfig)(Schema.BYTES)
 
-  private val MESSAGE_ID_HEADER = "PULSAR_MESSAGE_ID"
-
-  val produceMessages: Processor = new Processor {
+  val consumeModelUpdates: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
       val response = consumer.receive
       if (response.isSuccess && response.get != null) {
         val message = response.get
         exchange.getIn.setBody(message.data)
-        exchange.getIn.setHeader(MESSAGE_ID_HEADER, message.messageId)
+        exchange.getIn.setHeader(PulsarConstants.MESSAGE_ID_HEADER, message.messageId)
       }
     }
   }
@@ -47,7 +46,7 @@ class PulsarProcessors(private val config: RefitConfig) {
 
   val ack: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
-      val messageId: MessageId = exchange.getIn().getHeader(MESSAGE_ID_HEADER, classOf[MessageId])
+      val messageId: MessageId = exchange.getIn().getHeader(PulsarConstants.MESSAGE_ID_HEADER, classOf[MessageId])
       consumer.acknowledge(messageId)
     }
   }

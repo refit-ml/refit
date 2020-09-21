@@ -1,0 +1,16 @@
+pycrypto==2.6.1
+numpy==1.18.5
+pandas==1.1.0
+seaborn==0.10.1
+matplotlib==3.3.0
+scipy==1.5.2
+statsmodels==0.11.1
+sklearn==0.0
+scikit-learn==0.23.2
+cassandra-driver==3.24.0
+keras2onnx==1.6.0
+Keras==2.2.5
+protobuf==3.8.0
+onnxmltools==1.6.0
+pyyaml==5.3.1
+minio==6.0.0

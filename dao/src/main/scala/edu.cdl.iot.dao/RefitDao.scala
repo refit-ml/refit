@@ -1,6 +1,6 @@
 package edu.cdl.iot.dao
 
-import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
+import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, QueryOptions, Session}
 import edu.cdl.iot.common.yaml.CassandraConfig
 
 class RefitDao(private val config: CassandraConfig) {
@@ -15,6 +15,7 @@ class RefitDao(private val config: CassandraConfig) {
     builder.addContactPoint(config.host)
     builder.withCredentials(config.user, config.password)
     builder.withPort(config.port)
+    builder.withQueryOptions(new QueryOptions())
     builder.build()
   }
 

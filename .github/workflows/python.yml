@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        working-directory: training/src/main/python/
+          pip install -r refit/requirements.txt
+        working-directory: training/
       - name: Run Tests
         run:  python -m unittest discover test
-        working-directory: training/src/main/python/
+        working-directory: training/

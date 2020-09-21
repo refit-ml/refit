@@ -25,13 +25,7 @@ fields:
   - name: Wind
     type: Double
     classification: Feature
-  - name: Operable
-    type: Double
-    classification: Label
-  - name: Probability(1)
-    type: Double
-    classification: Label
-  - name: Probability(0)
+  - name: output_label
     type: Double
     classification: Label
 

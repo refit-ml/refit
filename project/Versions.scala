@@ -7,11 +7,12 @@ object Versions {
   val pulsar4s = "2.4.0"
   val camel = "3.4.2"
   val joda = "2.10.6"
-  val cassandra = "3.1.1"
+  val cassandra = "3.5.0"
   val jaxb = "2.3.2"
   val onnx = "1.4.0"
   val snakeYaml = "1.26"
   val codec = "1.14"
+  val minio = "7.1.2"
 
   // test dependencies
   val scalaTest = "3.2.0"

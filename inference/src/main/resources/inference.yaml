@@ -1,2 +1,25 @@
-pulsarHost: refit-pulsar-standalone
-project: inference
+project: local
+encryptionKey: keyboard_cat
+demo: false
+cassandra:
+  keyspace: cdl_refit
+  host: cassandra
+  port: 9042
+  user: cassandra
+  password: cassandra
+minio:
+  host: "http://minio:9000"
+  buckets:
+    import: refit-import
+    models: refit-models
+    schema: refit-schema
+  accessKey: minio
+  secretKey: minio123
+pulsar:
+  host: "pulsar://refit-pulsar-standalone:6650"
+  topics:
+    import: "persistent://sample/standalone/ns1/import"
+    models: "persistent://sample/standalone/ns1/models"
+    data: "persistent://sample/standalone/ns1/data"
+    predictions: "persistent://sample/standalone/ns1/predictions"
+    publishModels: "persistent://sample/standalone/ns1/publish-models"

@@ -43,7 +43,7 @@ object SensorDataHelper {
       .toMap
 
 
-    val actual = if (schema.name == "Dummy") labels.map(x => x.name.toLowerCase() -> (if (doubles("temperature") > 75.0) 0 else 1).toString)
+    val actual = if (schema.name == "Demo") labels.map(x => x.name.toLowerCase() -> (if (doubles("temperature") > 75.0) 0 else 1).toString)
       .toMap
     else labels.filter(x => includeLabels).map(x => x.name.toLowerCase() -> randomDouble().toString).toMap
 

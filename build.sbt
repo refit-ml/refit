@@ -12,8 +12,6 @@ lazy val common = project in file("common")
 
 lazy val dao = project in file("dao")
 
-lazy val training = project in file("training")
-
 lazy val db = project in file("db")
 
 lazy val inference = project in file("inference")
