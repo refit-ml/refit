@@ -93,7 +93,7 @@ class Refit():
             "modelGuid": model_guid,
             "path": path
         })
-        url = "http://{refit_config.ingestion_host}:3030/models"
+        url = f"http://{refit_config.ingestion_host}:3030/models"
         requests.post(url, payload)
         return "Model Published"
 
@@ -104,7 +104,7 @@ class Refit():
         path = self.__get_file_path(object_name)
         if not upload_file(import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = "http://{refit_config.ingestion_host}:3030/import"
+        url = f"http://{refit_config.ingestion_host}:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
@@ -118,7 +118,7 @@ class Refit():
         path = self.__get_file_path(object_name)
         if not upload_file(import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = "http://{refit_config.ingestion_host}:3030/import"
+        url = f"http://{refit_config.ingestion_host}:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
