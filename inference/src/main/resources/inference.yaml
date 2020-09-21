@@ -3,14 +3,16 @@ encryptionKey: keyboard_cat
 demo: false
 cassandra:
   keyspace: cdl_refit
-  host: 127.0.0.1
+  host: cassandra
   port: 9042
   user: cassandra
   password: cassandra
 minio:
-  host: "http://127.0.0.1:9000"
+  host: "http://minio:9000"
   buckets:
-    import: raw-import
+    import: refit-import
+    models: refit-models
+    schema: refit-schema
   accessKey: minio
   secretKey: minio123
 pulsar:

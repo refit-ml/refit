@@ -1,17 +1,17 @@
 package edu.cdl.iot.ingestion.routes
 
 import edu.cdl.iot.ingestion.constants.{HttpConstants, PulsarConstants}
-import edu.cdl.iot.ingestion.dao.ImportDao
-import edu.cdl.iot.ingestion.dto.request.{ImportRequest, ModelRequest}
+import edu.cdl.iot.ingestion.dto.request.{ImportRequest, ModelRequest, SchemaRequest}
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
-import edu.cdl.iot.ingestion.transform.{ImportProcessors, ModelProcessors}
+import edu.cdl.iot.ingestion.transform.{ImportProcessors, ModelProcessors, SchemaProcessors}
 import org.apache.camel.CamelContext
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestBindingMode
 
 class HttpRoutes(val context: CamelContext,
                  val importProcessors: ImportProcessors,
-                 val modelProcessors: ModelProcessors) extends RouteBuilder(context) {
+                 val modelProcessors: ModelProcessors,
+                 val schemaProcessors: SchemaProcessors) extends RouteBuilder(context) {
 
   override def configure(): Unit = {
     restConfiguration.component("netty-http")
@@ -35,6 +35,13 @@ class HttpRoutes(val context: CamelContext,
       .outType(classOf[ImportResponse])
       .route()
       .process(modelProcessors.modelProcessor)
+
+    rest()
+      .post("/project")
+      .`type`(classOf[SchemaRequest])
+      .outType(classOf[ImportResponse])
+      .route()
+      .process(schemaProcessors.createSchema)
 
     from(s"timer://sensor-data?period=${PulsarConstants.POLL_INTERVAL_MILLS}")
       .process(importProcessors.consumeImportRequests)

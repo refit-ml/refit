@@ -1,4 +1,12 @@
 #!/bin/sh
 
+sbt assembly
+
 docker-compose build
-docker-compose up --force-recreate -d
+
+docker-compose up -d cassandra refit-pulsar-standalone minio
+
+echo "Wait for core services to bootstrap"
+sleep 30
+
+docker-compose up -d

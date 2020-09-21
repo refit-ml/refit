@@ -2,7 +2,7 @@ package edu.cdl.iot.ingestion.factories
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.ingestion.dao.{ImportDao, ModelDao}
-import edu.cdl.iot.ingestion.transform.{ImportProcessors, ModelProcessors, PulsarProcessors, SenosrDataProcessors}
+import edu.cdl.iot.ingestion.transform.{ImportProcessors, ModelProcessors, PulsarProcessors, SchemaProcessors, SenosrDataProcessors}
 
 class ProcessorFactory(private val config: RefitConfig) {
 
@@ -17,6 +17,8 @@ class ProcessorFactory(private val config: RefitConfig) {
   def getSensorDataProcessors(modelDao: ModelDao) = new SenosrDataProcessors(config.getPulsarConfig(), modelDao)
 
   def getImportProcessors(importDao: ImportDao) = new ImportProcessors(config, importDao)
+
+  def getSchemaProcessors(importDao: ImportDao) = new SchemaProcessors(config, importDao)
 
 
 }

@@ -33,8 +33,6 @@ class ImportProcessors(private val config: RefitConfig,
   private val importProducer = client.producer(importProducerConfig)(Schema.BYTES)
   private val sensorDataProducer = client.producer(sensorDataTopicConfig)(Schema.BYTES)
 
-  private var processingImport = false
-
   private val minioClient = MinioClient.builder
     .endpoint(minioConfig.host)
     .credentials(minioConfig.accessKey, minioConfig.secretKey)
@@ -50,15 +48,12 @@ class ImportProcessors(private val config: RefitConfig,
 
   val consumeImportRequests: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
-      if (!processingImport) {
-        val response = importConsumer.receive
-        if (response.isSuccess && response.get != null) {
-          println("Consume Import")
-          val message = response.get
-          exchange.getIn.setBody(message.data)
-          exchange.getIn.setHeader(PulsarConstants.MESSAGE_ID_HEADER, message.messageId)
-          processingImport = true
-        }
+      val response = importConsumer.receive
+      if (response.isSuccess && response.get != null) {
+        println("Consume Import")
+        val message = response.get
+        exchange.getIn.setBody(message.data)
+        exchange.getIn.setHeader(PulsarConstants.MESSAGE_ID_HEADER, message.messageId)
       }
     }
   }
@@ -116,11 +111,11 @@ class ImportProcessors(private val config: RefitConfig,
           processSensorDataDataImport(iterator, schema)
         println("Done processing stream")
       }
-        catch {
-          case ex: Throwable => {
-            println(ex.toString)
-          }
+      catch {
+        case ex: Throwable => {
+          println(ex.toString)
         }
+      }
       finally {
         if (request.deleteWhenComplete) {
           println("Request finished: Removing file")
@@ -130,7 +125,6 @@ class ImportProcessors(private val config: RefitConfig,
             .build()
           minioClient.removeObject(removeRequest)
         }
-        processingImport = false
       }
     }
   }

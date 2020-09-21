@@ -15,9 +15,9 @@ object CamelMain {
     val modelDao = processorFactory.getModelDao
     val importDao = processorFactory.getImportDao
     val modelProcessors = processorFactory.getModelProcessors(modelDao)
-    val pulsarProcessors = processorFactory.getPulsarProcessors
     val sensorDataProcessors = processorFactory.getSensorDataProcessors(modelDao)
     val importProcessors = processorFactory.getImportProcessors(importDao)
+    val schemaProcessors = processorFactory.getSchemaProcessors(importDao)
 
     val context = new DefaultCamelContext
 
@@ -26,7 +26,9 @@ object CamelMain {
     if (config.runDemo()) {
       context.addRoutes(new SensorDataRoutes(sensorDataProcessors, context))
     }
-    context.addRoutes(new HttpRoutes(context, importProcessors, modelProcessors))
+    else {
+      context.addRoutes(new HttpRoutes(context, importProcessors, modelProcessors, schemaProcessors))
+    }
     context.start()
   }
 }

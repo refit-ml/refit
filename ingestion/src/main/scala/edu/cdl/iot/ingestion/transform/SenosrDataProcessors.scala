@@ -12,7 +12,7 @@ import org.apache.camel.{Exchange, Processor}
 class SenosrDataProcessors(config: PulsarConfig,
                            modelDao: ModelDao) {
   private val client = PulsarClient(config.host)
-  private val producerTopic = Topic(config.topics.models)
+  private val producerTopic = Topic(config.topics.data)
 
   private val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
@@ -31,7 +31,7 @@ class SenosrDataProcessors(config: PulsarConfig,
   val sensorDataProducer: Processor = new Processor() {
     override def process(exchange: Exchange): Unit = {
       val schema = exchange.getIn.getHeader("SCHEMA").asInstanceOf[Schema]
-      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString))
+      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString, includeLabels = true))
 
       exchange.getIn.setBody(sensorReadings)
     }

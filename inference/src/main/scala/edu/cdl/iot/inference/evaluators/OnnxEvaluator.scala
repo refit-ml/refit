@@ -87,7 +87,8 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
       sensorData.doubles,
       sensorData.strings,
       sensorData.integers,
-      getOnnxPrediction(sensorData)
+      getOnnxPrediction(sensorData),
+      sensorData.labels
     )
 
   def toByteArray: Array[Byte] = model.toByteArray

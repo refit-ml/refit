@@ -6,8 +6,11 @@ from cassandra.cluster import Cluster
 from pandas import DataFrame
 
 from ..util.EncryptionHelper import EncryptionHelper, EncryptionMode
+from ..util.RefitConfig import RefitConfig
 
-encryption_key = "keyboard_cat"
+
+refit_config = RefitConfig()
+encryption_key = refit_config.encryption_key
 
 
 def __get_keys(row, index):
@@ -63,10 +66,10 @@ def training_data_factory(columns, rows) -> DataFrame:
 
 class TrainingDao:
     def __init__(self):
-        self.host = '127.0.0.1'
-        self.username = 'cassandra'
-        self.password = 'cassandra'
-        self.keyspace = 'cdl_refit'
+        self.host = refit_config.cassandra_host
+        self.username = refit_config.cassandra_user
+        self.password = refit_config.cassandra_password
+        self.keyspace = refit_config.cassandra_keyspace
 
     def __get_session(self, factory=None):
         auth_provider = PlainTextAuthProvider(
