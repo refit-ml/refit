@@ -61,7 +61,7 @@ class Refit():
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['timestamp'])
-        return df.drop(['data', 'prediction'], axis=1)
+        return df
 
     def get_training_windows(self, start: datetime, end: datetime, sensors: list = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
@@ -72,8 +72,7 @@ class Refit():
     def sensor_data_with_flag(self, start: datetime, end: datetime, sensors: list = None,
                               flag_name: string = 'operable') -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
-        sensor_data = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors).drop(
-            ['data', 'prediction'], axis=1)
+        sensor_data = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
         training_window = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
         return extract_flag(sensor_data, training_window, flag_name)
 

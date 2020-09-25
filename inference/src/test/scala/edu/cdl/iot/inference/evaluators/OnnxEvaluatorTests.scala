@@ -40,6 +40,8 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAnd
     output should not be (null)
   }
 
+
+
   "Serialization" should "Work" in {
     val evaluator = EvaluatorFactory.getEvaluator(model)
     val actual = evaluator.toByteArray
