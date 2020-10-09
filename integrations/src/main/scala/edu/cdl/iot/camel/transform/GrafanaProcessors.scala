@@ -1,9 +1,9 @@
 package edu.cdl.iot.camel.transform
 
 import edu.cdl.iot.camel.dao.{GrafanaDao, SchemaDao}
+import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest, SearchRequest, TagRequest}
 import edu.cdl.iot.camel.dto.response.{TableResponse, TagResponse, TimeSerieResponse}
 import edu.cdl.iot.camel.dto.{GrafanaSensorDataDto, GrafanaSensorsDto, TableColumn}
-import edu.cdl.iot.camel.dto.request.{QueryFilters, QueryRequest, SearchRequest, TagRequest}
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.schema.enums.FieldClassification
 import edu.cdl.iot.common.schema.{Field, Schema}
@@ -12,7 +12,9 @@ import edu.cdl.iot.common.util.TimestampHelper
 import javax.crypto.Cipher
 import org.apache.camel.{Exchange, Processor}
 
+import scala.Array.ofDim
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.util.Sorting
 
 class GrafanaProcessors(private val config: RefitConfig,
@@ -74,15 +76,73 @@ class GrafanaProcessors(private val config: RefitConfig,
 
 
   private val sensorFilterPredicate: QueryFilters => Boolean =
-    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
+    (x: QueryFilters) => x.key == "sensor" && (x.operator == "=" || x.operator == ">" || x.operator == "<")
+
+  private val getAllSensors: String => List[String] =
+    (projectGuid: String) =>
+      grafanaDao.getSensors(projectGuid)
+
+  def sortQueryFilters (filters : Array[QueryFilters]) : Array[Array[String]] = {
+    val returnedFilters = ofDim[String](filters.length,2)
+    var iter = 0
+    for(filter <- filters){
+      returnedFilters(iter)(0)  = filter.value
+      returnedFilters(iter)(1) = filter.operator
+    }
+    iter += 1
+    Sorting.quickSort(returnedFilters)(new Ordering[Array[String]] {
+      def compare (x: Array[String], y: Array[String]): Int = {
+        x(0).toInt compare y(0).toInt
+      }
+    })
+    returnedFilters
+  }
+
+  def filterSensorIdsFunc (filters: Array[Array[String]], allSensors : List[String]) : List[String] = {
+    allSensors.map(_.toInt)
+    var returnedSensors = new ListBuffer[String]()
+    var iter = 1
+    for (sensorFilter <- filters.sliding(2)){
+      if(sensorFilter(0)(1) == "="){
+        returnedSensors += sensorFilter(0)(0)
+      }
+      if (sensorFilter(0)(1) == ">"){
+        var i = 1
+        while (sensorFilter(0)(0).toInt + i < sensorFilter(1)(0).toInt){
+          returnedSensors += (sensorFilter(0)(0).toInt + i).toString
+          i = i + 1
+        }
+      }
+      if ((sensorFilter(0)(1) == "<") && (iter == 1) ){
+        var i = 1
+        while ( i < sensorFilter(0)(0).toInt ){
+          returnedSensors += i.toString
+          i = i+1
+        }
+      }
+      iter = iter + 1
+      if (iter == filters.length){
+        if (sensorFilter(1)(1) == "=")
+          returnedSensors += sensorFilter(1)(0)
+        if (sensorFilter(1)(1) == ">") {
+          var i = 1
+          while(sensorFilter(1)(0).toInt + i <= allSensors.last.toInt) {
+            returnedSensors += (sensorFilter(1)(0).toInt + i).toString
+            i = i + 1
+          }
+
+        }
+      }
+    }
+    returnedSensors.toList
+  }
 
   private val getSensorIds: (String, Array[QueryFilters]) => List[String] =
     (projectGuid: String, filters: Array[QueryFilters]) =>
       if (filters.exists(sensorFilterPredicate))
-        filters.filter(sensorFilterPredicate)
-          .map(filter => filter.value).toList
+        filterSensorIdsFunc(sortQueryFilters(filters), getAllSensors(projectGuid))
       else
-        grafanaDao.getSensors(projectGuid)
+        getAllSensors(projectGuid)
 
   private val mapToSensorIds: (Schema, QueryRequest) => GrafanaSensorsDto =
     (schema: Schema, request: QueryRequest) =>

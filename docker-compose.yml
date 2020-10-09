@@ -96,7 +96,7 @@ services:
       MINIO_BUCKET_MODELS: refit-models
       MINIO_BUCKET_SCHEMA: refit-schema
       ENCRYPTION_KEY: keyboard_cat
-      REFIT_DEMO: "false"
+      REFIT_DEMO: "true"
       PROJECT: ingestion
     depends_on:
       - flink-jobmanager
