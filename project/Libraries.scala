@@ -29,6 +29,14 @@ object Libraries {
   val snakeYaml = "org.yaml" % "snakeyaml" % Versions.snakeYaml
   val minio = "io.minio" % "minio" % Versions.minio
 
+  val flinkKafka = "org.apache.flink" %% "flink-connector-kafka" % Versions.flink
+  val kakfa = "org.apache.kafka" %% "kafka" % Versions.kafka
+  val kakfaCamel = "org.apache.camel" % "camel-kafka" % Versions.camel
+
+  val selfForj = "org.slf4j" % "slf4j-api" % Versions.self4J
+  val selfForjSimple = "org.slf4j" % "slf4j-simple" % Versions.self4J
+
+
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
 }

@@ -3,6 +3,7 @@ lazy val ingestion = (project in file("."))
     Settings.default,
     baseAssemblySettings,
     libraryDependencies ++= Dependencies.ingestion,
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
     assemblyJarName in assembly := "ingestion.jar",
     mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.CamelMain"),
     assemblyMergeStrategy in assembly := {

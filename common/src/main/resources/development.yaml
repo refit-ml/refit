@@ -1,6 +1,6 @@
 project: local
 encryptionKey: keyboard_cat
-demo: false
+demo: true
 cassandra:
   keyspace: cdl_refit
   host: 127.0.0.1
@@ -23,3 +23,12 @@ pulsar:
     data: "persistent://sample/standalone/ns1/data"
     predictions: "persistent://sample/standalone/ns1/predictions"
     publishModels: "persistent://sample/standalone/ns1/publish-models"
+
+kafka:
+  host: "127.0.0.1:9092"
+  topics:
+    import: "refit.training.import"
+    models: "refit.training.models"
+    data: "refit.inference.data"
+    predictions: "refit.inference.predictions"
+    publishModels: "refit.training.publish-models"

@@ -1,6 +1,7 @@
 package edu.cdl.iot.common.constants
 
 object EnvConstants {
+  val KAFKA_HOST = "KAFKA_HOST"
   val PULSAR_HOST = "PULSAR_HOST"
   val DATA_TOPIC = "PULSAR_DATA_TOPIC"
   val MODELS_TOPIC = "PULSAR_MODELS_TOPIC"
