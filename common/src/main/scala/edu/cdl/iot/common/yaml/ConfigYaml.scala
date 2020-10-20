@@ -2,7 +2,7 @@ package edu.cdl.iot.common.yaml
 
 import scala.beans.BeanProperty
 
-class ConfigYaml(@BeanProperty var pulsar: PulsarConfig,
+class ConfigYaml(@BeanProperty var kafka: KafkaConfig,
                  @BeanProperty var cassandra: CassandraConfig,
                  @BeanProperty var minio: MinioConfig,
                  @BeanProperty var encryptionKey: String,

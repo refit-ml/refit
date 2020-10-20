@@ -1,10 +1,12 @@
 #!/bin/sh
 
+set -e
+
 sbt assembly
 
 docker-compose build
 
-docker-compose up -d cassandra refit-pulsar-standalone minio
+docker-compose up -d cassandra kafka zookeeper minio
 
 echo "Wait for core services to bootstrap"
 sleep 30

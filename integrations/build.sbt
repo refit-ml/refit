@@ -2,7 +2,7 @@ lazy val integrations = (project in file("."))
   .settings(
     Settings.default,
     libraryDependencies ++= Dependencies.integrations,
-    mainClass in (run / assembly) := Some("edu.cdl.iot.camel.CamelMain"),
+    mainClass in (run / assembly) := Some("edu.cdl.iot.integrations.CamelMain"),
     assemblyJarName in assembly := "integrations.jar",
     assemblyMergeStrategy in assembly := {
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
@@ -12,6 +12,7 @@ lazy val integrations = (project in file("."))
       case "module-info.class" => MergeStrategy.last
       case "MANIFEST.MF" => MergeStrategy.last
       case PathList("javax", "activation", xs@_*) => MergeStrategy.last
+      case PathList("org", "slf4j", "impl", xs@_*) => MergeStrategy.first
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)

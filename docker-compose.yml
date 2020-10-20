@@ -1,13 +1,26 @@
 version: '3.8'
 services:
-  refit-pulsar-standalone:
-    image: apachepulsar/pulsar:2.6.0
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
     ports:
-      - "8080:8080"
-      - "6650:6650"
-    command: >
-      bin/pulsar standalone
-
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - '9092:9092'
+      - '19092:19092'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:19092,EXTERNAL://127.0.0.1:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+#
   cassandra:
     build: ./db/src/main/cql/
     ports:
@@ -67,23 +80,21 @@ services:
     environment:
       WAIT_FLINK_HOST: flink-jobmanager
       FLINK_HOST: flink-jobmanager
-      WAIT_PULSAR_HOST: refit-pulsar-standalone
+      KAFKA_HOST: "kafka:19092"
     depends_on:
       - flink-jobmanager
-      - refit-pulsar-standalone
+      - kafka
       - cassandra
 
   ingestion:
     build: ./ingestion/
     environment:
-      WAIT_PULSAR_HOST: refit-pulsar-standalone
       WAIT_CASSANDRA_HOST: cassandra
-      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra
@@ -100,7 +111,7 @@ services:
       PROJECT: ingestion
     depends_on:
       - flink-jobmanager
-      - refit-pulsar-standalone
+      - kafka
       - cassandra
     ports:
       - "3030:3030"
@@ -108,14 +119,12 @@ services:
   integrations:
     build: ./integrations/
     environment:
-      WAIT_PULSAR_HOST: refit-pulsar-standalone
       WAIT_CASSANDRA_HOST: cassandra
-      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra
@@ -132,7 +141,7 @@ services:
       PROJECT: integrations
     depends_on:
       - flink-jobmanager
-      - refit-pulsar-standalone
+      - kafka
       - cassandra
 
 
@@ -152,14 +161,12 @@ services:
       NB_GID: 1011
       CHOWN_HOME: 'yes'
       CHOWN_HOME_OPTS: -R
-      WAIT_PULSAR_HOST: refit-pulsar-standalone
       WAIT_CASSANDRA_HOST: cassandra
-      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra
@@ -174,6 +181,7 @@ services:
       ENCRYPTION_KEY: keyboard_cat
       REFIT_DEMO: "false"
       PROJECT: ingestion
+      INGESTION_HOST: ingestion
 
 networks:
   default:

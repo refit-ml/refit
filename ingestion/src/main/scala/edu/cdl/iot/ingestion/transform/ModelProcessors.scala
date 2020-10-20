@@ -1,8 +1,6 @@
 package edu.cdl.iot.ingestion.transform
 
 import com.google.protobuf.ByteString
-import org.apache.pulsar.client.api.Schema
-import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.ingestion.dto.request.ModelRequest
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
@@ -10,23 +8,19 @@ import edu.cdl.iot.ingestion.util.MinioHelper
 import edu.cdl.iot.protocol.Model.Model
 import io.minio.{GetObjectArgs, MinioClient}
 import org.apache.camel.{Exchange, Processor}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 
-class ModelProcessors(config: RefitConfig) {
-  private val pulsarConfig = config.getPulsarConfig()
+class ModelProcessors(private val config: RefitConfig,
+                      private val kafkaProducer: KafkaProducer[Array[Byte], Array[Byte]]) {
+  private val kafkaConfig = config.getKafkaConfig()
   private val minioConfig = config.getMinioConfig()
 
-  private val pulsarClient = PulsarClient(pulsarConfig.host)
 
   private val minioClient = MinioClient.builder
     .endpoint(minioConfig.host)
     .credentials(minioConfig.accessKey, minioConfig.secretKey)
     .build
-
-  private val modelTopic = Topic(pulsarConfig.topics.models)
-  private val modelProducerConfig = ProducerConfig(modelTopic)
-
-  private val modelProducer = pulsarClient.producer(modelProducerConfig)(Schema.BYTES)
 
 
   val modelProcessor: Processor = new Processor {
@@ -43,12 +37,14 @@ class ModelProcessors(config: RefitConfig) {
         request.modelGuid,
         ByteString.copyFrom(modelBytes))
 
-      println("Try Send")
-      modelProducer.send(model.toByteArray)
+      kafkaProducer.send(
+        new ProducerRecord[Array[Byte], Array[Byte]](
+          kafkaConfig.topics.models,
+          model.toByteArray
+        )
+      )
       exchange.getIn.setBody(new ImportResponse(true))
-      println("Sent")
     }
   }
-
 
 }

@@ -1,7 +1,0 @@
-namespace: iot-prototype
-namePrefix: refit-manual-
-commonLabels:
-  service: iot-prototype
-
-resources:
-  - import.yaml

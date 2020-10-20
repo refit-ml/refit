@@ -67,6 +67,7 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 => output.getFloatBuffer.array
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16 => output.getFloatBuffer.array
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE => output.getDoubleBuffer.array
+            case _ => output.getFloatBuffer.array
           }
           buffer.map(x => x.toString)
         }

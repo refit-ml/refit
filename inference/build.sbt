@@ -14,6 +14,7 @@ lazy val inference = (project in file("."))
       case PathList("org", "apache", "spark", xs@_*) => MergeStrategy.first
       case PathList("META-INF", "versions", "9", "javax", "xml", "bind", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
+      case PathList("org", "slf4j", "impl", xs@_*) => MergeStrategy.first
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
