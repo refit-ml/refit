@@ -29,6 +29,7 @@ object CamelMain {
     val kafkaComponent = new KafkaComponent()
     val kafkaConfig = new KafkaConfiguration
     kafkaConfig.setSerializerClass("org.apache.kafka.common.serialization.ByteArraySerializer")
+    kafkaConfig.setKeySerializerClass("org.apache.kafka.common.serialization.ByteArraySerializer")
     kafkaConfig.setValueDeserializer("org.apache.kafka.common.serialization.ByteArrayDeserializer")
     kafkaConfig.setKeyDeserializer("org.apache.kafka.common.serialization.ByteArrayDeserializer")
     kafkaComponent.setConfiguration(kafkaConfig)

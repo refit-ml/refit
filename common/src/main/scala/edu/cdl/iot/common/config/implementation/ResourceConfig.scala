@@ -3,14 +3,12 @@ package edu.cdl.iot.common.config.implementation
 import java.io.InputStream
 
 import edu.cdl.iot.common.config.RefitConfig
-import edu.cdl.iot.common.yaml.{CassandraConfig, ConfigYaml, KafkaConfig, MinioConfig, PulsarConfig}
+import edu.cdl.iot.common.yaml.{CassandraConfig, ConfigYaml, KafkaConfig, MinioConfig}
 import org.yaml.snakeyaml.Yaml
 
 
 class ResourceConfig(input: InputStream) extends RefitConfig {
   private val config = (new Yaml).loadAs(input, classOf[ConfigYaml])
-
-  override val getPulsarConfig: () => PulsarConfig = () => config.pulsar
 
   override val getKafkaConfig: () => KafkaConfig = () => config.kafka
 

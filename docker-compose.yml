@@ -10,6 +10,7 @@ services:
     image: 'bitnami/kafka:latest'
     ports:
       - '9092:9092'
+      - '19092:19092'
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092
@@ -19,15 +20,6 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
-
-
-#  refit-pulsar-standalone:
-#    image: apachepulsar/pulsar:2.6.0
-#    ports:
-#      - "8080:8080"
-#      - "6650:6650"
-#    command: >
-#      bin/pulsar standalone
 #
   cassandra:
     build: ./db/src/main/cql/
@@ -37,14 +29,14 @@ services:
       - "9160:9160"
     volumes:
       - cassandra:/bitnami
-#  grafana:
-#    image: grafana/grafana:7.1.1
-#    ports:
-#      - 8000:3000
-#    user: "104"
-#    environment:
-#      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
-#
+  grafana:
+    image: grafana/grafana:7.1.1
+    ports:
+      - 8000:3000
+    user: "104"
+    environment:
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
+
   flink-jobmanager:
     image: cdliotprototype/cdl-refit-flink:ALPHA-1
     ports:
@@ -66,135 +58,130 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 2
         taskmanager.memory.jvm-metaspace.size: 500 mb
-#
-#  minio:
-#    image: minio/minio:RELEASE.2020-09-17T04-49-20Z
-#    volumes:
-#      - minio-1:/data
-#    ports:
-#      - "9000:9000"
-#    environment:
-#      MINIO_ACCESS_KEY: minio
-#      MINIO_SECRET_KEY: minio123
-#    command: server /data
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-#      interval: 30s
-#      timeout: 20s
-#      retries: 3
-#
-#  inference:
-#    build: ./inference/
-#    environment:
-#      WAIT_FLINK_HOST: flink-jobmanager
-#      FLINK_HOST: flink-jobmanager
-#      WAIT_PULSAR_HOST: refit-pulsar-standalone
-#    depends_on:
-#      - flink-jobmanager
-#      - refit-pulsar-standalone
-#      - cassandra
-#
-#  ingestion:
-#    build: ./ingestion/
-#    environment:
-#      WAIT_PULSAR_HOST: refit-pulsar-standalone
-#      WAIT_CASSANDRA_HOST: cassandra
-#      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-#      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-#      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-#      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-#      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-#      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
-#      CASSANDRA_HOST: cassandra
-#      CASSANDRA_PORT: 9042
-#      CASSANDRA_USER: cassandra
-#      CASSANDRA_PASSWORD: cassandra
-#      CASSANDRA_KEYSPACE: cdl_refit
-#      MINIO_HOST: http://minio:9000
-#      MINIO_ACCESS_KEY: minio
-#      MINIO_SECRET_KEY: minio123
-#      MINIO_BUCKET_IMPORT: refit-import
-#      MINIO_BUCKET_MODELS: refit-models
-#      MINIO_BUCKET_SCHEMA: refit-schema
-#      ENCRYPTION_KEY: keyboard_cat
-#      REFIT_DEMO: "false"
-#      PROJECT: ingestion
-#    depends_on:
-#      - flink-jobmanager
-#      - refit-pulsar-standalone
-#      - cassandra
-#    ports:
-#      - "3030:3030"
-#
-#  integrations:
-#    build: ./integrations/
-#    environment:
-#      WAIT_PULSAR_HOST: refit-pulsar-standalone
-#      WAIT_CASSANDRA_HOST: cassandra
-#      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-#      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-#      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-#      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-#      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-#      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
-#      CASSANDRA_HOST: cassandra
-#      CASSANDRA_PORT: 9042
-#      CASSANDRA_USER: cassandra
-#      CASSANDRA_PASSWORD: cassandra
-#      CASSANDRA_KEYSPACE: cdl_refit
-#      MINIO_HOST: http://minio:9000
-#      MINIO_ACCESS_KEY: minio
-#      MINIO_SECRET_KEY: minio123
-#      MINIO_BUCKET_IMPORT: refit-import
-#      MINIO_BUCKET_MODELS: refit-models
-#      MINIO_BUCKET_SCHEMA: refit-schema
-#      ENCRYPTION_KEY: keyboard_cat
-#      REFIT_DEMO: "false"
-#      PROJECT: integrations
-#    depends_on:
-#      - flink-jobmanager
-#      - refit-pulsar-standalone
-#      - cassandra
-#
-#
-#  notebook:
-#    build: ./training/
-#    # image: jupyter/base-notebook:latest
-#    volumes:
-#      - ./training/:/home/docker_worker
-#    ports:
-#      - 8888:8888
-#    command: "start-notebook.sh"
-#    user: root
-#    environment:
-#      JUPYTER_ENABLE_LAB: 'yes'
-#      NB_USER: docker_worker
-#      NB_UID: 1008
-#      NB_GID: 1011
-#      CHOWN_HOME: 'yes'
-#      CHOWN_HOME_OPTS: -R
-#      WAIT_PULSAR_HOST: refit-pulsar-standalone
-#      WAIT_CASSANDRA_HOST: cassandra
-#      PULSAR_HOST: pulsar://refit-pulsar-standalone:6650
-#      PULSAR_DATA_TOPIC: persistent://sample/standalone/ns1/data
-#      PULSAR_MODELS_TOPIC: persistent://sample/standalone/ns1/models
-#      PULSAR_PREDICTIONS_TOPIC: persistent://sample/standalone/ns1/predictions
-#      PULSAR_IMPORT_TOPIC: persistent://sample/standalone/ns1/import
-#      PULSAR_MODEL_PUBLISH_TOPIC: persistent://sample/standalone/ns1/publish-models
-#      CASSANDRA_HOST: cassandra
-#      CASSANDRA_PORT: 9042
-#      CASSANDRA_USER: cassandra
-#      CASSANDRA_PASSWORD: cassandra
-#      CASSANDRA_KEYSPACE: cdl_refit
-#      MINIO_HOST: minio:9000
-#      MINIO_ACCESS_KEY: minio
-#      MINIO_SECRET_KEY: minio123
-#      MINIO_BUCKET_IMPORT: refit-import
-#      MINIO_BUCKET_MODELS: refit-models
-#      MINIO_BUCKET_SCHEMA: refit-schema
-#      ENCRYPTION_KEY: keyboard_cat
-#      REFIT_DEMO: "false"
-#      PROJECT: ingestion
+
+  minio:
+    image: minio/minio:RELEASE.2020-09-17T04-49-20Z
+    volumes:
+      - minio-1:/data
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  inference:
+    build: ./inference/
+    environment:
+      WAIT_FLINK_HOST: flink-jobmanager
+      FLINK_HOST: flink-jobmanager
+      KAFKA_HOST: "kafka:19092"
+    depends_on:
+      - flink-jobmanager
+      - kafka
+      - cassandra
+
+  ingestion:
+    build: ./ingestion/
+    environment:
+      WAIT_CASSANDRA_HOST: cassandra
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      MINIO_HOST: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_IMPORT: refit-import
+      MINIO_BUCKET_MODELS: refit-models
+      MINIO_BUCKET_SCHEMA: refit-schema
+      ENCRYPTION_KEY: keyboard_cat
+      REFIT_DEMO: "false"
+      PROJECT: ingestion
+    depends_on:
+      - flink-jobmanager
+      - kafka
+      - cassandra
+    ports:
+      - "3030:3030"
+
+  integrations:
+    build: ./integrations/
+    environment:
+      WAIT_CASSANDRA_HOST: cassandra
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      MINIO_HOST: http://minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_IMPORT: refit-import
+      MINIO_BUCKET_MODELS: refit-models
+      MINIO_BUCKET_SCHEMA: refit-schema
+      ENCRYPTION_KEY: keyboard_cat
+      REFIT_DEMO: "false"
+      PROJECT: integrations
+    depends_on:
+      - flink-jobmanager
+      - kafka
+      - cassandra
+
+
+  notebook:
+    build: ./training/
+    # image: jupyter/base-notebook:latest
+    volumes:
+      - ./training/:/home/docker_worker
+    ports:
+      - 8888:8888
+    command: "start-notebook.sh"
+    user: root
+    environment:
+      JUPYTER_ENABLE_LAB: 'yes'
+      NB_USER: docker_worker
+      NB_UID: 1008
+      NB_GID: 1011
+      CHOWN_HOME: 'yes'
+      CHOWN_HOME_OPTS: -R
+      WAIT_CASSANDRA_HOST: cassandra
+      KAFKA_HOST: "kafka:19092"
+      KAFKA_DATA_TOPIC: refit.inference.data
+      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
+      KAFKA_IMPORT_TOPIC: refit.training.import
+      CASSANDRA_HOST: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+      CASSANDRA_KEYSPACE: cdl_refit
+      MINIO_HOST: minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_IMPORT: refit-import
+      MINIO_BUCKET_MODELS: refit-models
+      MINIO_BUCKET_SCHEMA: refit-schema
+      ENCRYPTION_KEY: keyboard_cat
+      REFIT_DEMO: "false"
+      PROJECT: ingestion
+      INGESTION_HOST: ingestion
 
 networks:
   default:

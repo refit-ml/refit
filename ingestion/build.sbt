@@ -14,6 +14,8 @@ lazy val ingestion = (project in file("."))
       case "module-info.class" => MergeStrategy.last
       case "MANIFEST.MF" => MergeStrategy.last
       case PathList("javax", "activation", xs@_*) => MergeStrategy.last
+      case PathList("org", "slf4j", "impl", xs@_*) => MergeStrategy.first
+
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)

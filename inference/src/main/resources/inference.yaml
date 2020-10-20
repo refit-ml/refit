@@ -15,14 +15,6 @@ minio:
     schema: refit-schema
   accessKey: minio
   secretKey: minio123
-pulsar:
-  host: "pulsar://refit-pulsar-standalone:6650"
-  topics:
-    import: "persistent://sample/standalone/ns1/import"
-    models: "persistent://sample/standalone/ns1/models"
-    data: "persistent://sample/standalone/ns1/data"
-    predictions: "persistent://sample/standalone/ns1/predictions"
-    publishModels: "persistent://sample/standalone/ns1/publish-models"
 kafka:
   host: "kafka:19092"
   topics:
@@ -30,4 +22,3 @@ kafka:
     models: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"
-    publishModels: "refit.training.publish-models"
