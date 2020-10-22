@@ -10,9 +10,11 @@ import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.flink.api.java.functions.KeySelector
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+import _root_.com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 
 object Subscriptions {
@@ -75,6 +77,29 @@ object Main {
       })
 
 
+
+
+
+
+
+    val mapper = new ObjectMapper()
+    mapper.registerModule(DefaultScalaModule)
+
+
+
+    /*val raw = new FlinkKafkaProducer[SensorData]
+    mapper.writeValue(raw, input)
+    val json = raw.
+*/
+
+
+/*
+    val raw = new FlinkKafkaProducer[SensorData](kafkaSettings.topics    , new TableSchema(), kafkaConfig)
+
+    val enrichedSrc = new FlinkKafkaConsumer[SensorData](    , new TableSchema(), kafkaConfig)
+
+
+*/
     val inference = input
       .connect(model)
       .process(new EvaluationProcessor)

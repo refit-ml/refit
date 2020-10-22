@@ -3,6 +3,10 @@ lazy val inference = (project in file("."))
     Settings.default,
     baseAssemblySettings,
     libraryDependencies ++= Dependencies.inference,
+    /*val jacksonVersion = "2.11.2"
+    libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-parameter-names" % jacksonVersion,
+    libraryDependencies += "com.fasterxml.jackson.datatype" %% "jackson-datatype-jdk8" % jacksonVersion,
+    libraryDependencies += "com.fasterxml.jackson.datatype" %% "jackson-datatype-jsr310" % jacksonVersion,*/
     mainClass in assembly := Some("edu.cdl.iot.inference.Main"),
     assemblyJarName in assembly := "inference.jar",
     assemblyMergeStrategy in assembly := {
@@ -20,3 +24,4 @@ lazy val inference = (project in file("."))
         oldStrategy(x)
     }
   ).dependsOn(Shared.protocol, Shared.common)
+
