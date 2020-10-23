@@ -39,4 +39,11 @@ object Libraries {
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
+  val jackson2 = "com.fasterxml.jackson.core" %% "jackson-databind" % Versions.jackson
+
+
+
+
+
+
 }

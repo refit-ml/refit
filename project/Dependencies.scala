@@ -27,7 +27,8 @@ object Dependencies {
     Libraries.onnx,
     Libraries.scalaTest,
     Libraries.flinkKafka,
-    Libraries.jackson
+    Libraries.jackson,
+    Libraries.jackson2
   )
 
   val ingestion = Seq(

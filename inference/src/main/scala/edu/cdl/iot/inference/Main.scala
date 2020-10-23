@@ -3,6 +3,9 @@ package edu.cdl.iot.inference
 
 import java.util.Properties
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import edu.cdl.iot.common.factories.ConfigFactory
 import edu.cdl.iot.inference.schema.{ModelSchema, PredictionSchema, SensorDataSchema}
 import edu.cdl.iot.inference.transform.EvaluationProcessor
@@ -10,11 +13,12 @@ import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.flink.api.java.functions.KeySelector
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper
+//import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.{Module, ObjectMapper}
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+
+
 
 
 object Subscriptions {
@@ -76,22 +80,25 @@ object Main {
         override def getKey(value: SensorData): String = value.projectGuid
       })
 
+    val jacksonMapper = new ObjectMapper() with ScalaObjectMapper
+    jacksonMapper.registerModule(DefaultScalaModule)
 
 
+    def toJson(value: Any): String = {
+      jacksonMapper.writeValueAsString(value)
+    }
 
+    val rawJson = toJson(input)
 
+    //def toMap[V](json:String)(implicit m: Manifest[V]) = fromJson[Map[String,V]](json)
 
+    def fromJson[T](json: String)(implicit m : Manifest[T]): T = {
+      jacksonMapper.readValue[T](json)
+    }
 
-    val mapper = new ObjectMapper()
-    mapper.registerModule(DefaultScalaModule)
+    //val map = toMap[Seq[Int]](rawJson)
 
-
-
-    /*val raw = new FlinkKafkaProducer[SensorData]
-    mapper.writeValue(raw, input)
-    val json = raw.
-*/
-
+    val richInput = fromJson[collection.mutable.Map[Symbol,Seq[Int]]](rawJson)
 
 /*
     val raw = new FlinkKafkaProducer[SensorData](kafkaSettings.topics    , new TableSchema(), kafkaConfig)
@@ -100,7 +107,7 @@ object Main {
 
 
 */
-    val inference = input
+    val inference = input //richInput is not in the right format for  connecting to the model
       .connect(model)
       .process(new EvaluationProcessor)
 
