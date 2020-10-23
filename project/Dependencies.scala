@@ -26,7 +26,8 @@ object Dependencies {
     Libraries.jaxb,
     Libraries.onnx,
     Libraries.scalaTest,
-    Libraries.flinkKafka
+    Libraries.flinkKafka,
+    Libraries.jackson
   )
 
   val ingestion = Seq(
@@ -35,7 +36,7 @@ object Dependencies {
     Libraries.camelNetty,
     Libraries.camelRest,
     Libraries.minio,
-    Libraries.kakfaCamel,
+    Libraries.kakfaCamel
   )
 
   val integrations = Seq(

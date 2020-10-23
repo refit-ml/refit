@@ -15,6 +15,7 @@ object Versions {
   val minio = "7.1.2"
   val kafka = "2.1.0"
   val self4J = "1.7.30"
+  var jackson = "2.11.2"
 
   // test dependencies
   val scalaTest = "3.2.0"

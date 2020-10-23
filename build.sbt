@@ -22,8 +22,6 @@ lazy val integrations = project in file("integrations")
 
 
 
-libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.8.8"
-
 
 
 

@@ -36,7 +36,7 @@ object Libraries {
   val selfForj = "org.slf4j" % "slf4j-api" % Versions.self4J
   val selfForjSimple = "org.slf4j" % "slf4j-simple" % Versions.self4J
 
-
+  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
 }
