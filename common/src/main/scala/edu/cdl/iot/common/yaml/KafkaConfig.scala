@@ -19,6 +19,7 @@ class KafkaConfig(@BeanProperty var host: String,
     properties.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
     properties.put("auto.offset.reset", "latest")
     properties.put("group.id", consumerGroup)
+    properties.put("transaction.timeout.ms", "900000")
     properties
   }
 }

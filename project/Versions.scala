@@ -1,5 +1,5 @@
 object Versions {
-  val flink = "1.10.1"
+  val flink = "1.11.2"
   val pmml = "1.5.1"
   val spark = "2.4.5"
   val sparkMLeap = "0.16.0"

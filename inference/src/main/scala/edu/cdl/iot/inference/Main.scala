@@ -33,6 +33,7 @@ object Main {
     val properties = new Properties()
     properties.setProperty("bootstrap.servers", "localhost:9092")
     properties.setProperty("group.id", "test")
+    properties.setProperty("transaction.timeout.ms", "900000")
 
 
   }
@@ -46,8 +47,10 @@ object Main {
     val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
     val kafkaSettings = refitConfig.getKafkaConfig()
 
-
-    val kafkaConfig = kafkaSettings.getProperties("refit.inference")
+    val kafkaConfig = new Properties
+    kafkaConfig.put("bootstrap.servers", kafkaSettings.host)
+    kafkaConfig.put("auto.offset.reset", "latest")
+    kafkaConfig.put("group.id", "refit.inference")
 
     val checkpointInterval = (1000 * 60)
     println(s"Kafka host: ${kafkaSettings.host}")
@@ -66,7 +69,7 @@ object Main {
       })
 
 
-    val eventSrc = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema(), kafkaConfig)
+    val eventSrc = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema, kafkaConfig)
 
     val input = env
       .addSource(eventSrc, Sources.data)
@@ -82,9 +85,8 @@ object Main {
 
     val sink = new FlinkKafkaProducer[Prediction](
       kafkaSettings.topics.predictions,
-      new PredictionSchema(kafkaSettings.topics.predictions),
-      kafkaConfig,
-      FlinkKafkaProducer.Semantic.AT_LEAST_ONCE
+      new PredictionSchema,
+      kafkaConfig
     )
 
 

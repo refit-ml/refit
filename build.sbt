@@ -2,7 +2,7 @@ name := "REFIT"
 version := "1.0"
 organization := "Center for Deep Learning - Northwestern University"
 
-ThisBuild / scalaVersion := "2.11.12"
+ThisBuild / scalaVersion := "2.12.12"
 Compile / run / fork := true
 Global / cancelable := true
 

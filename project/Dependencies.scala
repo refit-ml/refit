@@ -22,11 +22,11 @@ object Dependencies {
   val inference = Seq(
     Libraries.flinkScala,
     Libraries.flinkStreaming,
+    Libraries.flinkKafka,
     Libraries.jpmml,
     Libraries.jaxb,
     Libraries.onnx,
-    Libraries.scalaTest,
-    Libraries.flinkKafka
+    Libraries.scalaTest
   )
 
   val ingestion = Seq(
@@ -35,7 +35,7 @@ object Dependencies {
     Libraries.camelNetty,
     Libraries.camelRest,
     Libraries.minio,
-    Libraries.kakfaCamel,
+    Libraries.kakfaCamel
   )
 
   val integrations = Seq(
