@@ -1,0 +1,11 @@
+
+datasources:
+- name: 'REFIT'
+  type: 'simpod-json-datasource'
+  access: 'proxy'
+  org_id: 1
+  url: 'http://integrations:3000'
+  is_default: true
+  version: 1
+  editable: true
+  tlsSkipVerify: true
