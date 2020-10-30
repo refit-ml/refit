@@ -1,11 +1,6 @@
-CREATE KEYSPACE IF NOT EXISTS cdl_refit WITH replication = {
-    'class':'SimpleStrategy',
-    'replication_factor':3
-    };
+CREATE KEYSPACE IF NOT EXISTS cdl_refit WITH replication = {'class':'SimpleStrategy', 'replication_factor':3};
 
-USE cdl_refit;
-
-CREATE TABLE IF NOT EXISTS org
+CREATE TABLE IF NOT EXISTS cdl_refit.org
 (
     org_guid  text,
     name      text,
@@ -13,7 +8,7 @@ CREATE TABLE IF NOT EXISTS org
     PRIMARY KEY (org_guid)
 );
 
-CREATE TABLE IF NOT EXISTS project
+CREATE TABLE IF NOT EXISTS cdl_refit.project
 (
     org_guid     text,
     project_guid text,
@@ -27,7 +22,7 @@ CREATE TABLE IF NOT EXISTS project
 );
 
 
-CREATE TABLE IF NOT EXISTS sensor_data
+CREATE TABLE IF NOT EXISTS cdl_refit.sensor_data
 (
     project_guid  text,
     sensor_id     text,
@@ -39,7 +34,7 @@ CREATE TABLE IF NOT EXISTS sensor_data
     PRIMARY KEY ((project_guid, sensor_id, partition_key), timestamp)
 );
 
-CREATE TABLE IF NOT EXISTS sensor
+CREATE TABLE IF NOT EXISTS cdl_refit.sensor
 (
     project_guid text,
     sensor_id    text,
@@ -48,7 +43,7 @@ CREATE TABLE IF NOT EXISTS sensor
 );
 
 
-CREATE TABLE IF NOT EXISTS training_window
+CREATE TABLE IF NOT EXISTS cdl_refit.training_window
 (
     project_guid  text,
     sensor_id     text,
@@ -59,7 +54,7 @@ CREATE TABLE IF NOT EXISTS training_window
 );
 
 
-CREATE TABLE IF NOT EXISTS models
+CREATE TABLE IF NOT EXISTS cdl_refit.models
 (
     project_guid text,
     model_guid   text,
