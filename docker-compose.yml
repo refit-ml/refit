@@ -31,6 +31,10 @@ services:
       - cassandra:/bitnami
   grafana:
     image: grafana/grafana:7.1.1
+    volumes:
+      - ./resources/grafana/provisioning/:/etc/grafana/provisioning
+      - ./resources/grafana/config.ini:/etc/grafana/config.ini
+      - ./resources/grafana/dashboards/:/var/lib/grafana/dashboards
     ports:
       - 8000:3000
     user: "104"
@@ -109,7 +113,7 @@ services:
       MINIO_BUCKET_MODELS: refit-models
       MINIO_BUCKET_SCHEMA: refit-schema
       ENCRYPTION_KEY: keyboard_cat
-      REFIT_DEMO: "true"
+      REFIT_DEMO: "false"
       PROJECT: ingestion
     depends_on:
       - flink-jobmanager

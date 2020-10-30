@@ -10,12 +10,7 @@ class SensorDataSchema extends DeserializationSchema[SensorData] with Serializat
 
   override def getProducedType: TypeInformation[SensorData] = TypeInformation.of(classOf[SensorData])
 
-  override def deserialize(message: Array[Byte]): SensorData = {
-    val ret = SensorData.parseFrom(message)
-    println("Sensor data recieved")
-    ret
-
-  }
+  override def deserialize(message: Array[Byte]): SensorData = SensorData.parseFrom(message)
 
   override def serialize(element: SensorData): Array[Byte] = element.toByteArray
 }
