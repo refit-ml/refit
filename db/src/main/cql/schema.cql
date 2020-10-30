@@ -1,6 +1,6 @@
 CREATE KEYSPACE IF NOT EXISTS cdl_refit WITH replication = {
     'class':'SimpleStrategy',
-    'replication_factor':1
+    'replication_factor':3
     };
 
 USE cdl_refit;

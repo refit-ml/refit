@@ -1,3 +1,3 @@
-FROM bitnami/cassandra:3.11.7
+FROM bitnami/cassandra:3.11.8
 
 ADD ./schema.cql docker-entrypoint-initdb.d/schema.cql
