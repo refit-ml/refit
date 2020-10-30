@@ -40,7 +40,7 @@ class SenosrDataProcessors(modelDao: ModelDao) {
     override def process(exchange: Exchange): Unit = {
       logger.info("serialize synthetic data")
       val record = exchange.getIn.getBody(classOf[SensorData])
-      val key = s"${record.projectGuid}_${record.sensorId}_${record.timestamp}"
+      val key = s"${record.projectGuid}_${record.sensorId}_${record.timestamp}".getBytes()
       exchange.getIn().setHeader(KafkaConstants.KEY, key)
       exchange.getIn().removeHeader("SCHEMA")
       exchange.getIn.setBody(record.toByteArray)

@@ -1,6 +1,6 @@
 FROM openjdk:8
 
-COPY ./target/scala-2.11/ingestion.jar /app/ingestion.jar
+COPY ./target/scala-2.12/ingestion.jar /app/ingestion.jar
 
 RUN apt-get update
 
