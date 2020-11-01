@@ -1,6 +1,6 @@
 FROM openjdk:8
 
-COPY ./target/scala-2.11/integrations.jar /app/integrations.jar
+COPY ./target/scala-2.12/integrations.jar /app/integrations.jar
 
 RUN apt-get update
 

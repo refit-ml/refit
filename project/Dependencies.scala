@@ -22,11 +22,11 @@ object Dependencies {
   val inference = Seq(
     Libraries.flinkScala,
     Libraries.flinkStreaming,
+    Libraries.flinkKafka,
     Libraries.jpmml,
     Libraries.jaxb,
     Libraries.onnx,
     Libraries.scalaTest,
-    Libraries.flinkKafka,
     Libraries.jackson,
     Libraries.jackson2
   )

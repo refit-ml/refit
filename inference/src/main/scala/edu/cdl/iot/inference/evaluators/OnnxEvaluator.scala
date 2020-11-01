@@ -8,7 +8,7 @@ import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object OnnxEvaluator {
   val env: OrtEnvironment = OrtEnvironment.getEnvironment()
@@ -47,13 +47,14 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
     onnxEvaluator
       .run(i)
       .iterator()
+      .asScala
       .toList
       .map(x => x.getKey -> x.getValue)
       .flatMap(entry => {
         val c = entry._2.getClass.toString
         val sequenceClass = classOf[OnnxSequence].toString
 
-        val result = if (sequenceClass == c) entry._2.asInstanceOf[OnnxSequence].getValue.map(x => x.toString).toArray
+        val result = if (sequenceClass == c) entry._2.asInstanceOf[OnnxSequence].getValue.asScala.map(x => x.toString).toArray
         else {
           val output = entry._2.asInstanceOf[OnnxTensor]
           val outputType = output.getInfo.onnxType

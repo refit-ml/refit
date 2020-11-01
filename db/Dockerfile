@@ -1,6 +1,6 @@
 FROM openjdk:8
 
-COPY ./target/scala-2.11/db.jar /app/db.jar
+COPY ./target/scala-2.12/db.jar /app/db.jar
 
 RUN apt-get update
 
