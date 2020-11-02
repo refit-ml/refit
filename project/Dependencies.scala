@@ -27,8 +27,7 @@ object Dependencies {
     Libraries.jaxb,
     Libraries.onnx,
     Libraries.scalaTest,
-    Libraries.jackson,
-    Libraries.jackson2
+    Libraries.jackson
   )
 
   val ingestion = Seq(
