@@ -2,6 +2,7 @@ package edu.cdl.iot.inference.constants
 
 
 object Sources {
-  val data = "Event Data"
+  val rawData = "Event Data"
+  val sensorData = "Sensor Data"
   val models = "Model Updates"
 }

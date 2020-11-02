@@ -81,16 +81,16 @@ services:
       timeout: 20s
       retries: 3
 
-  inference:
-    build: ./inference/
-    environment:
-      WAIT_FLINK_HOST: flink-jobmanager
-      FLINK_HOST: flink-jobmanager
-      KAFKA_HOST: "kafka:19092"
-    depends_on:
-      - flink-jobmanager
-      - kafka
-      - cassandra
+#  inference:
+#    build: ./inference/
+#    environment:
+#      WAIT_FLINK_HOST: flink-jobmanager
+#      FLINK_HOST: flink-jobmanager
+#      KAFKA_HOST: "kafka:19092"
+#    depends_on:
+#      - flink-jobmanager
+#      - kafka
+#      - cassandra
 
   ingestion:
     build: ./ingestion/
@@ -101,6 +101,8 @@ services:
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
       KAFKA_IMPORT_TOPIC: refit.training.import
+      KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
+      KAFKA_SENSOR_DATA_TOPIC: refit.inference.sensor.data
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra
@@ -131,6 +133,8 @@ services:
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
       KAFKA_IMPORT_TOPIC: refit.training.import
+      KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
+      KAFKA_SENSOR_DATA_TOPIC: refit.inference.sensor.data
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra
@@ -173,6 +177,8 @@ services:
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
       KAFKA_IMPORT_TOPIC: refit.training.import
+      KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
+      KAFKA_SENSOR_DATA_TOPIC: refit.inference.sensor.data
       CASSANDRA_HOST: cassandra
       CASSANDRA_PORT: 9042
       CASSANDRA_USER: cassandra

@@ -16,9 +16,12 @@ minio:
   accessKey: minio
   secretKey: minio123
 kafka:
-  host: "refit-kafka:9092"
+  #  host: "refit-kafka:9092"
+  host: "127.0.0.1:9092"
   topics:
     import: "refit.training.import"
     models: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"
+    rawSensorData: "refit.inference.raw.data"
+    sensorData: "refit.inference.sensor.data"

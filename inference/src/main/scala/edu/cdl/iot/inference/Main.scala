@@ -36,22 +36,21 @@ object Main {
     config.setCheckpointInterval(checkpointInterval)
 
     val modelSrc = new FlinkKafkaConsumer[Model](kafkaSettings.topics.models, new ModelSchema, kafkaConfig)
+    val rawSensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema, kafkaConfig)
+    val sensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.sensorData, new SensorDataJsonSchema, kafkaConfig)
+
 
     val model = env
       .addSource(modelSrc, Sources.models)
       .broadcast()
       .keyBy((value: Model) => value.projectGuid)
 
-
-    val rawSensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema, kafkaConfig)
-    val sensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataJsonSchema, kafkaConfig)
-
     val rawSensorData = env
-      .addSource(rawSensorDataSource, Sources.data)
+      .addSource(rawSensorDataSource, Sources.rawData)
 
 
     val sensorData = env
-      .addSource(sensorDataSource)
+      .addSource(sensorDataSource, Sources.sensorData)
       .keyBy((value: SensorData) => value.projectGuid)
 
 

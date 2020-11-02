@@ -16,6 +16,7 @@ object Versions {
   val kafka = "2.1.0"
   val self4J = "1.7.30"
   var jackson = "2.11.2"
+  val gson = "1.7.1"
 
   // test dependencies
   val scalaTest = "3.2.0"
