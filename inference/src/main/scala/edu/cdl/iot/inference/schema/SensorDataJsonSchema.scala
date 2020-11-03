@@ -13,10 +13,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation
 
 class SensorDataJsonSchema extends SerializationSchema[SensorData] with DeserializationSchema[SensorData] {
 
-  @transient lazy val gson = {
-    new Gson
-  }
-
+  @transient private lazy val gson = new Gson
 
   override def serialize(element: SensorData): Array[Byte] = {
     val dto = SensorDataDto.of(element)

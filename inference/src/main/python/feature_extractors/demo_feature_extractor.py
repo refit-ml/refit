@@ -10,4 +10,5 @@ class DemoFeatureExtractor(RefitFeatureExtractor):
 
     async def extract_features(self, df: DataFrame) -> DataFrame:
         print(f"Process DF: {len(df)}")
+        df['sensorId'] = df['sensorId'].apply(lambda x: "1111")
         return df
