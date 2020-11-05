@@ -43,7 +43,7 @@ services:
 
   flink-jobmanager:
     #    image: cdliotprototype/cdl-refit-flink:BETA-TEST-0.3
-    image: flink-test:latest
+    build: resources/flink
     ports:
       - "8081:8081"
     command: jobmanager
@@ -51,15 +51,20 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        taskmanager.memory.jvm-metaspace.size: 500 mb
         classloader.resolve-order: parent-first
         blob.server.port: 6124
         s3.endpoint: http://minio:9000
-        s3.access-key: minio
-        s3.secret-key: minio123
+        s3.access-key: refit
+        s3.secret-key: refit-key
+        hive.s3.aws-access-key: refit
+        hive.s3.aws-secret-key: refit-key
+        hive.s3.endpoint: http://minio:9000
         s3.path.style.access: true
   flink-taskmanager:
     #    image: cdliotprototype/cdl-refit-flink:BETA-TEST-0.3
-    image: flink-test:latest
+    build: resources/flink
     depends_on:
       - flink-jobmanager
     command: taskmanager
@@ -72,8 +77,11 @@ services:
         classloader.resolve-order: parent-first
         blob.server.port: 6124
         s3.endpoint: http://minio:9000
-        s3.access-key: minio
-        s3.secret-key: minio123
+        s3.access-key: refit
+        s3.secret-key: refit-key
+        hive.s3.aws-access-key: refit
+        hive.s3.aws-secret-key: refit-key
+        hive.s3.endpoint: http://minio:9000
         s3.path.style.access: true
 
   minio:
@@ -83,8 +91,8 @@ services:
     ports:
       - "9000:9000"
     environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ACCESS_KEY: refit
+      MINIO_SECRET_KEY: refit-key
     command: server /data
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
@@ -120,8 +128,8 @@ services:
       CASSANDRA_PASSWORD: cassandra
       CASSANDRA_KEYSPACE: cdl_refit
       MINIO_HOST: http://minio:9000
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ACCESS_KEY: refit
+      MINIO_SECRET_KEY: refit-key
       MINIO_BUCKET_IMPORT: refit-import
       MINIO_BUCKET_MODELS: refit-models
       MINIO_BUCKET_SCHEMA: refit-schema
@@ -152,8 +160,8 @@ services:
       CASSANDRA_PASSWORD: cassandra
       CASSANDRA_KEYSPACE: cdl_refit
       MINIO_HOST: http://minio:9000
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ACCESS_KEY: refit
+      MINIO_SECRET_KEY: refit-key
       MINIO_BUCKET_IMPORT: refit-import
       MINIO_BUCKET_MODELS: refit-models
       MINIO_BUCKET_SCHEMA: refit-schema
@@ -196,8 +204,8 @@ services:
       CASSANDRA_PASSWORD: cassandra
       CASSANDRA_KEYSPACE: cdl_refit
       MINIO_HOST: minio:9000
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ACCESS_KEY: refit
+      MINIO_SECRET_KEY: refit-key
       MINIO_BUCKET_IMPORT: refit-import
       MINIO_BUCKET_MODELS: refit-models
       MINIO_BUCKET_SCHEMA: refit-schema

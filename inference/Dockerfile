@@ -1,8 +1,7 @@
 FROM cdliotprototype/cdl-refit-flink:BETA-1.0
 
 COPY ./target/scala-2.12/inference.jar /app/inference.jar
-COPY ./src/main/python/deploy.py /app/deploy.py
-COPY ./src/main/python/requirements.txt /app/requirements.txt
+ADD ./src/main/python /app
 
 WORKDIR /app
 

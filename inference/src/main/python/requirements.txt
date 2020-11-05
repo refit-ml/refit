@@ -1,3 +1,2 @@
-requests==2.24.0
 apache-flink==1.11.2
 pandas
