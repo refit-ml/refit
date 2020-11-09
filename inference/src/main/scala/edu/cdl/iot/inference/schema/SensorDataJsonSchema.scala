@@ -1,9 +1,6 @@
 package edu.cdl.iot.inference.schema
 
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.google.gson.Gson
 import edu.cdl.iot.inference.SensorDataDto
 import edu.cdl.iot.inference.SensorDataDto.toSensorData

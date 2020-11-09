@@ -1,7 +1,7 @@
+import pandas as pd
 from pandas import Series, DataFrame
 from pyflink.table import DataTypes
 from pyflink.table.udf import udf
-import pandas as pd
 
 
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),

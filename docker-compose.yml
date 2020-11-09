@@ -100,16 +100,16 @@ services:
       timeout: 20s
       retries: 3
 
-  #  inference:
-  #    build: ./inference/
-  #    environment:
-  #      WAIT_FLINK_HOST: flink-jobmanager
-  #      FLINK_HOST: flink-jobmanager
-  #      KAFKA_HOST: "kafka:19092"
-  #    depends_on:
-  #      - flink-jobmanager
-  #      - kafka
-  #      - cassandra
+  inference:
+    build: ./inference/
+    environment:
+      WAIT_FLINK_HOST: flink-jobmanager
+      FLINK_HOST: flink-jobmanager
+      KAFKA_HOST: "kafka:19092"
+    depends_on:
+      - flink-jobmanager
+      - kafka
+      - cassandra
 
   ingestion:
     build: ./ingestion/
