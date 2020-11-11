@@ -20,3 +20,5 @@ data/
 baseline_model/
 infrastructure/refit/refit/
 infrastructure/refit/charts/
+inference/src/main/python/flink/
+inference/src/main/python/env/

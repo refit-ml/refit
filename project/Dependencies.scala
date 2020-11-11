@@ -23,10 +23,13 @@ object Dependencies {
     Libraries.flinkScala,
     Libraries.flinkStreaming,
     Libraries.flinkKafka,
+    Libraries.flinkClients,
     Libraries.jpmml,
     Libraries.jaxb,
     Libraries.onnx,
-    Libraries.scalaTest
+    Libraries.scalaTest,
+    Libraries.jackson,
+    Libraries.gson
   )
 
   val ingestion = Seq(

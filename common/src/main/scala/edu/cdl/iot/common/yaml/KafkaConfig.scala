@@ -27,8 +27,11 @@ class KafkaConfig(@BeanProperty var host: String,
 class KafkaTopic(@BeanProperty var models: String,
                  @BeanProperty var data: String,
                  @BeanProperty var predictions: String,
-                 @BeanProperty var `import`: String) extends Serializable {
+                 @BeanProperty var `import`: String,
+                 @BeanProperty var rawSensorData: String,
+                 @BeanProperty var sensorData: String
+                ) extends Serializable {
   def this() {
-    this(null, null, null, null)
+    this(null, null, null, null, null, null)
   }
 }

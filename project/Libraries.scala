@@ -13,17 +13,11 @@ object Libraries {
 
   val flinkScala = "org.apache.flink" %% "flink-scala" % Versions.flink
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
+  val flinkClients = "org.apache.flink" %% "flink-clients" % Versions.flink
   val pulsarFlink = "org.apache.pulsar" % "pulsar-flink" % "2.5.2"
   val jpmml = "org.jpmml" % "pmml-evaluator-extension" % Versions.pmml
   val jaxb = "org.glassfish.jaxb" % "jaxb-runtime" % Versions.jaxb
   val onnx = "com.microsoft.onnxruntime" % "onnxruntime" % Versions.onnx
-
-  val sparkCore = "org.apache.spark" %% "spark-core" % Versions.spark
-  val sparkSql = "org.apache.spark" %% "spark-sql" % Versions.spark
-  val sparkMl = "org.apache.spark" %% "spark-mllib" % Versions.spark
-  val sparkJpmml = "org.jpmml" % "jpmml-sparkml" % Versions.pmml
-  val sparkMLeap = "ml.combust.mleap" %% "mleap-spark-extension" % Versions.sparkMLeap
-  val sparkCassandra = "com.datastax.spark" %% "spark-cassandra-connector" % Versions.sparkCassandra
 
   val codec = "commons-codec" % "commons-codec" % Versions.codec
   val snakeYaml = "org.yaml" % "snakeyaml" % Versions.snakeYaml
@@ -36,7 +30,13 @@ object Libraries {
   val selfForj = "org.slf4j" % "slf4j-api" % Versions.self4J
   val selfForjSimple = "org.slf4j" % "slf4j-simple" % Versions.self4J
 
-
+  val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
+  val gson = "com.google.code.gson" % "gson" % Versions.gson
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
+
+
+
+
+
 }

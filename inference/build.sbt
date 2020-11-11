@@ -20,3 +20,4 @@ lazy val inference = (project in file("."))
         oldStrategy(x)
     }
   ).dependsOn(Shared.protocol, Shared.common)
+

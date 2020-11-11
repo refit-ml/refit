@@ -13,7 +13,9 @@ class EnvironmentConfig extends RefitConfig {
       sys.env(EnvConstants.MODELS_TOPIC),
       sys.env(EnvConstants.DATA_TOPIC),
       sys.env(EnvConstants.PREDICTIONS_TOPIC),
-      sys.env(EnvConstants.IMPORT_TOPIC)
+      sys.env(EnvConstants.IMPORT_TOPIC),
+      sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
+      sys.env(EnvConstants.SENSOR_DATA_TOPIC)
     )
   )
 
