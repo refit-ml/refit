@@ -5,6 +5,7 @@ import requests
 base_dir = "./"
 flink_host = os.environ['FLINK_HOST']
 base_url = f"http://{flink_host}:8081"
+scala_job_name = "CDL IoT - Inference"
 
 
 def clear_jobs():
@@ -14,8 +15,8 @@ def clear_jobs():
 
         running_status = ['RUNNING', 'CREATED', 'RECONCILING', 'RESTARTING', 'RUNNING', 'SUSPENDED']
 
-        jobs = list(map(lambda j: j['id'],
-                        filter(lambda j: j['status'] in running_status, body['jobs'])))
+        jobs = list(map(lambda j: j['jid'],
+                        filter(lambda j: j['status'] in running_status and j['name'] != scala_job_name, body['jobs'])))
 
         for jobId in jobs:
             print("Stopping job: " + jobId)
@@ -25,27 +26,9 @@ def clear_jobs():
         print(f"There was an error deploying the inference service")
 
 
-def submit_scala():
-    try:
-        print("Starting Scala job")
-        os.system(f"flink run -m {flink_host}:8081 -d {base_dir}/inference.jar")
-    except:
-        print(f"There was an error deploying the scala inference service")
-
-
 def submit_python():
     try:
         print("Starting python job")
-        os.system(f"flink run -m {flink_host}:8081 --python main.py -pyfs ./feature_extractors/")
+        os.system(f"flink run -m {flink_host}:8081 --python ./refit/entrypoint.py -pyfs ./refit/feature_extractors/")
     except:
         print(f"There was an error deploying the scala inference service")
-
-
-def main():
-    clear_jobs()
-    submit_scala()
-    submit_python()
-
-
-main()
-# flink run --python main.py -pyfs ./feature_extractors/

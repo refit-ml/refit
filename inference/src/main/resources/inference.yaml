@@ -17,8 +17,6 @@ minio:
   secretKey: minio123
 kafka:
   host: "refit-kafka:9092"
-#  host: "127.0.0.1:9092"
-#  host: "kafka:19092"
   topics:
     import: "refit.training.import"
     models: "refit.training.models"

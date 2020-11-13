@@ -9,12 +9,14 @@ from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseError
 from pandas import DataFrame
 
-from refit.enums.ModelFormat import ModelFormat
-from refit.util import ModelFactory
+from dao.TrainingDao import TrainingDao
+from enums.ModelFormat import ModelFormat
+from flink import submit
+from flink.feature_extractors import RefitFeatureExtractor
+from util import ModelFactory
 from ..util.DataFrameHelpers import extract_timestamps, extract_flag
 from ..util.RefitConfig import RefitConfig
 from ..util.Schema import SchemaFactory
-from refit.dao.TrainingDao import TrainingDao
 
 refit_config = RefitConfig()
 
@@ -50,6 +52,11 @@ def upload_file(bucket_name: string, object_name: string, file_path: string):
     return True
 
 
+def update_feature_extractor():
+    submit.clear_jobs()
+    submit.submit_python()
+
+
 class Refit():
     def __init__(self, project_guid: string):
         self.project_guid = project_guid
@@ -67,6 +74,18 @@ class Refit():
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['start', 'end'])
+        return df
+
+    def fetch_sensor_data(self,
+                          start: datetime,
+                          end: datetime,
+                          sensors: list = None,
+                          feature_extractor: RefitFeatureExtractor = None) -> DataFrame:
+        partitions = self.schema.get_partitions_in_range(start, end)
+        df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
+        df = extract_timestamps(df, ['start', 'end'])
+        if feature_extractor is not None:
+            df = feature_extractor.extract_features(df)
         return df
 
     def sensor_data_with_flag(self, start: datetime, end: datetime, sensors: list = None,

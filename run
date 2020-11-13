@@ -6,7 +6,7 @@ sbt assembly
 
 docker-compose build
 
-docker-compose up -d cassandra kafka zookeeper minio
+docker-compose up -d cassandra refit-kafka zookeeper minio
 
 echo "Wait for core services to bootstrap"
 sleep 30

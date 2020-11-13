@@ -6,7 +6,7 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
-  kafka:
+  refit-kafka:
     image: 'bitnami/kafka:latest'
     ports:
       - '9092:9092'
@@ -14,7 +14,7 @@ services:
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:19092,EXTERNAL://0.0.0.0:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:19092,EXTERNAL://127.0.0.1:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://refit-kafka:19092,EXTERNAL://127.0.0.1:9092
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -105,17 +105,17 @@ services:
     environment:
       WAIT_FLINK_HOST: flink-jobmanager
       FLINK_HOST: flink-jobmanager
-      KAFKA_HOST: "kafka:19092"
+      KAFKA_HOST: "refit-kafka:19092"
     depends_on:
       - flink-jobmanager
-      - kafka
+      - refit-kafka
       - cassandra
 
   ingestion:
     build: ./ingestion/
     environment:
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "kafka:19092"
+      KAFKA_HOST: "refit-kafka:19092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
@@ -138,7 +138,7 @@ services:
       PROJECT: ingestion
     depends_on:
       - flink-jobmanager
-      - kafka
+      - refit-kafka
       - cassandra
     ports:
       - "3030:3030"
@@ -147,7 +147,7 @@ services:
     build: ./integrations/
     environment:
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "kafka:19092"
+      KAFKA_HOST: "refit-kafka:19092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
@@ -170,7 +170,7 @@ services:
       PROJECT: integrations
     depends_on:
       - flink-jobmanager
-      - kafka
+      - refit-kafka
       - cassandra
 
 
@@ -179,6 +179,7 @@ services:
     # image: jupyter/base-notebook:latest
     volumes:
       - ./training/:/home/docker_worker
+#      - ./training/refit/:/libs/refit/
     ports:
       - 8888:8888
     command: "start-notebook.sh"
@@ -191,7 +192,7 @@ services:
       CHOWN_HOME: 'yes'
       CHOWN_HOME_OPTS: -R
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "kafka:19092"
+      KAFKA_HOST: "refit-kafka:19092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
