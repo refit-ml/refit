@@ -9,14 +9,14 @@ from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseError
 from pandas import DataFrame
 
-from dao.TrainingDao import TrainingDao
-from enums.ModelFormat import ModelFormat
-from flink import submit
-from flink.feature_extractors import RefitFeatureExtractor
-from util import ModelFactory
-from ..util.DataFrameHelpers import extract_timestamps, extract_flag
-from ..util.RefitConfig import RefitConfig
-from ..util.Schema import SchemaFactory
+from refit.dao.TrainingDao import TrainingDao
+from refit.enums.ModelFormat import ModelFormat
+from refit.flink import submit
+# from refit.flink.feature_extractors import RefitFeatureExtractor
+from refit.util import ModelFactory
+from refit.util.DataFrameHelpers import extract_timestamps, extract_flag
+from refit.util.RefitConfig import RefitConfig
+from refit.util.Schema import SchemaFactory
 
 refit_config = RefitConfig()
 
@@ -80,7 +80,7 @@ class Refit():
                           start: datetime,
                           end: datetime,
                           sensors: list = None,
-                          feature_extractor: RefitFeatureExtractor = None) -> DataFrame:
+                          feature_extractor = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['start', 'end'])

@@ -6,6 +6,7 @@ target/
 .DS_Store
 out
 venv/
+env/
 *.pyc
 
 training/notebooks/refit/

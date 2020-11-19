@@ -36,7 +36,7 @@ def submit_scala():
 def submit_python():
     try:
         print("Starting python job")
-        os.system(f"flink run -m {flink_host}:8081 --python main.py -pyfs ./feature_extractors/")
+        os.system(f"flink run -m {flink_host}:8081 --python {base_dir}/main.py -pyfs {base_dir}/feature_extractors/")
     except:
         print(f"There was an error deploying the scala inference service")
 

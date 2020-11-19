@@ -1,2 +1,4 @@
 pandas~=1.1.4
 apache-flink==1.11.2
+pyarrow
+fastavro
