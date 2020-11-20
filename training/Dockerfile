@@ -7,8 +7,8 @@ RUN apt-get update
 RUN apt-get install default-jre -y
 
 RUN wget -P /libs/flink/ https://apache.claz.org/flink/flink-1.11.2/flink-1.11.2-bin-scala_2.12.tgz
-
 RUN tar -xvzf /libs/flink/flink-1.11.2-bin-scala_2.12.tgz --directory /libs/flink/
+RUN wget -P /libs/flink/flink-1.11.2/lib https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.12/1.11.2/flink-sql-connector-kafka_2.12-1.11.2.jar
 
 COPY refit/ /libs/refit/
 

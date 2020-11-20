@@ -10,7 +10,7 @@ create table refit_sensor_data
     labels      STRING
 ) with ( 'connector' = 'kafka',
       'topic' = 'refit.inference.sensor.data',
-      'properties.bootstrap.servers' = 'kafka:19092',
-      'properties.group.id' = 'testGroup',
+      'properties.bootstrap.servers' = 'refit-kafka:9092',
+      'properties.group.id' = 'feature-extractor-consumer',
       'format' = 'json',
       'scan.startup.mode' = 'earliest-offset')

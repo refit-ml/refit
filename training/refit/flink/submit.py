@@ -10,13 +10,13 @@ scala_job_name = "CDL IoT - Inference"
 
 def clear_jobs():
     try:
-        response = requests.get(url=base_url + "/jobs")
+        response = requests.get(url=base_url + "/jobs/overview")
         body = response.json()
 
         running_status = ['RUNNING', 'CREATED', 'RECONCILING', 'RESTARTING', 'RUNNING', 'SUSPENDED']
 
         jobs = list(map(lambda j: j['jid'],
-                        filter(lambda j: j['status'] in running_status and j['name'] != scala_job_name, body['jobs'])))
+                        filter(lambda j: j['state'] in running_status and j['name'] != scala_job_name, body['jobs'])))
 
         for jobId in jobs:
             print("Stopping job: " + jobId)
