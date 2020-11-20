@@ -1,4 +1,4 @@
-from jupyter/base-notebook:latest
+from jupyter/base-notebook:python-3.7.3
 
 USER root
 
