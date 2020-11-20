@@ -1,7 +1,23 @@
 FROM flink:1.11.2-scala_2.12-java11
 
+
+
 RUN apt-get update
-RUN apt-get install -y gcc libgomp1 wget python3 python3-pip
+RUN apt-get install -y gcc libgomp1 wget software-properties-common build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev
+
+RUN mkdir temp
+ADD install.sh temp/install.sh
+RUN chmod +x temp/install.sh
+WORKDIR temp
+RUN ./install.sh
+
+RUN python3.8 --version
+RUN python3 --version
+
+RUN apt-get install python3-pip -y
+
+RUN pip3 --version
+
 RUN ln -s /usr/bin/python3 /usr/bin/python && \
     ln -s /usr/bin/pip3 /usr/bin/pip
 
