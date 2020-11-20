@@ -12,8 +12,8 @@ class RefitFeatureEnrichment():
         self.table_env.get_config().get_configuration().set_boolean("python.fn-execution.memory.managed", True)
         self.table_env.add_python_file('feature_extractors')
 
-        source_table = open('./refit/flink/feature_extractors/source.sql', 'r').read()
-        sink_table = open('./refit/flink/feature_extractors/sink.sql', 'r').read()
+        source_table = open('./feature_extractors/source.sql', 'r').read()
+        sink_table = open('./feature_extractors/sink.sql', 'r').read()
 
         self.table_env.execute_sql(source_table)
         self.table_env.execute_sql(sink_table)

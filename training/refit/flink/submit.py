@@ -27,8 +27,15 @@ def clear_jobs():
 
 
 def submit_python():
+    os.mkdir('refit-submit-temp')
+    os.system('cp -r refit/flink/* refit-submit-temp')
+    os.chdir('refit-submit-temp')
     try:
         print("Starting python job")
-        os.system(f"flink run -m {flink_host}:8081 --python ./refit/flink/entrypoint.py -pyfs ./refit/flink/feature_extractors/")
+
+        os.system(f"flink run -m {flink_host}:8081 --python entrypoint.py -pyfs feature_extractors/")
     except:
         print(f"There was an error deploying the scala inference service")
+    finally:
+        os.system('rm -rf refit-submit-temp')
+        os.chdir('../')
