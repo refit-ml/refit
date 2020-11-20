@@ -19,7 +19,7 @@ class RefitFeatureEnrichment():
         self.table_env.execute_sql(sink_table)
 
     def run_udf(self):
-        from flink.feature_extractors.functions import doubles, strings, integers, labels
+        from .feature_extractors.functions import doubles, strings, integers, labels
         self.table_env.register_function("doubles", doubles)
         self.table_env.register_function("strings", strings)
         self.table_env.register_function("integers", integers)
@@ -39,7 +39,7 @@ class RefitFeatureEnrichment():
 
     # WIP, currently not working
     def run(self):
-        from flink.feature_extractors import functions
+        from .feature_extractors import functions
         self.table_env.register_function("doubles", functions.doubles)
 
         df = self.table_env.from_path('refit_raw_sensor_data') \

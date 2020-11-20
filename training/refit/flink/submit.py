@@ -29,6 +29,6 @@ def clear_jobs():
 def submit_python():
     try:
         print("Starting python job")
-        os.system(f"flink run -m {flink_host}:8081 --python ./refit/entrypoint.py -pyfs ./refit/feature_extractors/")
+        os.system(f"flink run -m {flink_host}:8081 --python ./refit/flink/entrypoint.py -pyfs ./refit/flink/feature_extractors/")
     except:
         print(f"There was an error deploying the scala inference service")

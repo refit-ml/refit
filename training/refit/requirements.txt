@@ -17,3 +17,4 @@ minio==6.0.0
 pyarrow
 fastavro
 apache-flink==1.11.2
+pickle5==0.0.11

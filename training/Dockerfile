@@ -8,12 +8,20 @@ RUN apt-get install default-jre -y
 
 RUN wget -P /libs/flink/ https://apache.claz.org/flink/flink-1.11.2/flink-1.11.2-bin-scala_2.12.tgz
 
-RUN tar -xvzf /libs/flink/flink-1.11.2-bin-scala_2.12.tgz
+RUN tar -xvzf /libs/flink/flink-1.11.2-bin-scala_2.12.tgz --directory /libs/flink/
 
 COPY refit/ /libs/refit/
 
 RUN chmod +x /libs/refit/refit_init
 
-ENV PATH="/libs/refit/:/libs/flink/flink-1.11.2-bin-scala_2.12/bin:${PATH}"
+ENV PATH="/libs/refit/:/libs/flink/flink-1.11.2/bin:${PATH}"
+
+RUN mkdir /home/jovyan/demo
+RUN mkdir /home/jovyan/demo/notebooks
+RUN mkdir /home/jovyan/demo/data
+
+
+COPY notebooks/ /home/jovyan/demo/notebooks
+COPY data/ /home/jovyan/demo/data
 
 USER $NB_UID

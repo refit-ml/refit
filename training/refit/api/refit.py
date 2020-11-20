@@ -12,7 +12,7 @@ from pandas import DataFrame
 from refit.dao.TrainingDao import TrainingDao
 from refit.enums.ModelFormat import ModelFormat
 from refit.flink import submit
-# from refit.flink.feature_extractors import RefitFeatureExtractor
+from refit.flink.feature_extractors.refit_feature_extractor import RefitFeatureExtractor
 from refit.util import ModelFactory
 from refit.util.DataFrameHelpers import extract_timestamps, extract_flag
 from refit.util.RefitConfig import RefitConfig
@@ -52,7 +52,7 @@ def upload_file(bucket_name: string, object_name: string, file_path: string):
     return True
 
 
-def update_feature_extractor():
+def submit_job():
     submit.clear_jobs()
     submit.submit_python()
 
@@ -80,7 +80,7 @@ class Refit():
                           start: datetime,
                           end: datetime,
                           sensors: list = None,
-                          feature_extractor = None) -> DataFrame:
+                          feature_extractor: RefitFeatureExtractor = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
         df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
         df = extract_timestamps(df, ['start', 'end'])
