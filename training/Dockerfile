@@ -4,7 +4,7 @@ USER root
 
 RUN apt-get update
 
-RUN apt-get install default-jre -y
+RUN apt-get install default-jre python3-pip python3 -y
 
 RUN wget -P /libs/flink/ https://apache.claz.org/flink/flink-1.11.2/flink-1.11.2-bin-scala_2.12.tgz
 RUN tar -xvzf /libs/flink/flink-1.11.2-bin-scala_2.12.tgz --directory /libs/flink/
