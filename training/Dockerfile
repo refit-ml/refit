@@ -25,6 +25,6 @@ RUN mkdir /home/jovyan/demo/data
 COPY notebooks/ /home/jovyan/demo/notebooks
 COPY data/ /home/jovyan/demo/data
 
-RUN chmod 777 -R /home/jovyan
+RUN chmod -R 777 /home/jovyan
 
 USER $NB_UID
