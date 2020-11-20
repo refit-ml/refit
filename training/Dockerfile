@@ -26,5 +26,6 @@ COPY notebooks/ /home/jovyan/demo/notebooks
 COPY data/ /home/jovyan/demo/data
 
 RUN chmod -R 777 /home/jovyan
+RUN chmod -R 777 /libs/flink
 
 USER $NB_UID
