@@ -27,6 +27,9 @@ RUN python3 -m ipykernel install --user --name=refit
 # RUN jupyter kernelspec uninstall -y python3
 RUN jupyter kernelspec list 
 # Install flink as root
+
+WORKDIR /home/jovyan
+
 USER root
 
 RUN wget -P /libs/flink/ https://apache.claz.org/flink/flink-1.11.2/flink-1.11.2-bin-scala_2.12.tgz
