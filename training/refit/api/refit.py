@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 
 import onnxmltools
+import pandas as pd
 import requests
 from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists, ResponseError
@@ -18,21 +19,20 @@ from refit.util.DataFrameHelpers import extract_timestamps, extract_flag
 from refit.util.RefitConfig import RefitConfig
 from refit.util.Schema import SchemaFactory
 
-refit_config = RefitConfig()
+_refit_config = lambda: RefitConfig()
 
-import_bucket = refit_config.minio_bucket_import
-model_bucket = refit_config.minio_bucket_models
-schema_bucket = refit_config.minio_bucket_schema
-
-minio_host = refit_config.minio_host
-minio_access_key = refit_config.minio_access_key
-minio_secret_key = refit_config.minio_secret_key
+_import_bucket = lambda: _refit_config().minio_bucket_import
+_model_bucket = lambda: _refit_config().minio_bucket_models
+_schema_bucket = lambda: _refit_config().minio_bucket_schema
+_minio_host = lambda: _refit_config().minio_host
+_minio_access_key = lambda: _refit_config().minio_access_key
+_minio_secret_key = lambda: _refit_config().minio_secret_key
 
 
 def upload_file(bucket_name: string, object_name: string, file_path: string):
-    client = Minio(minio_host,
-                   access_key=minio_access_key,
-                   secret_key=minio_secret_key,
+    client = Minio(_minio_host(),
+                   access_key=_minio_access_key(),
+                   secret_key=_minio_secret_key(),
                    secure=False)
 
     try:
@@ -58,11 +58,18 @@ def submit_job():
 
 
 class Refit():
-    def __init__(self, project_guid: string):
+    def __init__(self,
+                 project_guid: str,
+                 training_dao: TrainingDao = None,
+                 schema_factory: SchemaFactory = None):
         self.project_guid = project_guid
-        self.training_dao = TrainingDao()
-        self.schemaFactory = SchemaFactory(self.training_dao)
-        self.schema = self.schemaFactory.getSchema(project_guid)
+        self.training_dao = TrainingDao if training_dao is None else training_dao
+        self.schema_factory = SchemaFactory(self.training_dao) if schema_factory is None else schema_factory
+        self.schema = self.schema_factory.get_schema(project_guid)
+
+    @staticmethod
+    def of(project_guid: str):
+        return Refit(project_guid)
 
     def get_sensor_data(self, start: datetime, end: datetime, sensors: list = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
@@ -82,10 +89,13 @@ class Refit():
                           sensors: list = None,
                           feature_extractor: RefitFeatureExtractor = None) -> DataFrame:
         partitions = self.schema.get_partitions_in_range(start, end)
-        df = self.training_dao.get_training_data(self.project_guid, partitions, sensors)
-        df = extract_timestamps(df, ['start', 'end'])
+        df = self.training_dao.get_sensor_data(self.project_guid, partitions, sensors)
         if feature_extractor is not None:
-            df = feature_extractor.extract_features(df)
+            df = pd.merge(df, feature_extractor.extract_doubles(df))
+            df = pd.merge(df, feature_extractor.extract_strings(df))
+            df = pd.merge(df, feature_extractor.extract_integers(df))
+            df = pd.merge(df, feature_extractor.extract_labels(df))
+
         return df
 
     def sensor_data_with_flag(self, start: datetime, end: datetime, sensors: list = None,
@@ -104,14 +114,14 @@ class Refit():
         onnx_model = ModelFactory.get_onnx_model(model_format, model, initial_types=initial_types)
         onnxmltools.utils.save_model(onnx_model, file_name)
         path = f"{self.project_guid}/models/{model_guid}/model.onnx"
-        upload_file(model_bucket, path, file_name)
+        upload_file(_model_bucket(), path, file_name)
         self.training_dao.save_model(self.schema, model_guid)
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "modelGuid": model_guid,
             "path": path
         })
-        url = f"http://{refit_config.ingestion_host}:3030/models"
+        url = f"http://{_refit_config().ingestion_host}:3030/models"
         requests.post(url, payload)
         return "Model Published"
 
@@ -120,9 +130,9 @@ class Refit():
 
     def import_file(self, file_path: string, object_name: string, delete_when_complete: bool = True) -> str:
         path = self.__get_file_path(object_name)
-        if not upload_file(import_bucket, path, file_path):
+        if not upload_file(_import_bucket(), path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = f"http://{refit_config.ingestion_host}:3030/import"
+        url = f"http://{_refit_config().ingestion_host}:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
@@ -134,9 +144,9 @@ class Refit():
 
     def import_training_window(self, file_path: string, object_name: string, delete_when_complete: bool = True):
         path = self.__get_file_path(object_name)
-        if not upload_file(import_bucket, path, file_path):
+        if not upload_file(_import_bucket(), path, file_path):
             raise Exception("Error Uploading file to bucket")
-        url = f"http://{refit_config.ingestion_host}:3030/import"
+        url = f"http://{_refit_config().ingestion_host}:3030/import"
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "filePath": path,
@@ -153,10 +163,10 @@ def create_project(file_path: string, project_guid: string = None):
 
     path = f"schemas/{project_guid}/schema.yaml"
 
-    if not upload_file(schema_bucket, path, file_path):
+    if not upload_file(_schema_bucket(), path, file_path):
         raise Exception("Error Uploading file to bucket")
 
-    url = f"http://{refit_config.ingestion_host}:3030/project"
+    url = f"http://{_refit_config().ingestion_host}:3030/project"
     payload = json.dumps({
         "path": path
     })

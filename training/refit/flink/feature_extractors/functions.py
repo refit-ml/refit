@@ -93,4 +93,6 @@ def labels(project_guid: Series,
                        'integers': integers,
                        'labels': labels})
 
+
+
     return df['labels']
