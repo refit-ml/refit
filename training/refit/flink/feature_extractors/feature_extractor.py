@@ -1,10 +1,8 @@
 import pandas as pd
 from pandas import DataFrame
 
-from feature_extractors.refit_feature_extractor import RefitFeatureExtractor
 
-
-class FeatureExtractor(RefitFeatureExtractor):
+class FeatureExtractor():
     def __init__(self):
         self.project_guid = '__NONE__'
 

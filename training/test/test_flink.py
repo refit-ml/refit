@@ -28,5 +28,4 @@ class FeatureExtractor(RefitFeatureExtractor):
     assert expected.rstrip() == contents.rstrip()
 
 
-if __name__ == '__main__':
-    unittest.main()
+
