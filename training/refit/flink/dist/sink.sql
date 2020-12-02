@@ -13,4 +13,4 @@ create table refit_sensor_data
       'properties.bootstrap.servers' = 'refit-kafka:9092',
       'properties.group.id' = 'feature-extractor-consumer',
       'format' = 'json',
-      'scan.startup.mode' = 'earliest-offset')
+      'scan.startup.mode' = 'latest-offset')
