@@ -35,24 +35,14 @@ WORKDIR /home/jovyan
 
 USER root
 
-#COPY --from=0 /opt/flink/ /libs/flink
-#RUN wget -P /libs/flink/lib https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.12/1.11.2/flink-sql-connector-kafka_2.12-1.11.2.jar
-#
-#COPY refit/ /libs/refit/
-#
-#RUN chmod +x /libs/refit/refit_init
-#
-#ENV PATH="/libs/refit/:/libs/flink/bin:${PATH}"
-
-RUN wget -P /libs/flink/ https://apache.claz.org/flink/flink-1.11.2/flink-1.11.2-bin-scala_2.12.tgz
-RUN tar -xvzf /libs/flink/flink-1.11.2-bin-scala_2.12.tgz --directory /libs/flink/
-RUN wget -P /libs/flink/flink-1.11.2/lib https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.12/1.11.2/flink-sql-connector-kafka_2.12-1.11.2.jar
+COPY --from=0 /opt/flink/ /libs/flink
+RUN wget -P /libs/flink/lib https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.12/1.11.2/flink-sql-connector-kafka_2.12-1.11.2.jar
 
 COPY refit/ /libs/refit/
 
 RUN chmod +x /libs/refit/refit_init
 
-ENV PATH="/libs/refit/:/libs/flink/flink-1.11.2/bin:${PATH}"
+ENV PATH="/libs/refit/:/libs/flink/bin:${PATH}"
 
 RUN mkdir /home/jovyan/demo
 RUN mkdir /home/jovyan/demo/notebooks
