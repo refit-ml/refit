@@ -8,9 +8,8 @@ from pandas import DataFrame
 from ..util.EncryptionHelper import EncryptionHelper, EncryptionMode
 from ..util.RefitConfig import RefitConfig
 
-
-refit_config = RefitConfig()
-encryption_key = refit_config.encryption_key
+_refit_config = lambda: RefitConfig()
+_encryption_key = lambda: _refit_config().encryption_key
 
 
 def __get_keys(row, index):
@@ -51,7 +50,7 @@ def __extract_project_guid(rows, column_names):
 
 def sensor_data_factory(columns, rows) -> DataFrame:
     project_guid = __extract_project_guid(rows, columns)
-    encryption_helper = EncryptionHelper(encryption_key, project_guid, EncryptionMode.DECRYPT)
+    encryption_helper = EncryptionHelper(_encryption_key(), project_guid, EncryptionMode.DECRYPT)
     data_index = columns.index('data')
     prediction_index = columns.index('prediction')
     column_names = __create_column_definition(rows, columns, data_index, prediction_index, encryption_helper)
@@ -66,10 +65,10 @@ def training_data_factory(columns, rows) -> DataFrame:
 
 class TrainingDao:
     def __init__(self):
-        self.host = refit_config.cassandra_host
-        self.username = refit_config.cassandra_user
-        self.password = refit_config.cassandra_password
-        self.keyspace = refit_config.cassandra_keyspace
+        self.host = _refit_config().cassandra_host
+        self.username = _refit_config().cassandra_user
+        self.password = _refit_config().cassandra_password
+        self.keyspace = _refit_config().cassandra_keyspace
 
     def __get_session(self, factory=None):
         auth_provider = PlainTextAuthProvider(

@@ -38,9 +38,8 @@ object CamelMain {
     if (config.runDemo()) {
       context.addRoutes(new SensorDataRoutes(config.getKafkaConfig(), sensorDataProcessors, context))
     }
-    else {
-      context.addRoutes(new HttpRoutes(context, config.getKafkaConfig(), importProcessors, modelProcessors, schemaProcessors))
-    }
+    
+    context.addRoutes(new HttpRoutes(context, config.getKafkaConfig(), importProcessors, modelProcessors, schemaProcessors))
     context.start()
   }
 }

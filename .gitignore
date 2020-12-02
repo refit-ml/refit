@@ -8,6 +8,9 @@ out
 venv/
 env/
 *.pyc
+lib/
+*.egg
+*.egg-info
 
 training/notebooks/refit/
 
