@@ -6,10 +6,8 @@ from pandas import Series, DataFrame
 from pyflink.table import DataTypes
 from pyflink.table.udf import udf
 
-from refit.flink.feature_extractors.feature_extractor import FeatureExtractor
-
+from .feature_extractor import FeatureExtractor
 _expand_columns = ['doubles', 'strings', 'integers', 'labels']
-
 _feature_extractor = FeatureExtractor()
 
 

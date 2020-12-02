@@ -10,16 +10,15 @@ class RefitFeatureEnrichment():
         self.env.set_parallelism(1)
         self.table_env = StreamTableEnvironment.create(self.env, environment_settings=self.settings)
         self.table_env.get_config().get_configuration().set_boolean("python.fn-execution.memory.managed", True)
-        self.table_env.add_python_file('feature_extractors')
 
-        source_table = open('./feature_extractors/source.sql', 'r').read()
-        sink_table = open('./feature_extractors/sink.sql', 'r').read()
+        source_table = open('source.sql', 'r').read()
+        sink_table = open('sink.sql', 'r').read()
 
         self.table_env.execute_sql(source_table)
         self.table_env.execute_sql(sink_table)
 
     def run_udf(self):
-        from feature_extractors.functions import doubles, strings, integers, labels
+        from .functions import doubles, strings, integers, labels
         self.table_env.register_function("doubles", doubles)
         self.table_env.register_function("strings", strings)
         self.table_env.register_function("integers", integers)
@@ -39,8 +38,8 @@ class RefitFeatureEnrichment():
 
     # WIP, currently not working
     def run(self):
-        from feature_extractors.functions import functions
-        self.table_env.register_function("doubles", functions.doubles)
+        from .functions import doubles, strings, integers, labels
+        self.table_env.register_function("doubles", doubles)
 
         df = self.table_env.from_path('refit_raw_sensor_data') \
             .select("projectGuid, "
@@ -59,4 +58,5 @@ class RefitFeatureEnrichment():
         self.env.execute("CDL IoT - Feature Extraction")
 
 
-RefitFeatureEnrichment().run_udf()
+if __name__ == '__main__':
+    RefitFeatureEnrichment().run_udf()

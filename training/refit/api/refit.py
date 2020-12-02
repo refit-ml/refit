@@ -13,7 +13,7 @@ from pandas import DataFrame
 from refit.dao.TrainingDao import TrainingDao
 from refit.enums.ModelFormat import ModelFormat
 from refit.flink import submit
-from refit.flink.feature_extractors.refit_feature_extractor import RefitFeatureExtractor
+from refit.flink.refit_feature_extractor import RefitFeatureExtractor
 from refit.util import ModelFactory
 from refit.util.DataFrameHelpers import extract_timestamps, extract_flag
 from refit.util.RefitConfig import RefitConfig
@@ -52,9 +52,9 @@ def upload_file(bucket_name: string, object_name: string, file_path: string):
     return True
 
 
-def submit_job():
+def submit_job(feature_extractor=None):
     submit.clear_jobs()
-    submit.submit_python()
+    submit.submit_python(feature_extractor)
 
 
 class Refit():

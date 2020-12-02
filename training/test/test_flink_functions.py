@@ -3,8 +3,8 @@ import json
 import pandas as pd
 from pandas import DataFrame
 
-from refit.flink.feature_extractors import functions
-from refit.flink.feature_extractors.feature_extractor import FeatureExtractor
+from refit.flink.dist import functions
+from refit.flink.dist.feature_extractor import FeatureExtractor
 
 df = pd.read_csv('data/demo_df.csv')
 df['project_guid'] = df.sensor_id.apply(lambda _: 'keyboard_cat')

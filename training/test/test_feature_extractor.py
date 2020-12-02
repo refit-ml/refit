@@ -4,7 +4,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from refit.api.refit import Refit
-from refit.flink.feature_extractors.refit_feature_extractor import RefitFeatureExtractor
+from refit.flink.refit_feature_extractor import RefitFeatureExtractor
 from refit.util.Schema import Schema
 
 

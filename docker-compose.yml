@@ -105,7 +105,7 @@ services:
     environment:
       WAIT_FLINK_HOST: flink-jobmanager
       FLINK_HOST: flink-jobmanager
-      KAFKA_HOST: "refit-kafka:19092"
+      KAFKA_HOST: "refit-kafka:9092"
     depends_on:
       - flink-jobmanager
       - refit-kafka
@@ -115,7 +115,7 @@ services:
     build: ./ingestion/
     environment:
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "refit-kafka:19092"
+      KAFKA_HOST: "refit-kafka:9092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
@@ -147,7 +147,7 @@ services:
     build: ./integrations/
     environment:
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "refit-kafka:19092"
+      KAFKA_HOST: "refit-kafka:9092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
@@ -179,7 +179,6 @@ services:
     # image: jupyter/base-notebook:latest
     volumes:
       - ./training/:/home/docker_worker
-#      - ./training/refit/:/libs/refit/
     ports:
       - 8888:8888
     command: "start-notebook.sh"
@@ -192,7 +191,7 @@ services:
       CHOWN_HOME: 'yes'
       CHOWN_HOME_OPTS: -R
       WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "refit-kafka:19092"
+      KAFKA_HOST: "refit-kafka:9092"
       KAFKA_DATA_TOPIC: refit.inference.data
       KAFKA_MODELS_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
