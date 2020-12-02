@@ -5,17 +5,20 @@ import pandas as pd
 from pandas import Series, DataFrame
 from pyflink.table import DataTypes
 from pyflink.table.udf import udf
-
+import itertools
 from .feature_extractor import FeatureExtractor
+
 _expand_columns = ['doubles', 'strings', 'integers', 'labels']
 _feature_extractor = FeatureExtractor()
 
 
 def _append_columns(row, key: str, columns: List[str]):
-    for column in columns:
-        dictionary: dict = row[key]
+    dictionary: dict = row[key]
+
+    for column in itertools.chain(dictionary.keys(), columns):
         dictionary[column] = row[column]
-        row[key] = dictionary
+
+    row[key] = dictionary
     return row
 
 
