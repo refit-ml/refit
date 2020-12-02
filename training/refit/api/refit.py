@@ -3,6 +3,7 @@ import string
 import uuid
 from datetime import datetime
 
+from typing import List
 import onnxmltools
 import pandas as pd
 import requests
@@ -107,6 +108,7 @@ class Refit():
 
     def save(self,
              model,
+             input_fields: List[str],
              model_format: ModelFormat = ModelFormat.KERAS,
              initial_types: list = None) -> string:
         model_guid = str(uuid.uuid4())
@@ -119,7 +121,8 @@ class Refit():
         payload = json.dumps({
             "projectGuid": self.project_guid,
             "modelGuid": model_guid,
-            "path": path
+            "path": path,
+            "inputFields": input_fields
         })
         url = f"http://{_refit_config().ingestion_host}:3030/models"
         requests.post(url, payload)

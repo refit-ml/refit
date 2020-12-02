@@ -20,16 +20,14 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
   private val onnxEvaluator: OrtSession = OnnxEvaluator.env.createSession(model.bytes.toByteArray, new OrtSession.SessionOptions)
 
 
-  def getOnnxMap(v: SensorData): Map[String, Float] =
-    v.doubles.keys.toList.sorted.map(
-      k => k -> v.doubles(k).toFloat
+  def getOnnxMap(v: SensorData): Map[String, Float] = {
+    model.inputValues.map(
+      key => {
+        key -> (if (v.integers.contains(key)) v.integers(key).toFloat
+        else v.doubles(key).toFloat)
+      }
     ).toMap
-      .++(v.integers.keys.toList.sorted.map(
-        k => k -> v.doubles(k).toFloat
-      ).toMap)
-      .++(v.strings.keys.toList.sorted.map(
-        k => k -> v.doubles(k).toFloat
-      ).toMap)
+  }
 
   def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
     x.toList.map(tuple => tuple._2).toArray

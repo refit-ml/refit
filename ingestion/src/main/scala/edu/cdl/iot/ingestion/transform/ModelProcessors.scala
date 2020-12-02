@@ -5,7 +5,7 @@ import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.ingestion.dto.request.ModelRequest
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
 import edu.cdl.iot.ingestion.util.MinioHelper
-import edu.cdl.iot.protocol.Model.Model
+import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
 import io.minio.{GetObjectArgs, MinioClient}
 import org.apache.camel.{Exchange, Processor}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
@@ -35,7 +35,10 @@ class ModelProcessors(private val config: RefitConfig,
 
       val model = Model(request.projectGuid,
         request.modelGuid,
-        ByteString.copyFrom(modelBytes))
+        ByteString.copyFrom(modelBytes),
+        SerializationFormat.ONNX,
+        request.inputFields
+      )
 
       kafkaProducer.send(
         new ProducerRecord[Array[Byte], Array[Byte]](
