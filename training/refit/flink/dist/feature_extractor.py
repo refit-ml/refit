@@ -1,8 +1,9 @@
-import pandas as pd
-from pandas import DataFrame
+
 
 
 class FeatureExtractor():
+
+    from pandas import DataFrame
     def __init__(self):
         self.project_guid = '__NONE__'
 
@@ -19,6 +20,7 @@ class FeatureExtractor():
         return df
 
     def extract_features(self, df: DataFrame):
+        import pandas as pd
         df = pd.merge(df, self.extract_doubles(df))
         df = pd.merge(df, self.extract_strings(df))
         df = pd.merge(df, self.extract_integers(df))

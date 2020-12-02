@@ -63,7 +63,7 @@ class Refit():
                  training_dao: TrainingDao = None,
                  schema_factory: SchemaFactory = None):
         self.project_guid = project_guid
-        self.training_dao = TrainingDao if training_dao is None else training_dao
+        self.training_dao = TrainingDao() if training_dao is None else training_dao
         self.schema_factory = SchemaFactory(self.training_dao) if schema_factory is None else schema_factory
         self.schema = self.schema_factory.get_schema(project_guid)
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 
-
+[[ -d ./refit ]] && rm -rf ./refit
 cp -r /libs/refit/ ./refit/
 pip3 install -q -r refit/requirements.txt
 
