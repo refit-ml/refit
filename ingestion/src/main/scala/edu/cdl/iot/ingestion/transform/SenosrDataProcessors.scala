@@ -30,7 +30,7 @@ class SenosrDataProcessors(modelDao: ModelDao) {
     override def process(exchange: Exchange): Unit = {
       logger.info("create synthetic data")
       val schema = exchange.getIn.getHeader("SCHEMA").asInstanceOf[Schema]
-      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString, includeLabels = true)).head
+      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString)).head
 
       exchange.getIn.setBody(sensorReadings)
     }
