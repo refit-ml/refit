@@ -17,10 +17,3 @@ class FeatureExtractor():
 
     def extract_labels(self, df: DataFrame) -> DataFrame:
         return df
-
-    def extract_features(self, df: DataFrame):
-        df = pd.merge(df, self.extract_doubles(df))
-        df = pd.merge(df, self.extract_strings(df))
-        df = pd.merge(df, self.extract_integers(df))
-        df = pd.merge(df, self.extract_labels(df))
-        return df
