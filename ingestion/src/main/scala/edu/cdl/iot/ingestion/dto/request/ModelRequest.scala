@@ -17,7 +17,6 @@ class ModelRequest(var projectGuid: String,
 
   def getProjectGuid: String = projectGuid
 
-
   def getInputFields: List[String] = inputFields.asScala.toList
 
 }
