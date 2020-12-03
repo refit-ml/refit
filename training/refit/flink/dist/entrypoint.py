@@ -10,9 +10,13 @@ class RefitFeatureEnrichment():
         self.env.set_parallelism(1)
         self.table_env = StreamTableEnvironment.create(self.env, environment_settings=self.settings)
         self.table_env.get_config().get_configuration().set_boolean("python.fn-execution.memory.managed", True)
-        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.enabled", "true")
-        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.allow-latency", "5 s")
-        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.size", "5000")
+        self.table_env.get_config().get_configuration().set_string("python.fn-execution.buffer.memory.size", "1024mb")
+        self.table_env.get_config().get_configuration().set_string("parallelism.default", "3")
+        self.table_env.get_config().get_configuration().set_string("python.fn-execution.bundle.size", "5000")
+        self.table_env.get_config().get_configuration().set_string("restart-strategy", "fixed-delay")
+        self.table_env.get_config().get_configuration().set_string("restart-strategy.fixed-delay.attempts", "3")
+        self.table_env.get_config().get_configuration().set_string("restart-strategy.fixed-delay.delay", "30s")
+
         source_table = open('source.sql', 'r').read()
         sink_table = open('sink.sql', 'r').read()
 
