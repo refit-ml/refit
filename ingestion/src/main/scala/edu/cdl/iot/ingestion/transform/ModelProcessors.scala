@@ -37,7 +37,7 @@ class ModelProcessors(private val config: RefitConfig,
         request.modelGuid,
         ByteString.copyFrom(modelBytes),
         SerializationFormat.ONNX,
-        request.inputFields
+        request.getInputFields
       )
 
       kafkaProducer.send(
