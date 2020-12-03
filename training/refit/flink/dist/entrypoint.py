@@ -10,7 +10,9 @@ class RefitFeatureEnrichment():
         self.env.set_parallelism(1)
         self.table_env = StreamTableEnvironment.create(self.env, environment_settings=self.settings)
         self.table_env.get_config().get_configuration().set_boolean("python.fn-execution.memory.managed", True)
-
+        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.enabled", "true")
+        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.allow-latency", "5 s")
+        self.table_env.get_config().get_configuration().set_string("table.exec.mini-batch.size", "5000")
         source_table = open('source.sql', 'r').read()
         sink_table = open('sink.sql', 'r').read()
 
