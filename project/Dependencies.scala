@@ -41,6 +41,14 @@ object Dependencies {
     Libraries.kakfaCamel
   )
 
+  val camel = Seq(
+    Libraries.camelCore,
+    Libraries.camelJackson,
+    Libraries.camelNetty,
+    Libraries.camelRest,
+    Libraries.logBack
+  )
+
   val integrations = Seq(
     Libraries.camelCore,
     Libraries.camelJackson,

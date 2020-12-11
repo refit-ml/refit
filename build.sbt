@@ -20,6 +20,8 @@ lazy val ingestion = project in file("ingestion")
 
 lazy val integrations = project in file("integrations")
 
+lazy val `ingestion-application` = (project in file("ingestion-h/ingestion-application"))
+
 
 
 
