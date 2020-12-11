@@ -23,82 +23,75 @@ class ImportProcessors(private val config: RefitConfig,
     .credentials(minioConfig.accessKey, minioConfig.secretKey)
     .build
 
-  val publishImportRequest: Processor = new Processor {
-    override def process(exchange: Exchange): Unit = {
-      val request = exchange.getIn.getBody(classOf[ImportRequest])
+  val publishImportRequest: Processor = (exchange: Exchange) => {
+    val request = exchange.getIn.getBody(classOf[ImportRequest])
 
-      kafkaProducer.send(new ProducerRecord[Array[Byte], Array[Byte]](
-        kafkaConfig.topics.`import`,
-        request.envelope.toByteArray
-      ))
-      exchange.getIn.setBody(new ImportResponse(true))
-    }
+    kafkaProducer.send(new ProducerRecord[Array[Byte], Array[Byte]](
+      kafkaConfig.topics.`import`,
+      request.envelope.toByteArray
+    ))
+    exchange.getIn.setBody(new ImportResponse(true))
   }
 
-  val deseralizeImportRequest: Processor = new Processor {
-    override def process(exchange: Exchange): Unit = {
-      val body = exchange.getIn.getBody(classOf[Array[Byte]])
-      val request = ImportEnvelope.parseFrom(body)
-      exchange.getIn.setBody(request)
-    }
+  val deseralizeImportRequest: Processor = (exchange: Exchange) => {
+    val body = exchange.getIn.getBody(classOf[Array[Byte]])
+    val request = ImportEnvelope.parseFrom(body)
+    exchange.getIn.setBody(request)
   }
 
-  val doImport: Processor = new Processor {
-
-    def processSensorDataDataImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
-      val sensorDataFactory = new SensorDataFactory(schema)
-      iterator
-        .drop(1)
-        .map(x => sensorDataFactory.fromCsv(x))
-        .foreach(x => {
-          kafkaProducer.send(
-            new ProducerRecord[Array[Byte], Array[Byte]](
-              kafkaConfig.topics.data,
-              x.toByteArray
-            )
+  def processSensorDataDataImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
+    val sensorDataFactory = new SensorDataFactory(schema)
+    iterator
+      .drop(1)
+      .map(x => sensorDataFactory.fromCsv(x))
+      .foreach(x => {
+        kafkaProducer.send(
+          new ProducerRecord[Array[Byte], Array[Byte]](
+            kafkaConfig.topics.data,
+            x.toByteArray
           )
-        })
+        )
+      })
+  }
+
+  def processTrainingWindowImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
+    val trainingWindowFactory = new TrainingWindowFactory(schema)
+    iterator
+      .drop(1)
+      .map(x => trainingWindowFactory.fromCsv(x))
+      .grouped(ImportConstants.BATCH_SIZE)
+      .foreach(x => {
+        importDao.createTrainingWindow(x)
+      })
+  }
+
+  val doImport: Processor = (exchange: Exchange) => {
+    val request = exchange.getIn.getBody(classOf[ImportEnvelope])
+    val schema = importDao.getSchema(request.projectGuid)
+
+    try {
+      println("Get file stream")
+      val iterator = ImportHelper.getMinioLineIterator(minioClient, minioConfig.buckets.`import`, request.filePath)
+      println("Process Stream")
+      if (request.importTrainingWindow)
+        processTrainingWindowImport(iterator, schema)
+      else
+        processSensorDataDataImport(iterator, schema)
+      println("Done processing stream")
     }
-
-    def processTrainingWindowImport(iterator: Iterator[String], schema: edu.cdl.iot.common.schema.Schema): Unit = {
-      val trainingWindowFactory = new TrainingWindowFactory(schema)
-      iterator
-        .drop(1)
-        .map(x => trainingWindowFactory.fromCsv(x))
-        .grouped(ImportConstants.BATCH_SIZE)
-        .foreach(x => {
-          importDao.createTrainingWindow(x)
-        })
+    catch {
+      case ex: Throwable => {
+        println(ex.toString)
+      }
     }
-
-    override def process(exchange: Exchange): Unit = {
-      val request = exchange.getIn.getBody(classOf[ImportEnvelope])
-      val schema = importDao.getSchema(request.projectGuid)
-
-      try {
-        println("Get file stream")
-        val iterator = ImportHelper.getMinioLineIterator(minioClient, minioConfig.buckets.`import`, request.filePath)
-        println("Process Stream")
-        if (request.importTrainingWindow)
-          processTrainingWindowImport(iterator, schema)
-        else
-          processSensorDataDataImport(iterator, schema)
-        println("Done processing stream")
-      }
-      catch {
-        case ex: Throwable => {
-          println(ex.toString)
-        }
-      }
-      finally {
-        if (request.deleteWhenComplete) {
-          println("Request finished: Removing file")
-          val removeRequest = RemoveObjectArgs.builder()
-            .bucket(minioConfig.buckets.`import`)
-            .`object`(request.filePath)
-            .build()
-          minioClient.removeObject(removeRequest)
-        }
+    finally {
+      if (request.deleteWhenComplete) {
+        println("Request finished: Removing file")
+        val removeRequest = RemoveObjectArgs.builder()
+          .bucket(minioConfig.buckets.`import`)
+          .`object`(request.filePath)
+          .build()
+        minioClient.removeObject(removeRequest)
       }
     }
   }
