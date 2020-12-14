@@ -10,6 +10,10 @@ object Dependencies {
     Libraries.cassandra
   )
 
+  val kafka = Seq(
+    Libraries.kakfaCamel
+  )
+
   val testDependencies = Seq(
     Libraries.scalaTest
   )
@@ -37,8 +41,7 @@ object Dependencies {
     Libraries.camelJackson,
     Libraries.camelNetty,
     Libraries.camelRest,
-    Libraries.minio,
-    Libraries.kakfaCamel
+    Libraries.minio
   )
 
   val camel = Seq(
@@ -46,7 +49,8 @@ object Dependencies {
     Libraries.camelJackson,
     Libraries.camelNetty,
     Libraries.camelRest,
-    Libraries.logBack
+    Libraries.logBack,
+    Libraries.kakfaCamel
   )
 
   val integrations = Seq(
@@ -55,6 +59,10 @@ object Dependencies {
     Libraries.camelNetty,
     Libraries.camelRest,
     Libraries.kakfaCamel
+  )
+
+  val minio = Seq(
+    Libraries.minio
   )
 
 }

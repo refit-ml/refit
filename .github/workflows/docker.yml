@@ -36,7 +36,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Compile Source Code
-        run: sbt ingestion/assembly
+        run: sbt ingestion-application/assembly
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
 
@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          path: ingestion
+          path: ingestion/ingestion-application
 
   integrations:
     runs-on: ubuntu-latest
