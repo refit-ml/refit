@@ -6,7 +6,11 @@ target/
 .DS_Store
 out
 venv/
+env/
 *.pyc
+lib/
+*.egg
+*.egg-info
 
 training/notebooks/refit/
 
@@ -20,3 +24,5 @@ data/
 baseline_model/
 infrastructure/refit/refit/
 infrastructure/refit/charts/
+inference/src/main/python/flink/
+inference/src/main/python/env/

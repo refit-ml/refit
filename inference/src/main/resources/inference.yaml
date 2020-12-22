@@ -15,11 +15,12 @@ minio:
     schema: refit-schema
   accessKey: minio
   secretKey: minio123
-pulsar:
-  host: "pulsar://refit-pulsar-standalone:6650"
+kafka:
+  host: "refit-kafka:9092"
   topics:
-    import: "persistent://sample/standalone/ns1/import"
-    models: "persistent://sample/standalone/ns1/models"
-    data: "persistent://sample/standalone/ns1/data"
-    predictions: "persistent://sample/standalone/ns1/predictions"
-    publishModels: "persistent://sample/standalone/ns1/publish-models"
+    import: "refit.training.import"
+    models: "refit.training.models"
+    data: "refit.inference.data"
+    predictions: "refit.inference.predictions"
+    rawSensorData: "refit.inference.raw.data"
+    sensorData: "refit.inference.sensor.data"

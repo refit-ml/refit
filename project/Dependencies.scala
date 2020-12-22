@@ -1,15 +1,13 @@
 object Dependencies {
   val shared = Seq(
     Libraries.protobuf,
-    Libraries.joda
+    Libraries.joda,
+    Libraries.selfForj,
+    Libraries.selfForjSimple
   )
 
   val cassandraDependencies = Seq(
     Libraries.cassandra
-  )
-
-  val pulsarDependencies = Seq(
-    Libraries.pulsar
   )
 
   val testDependencies = Seq(
@@ -21,24 +19,17 @@ object Dependencies {
     Libraries.snakeYaml
   )
 
-  val training = Seq(
-    Libraries.sparkCore,
-    Libraries.sparkSql,
-    Libraries.sparkMl,
-    Libraries.sparkJpmml,
-    Libraries.sparkMLeap,
-    Libraries.sparkCassandra,
-    Libraries.pulsar
-  )
-
   val inference = Seq(
     Libraries.flinkScala,
     Libraries.flinkStreaming,
-    Libraries.pulsarFlink,
+    Libraries.flinkKafka,
+    Libraries.flinkClients,
     Libraries.jpmml,
     Libraries.jaxb,
     Libraries.onnx,
-    Libraries.scalaTest
+    Libraries.scalaTest,
+    Libraries.jackson,
+    Libraries.gson
   )
 
   val ingestion = Seq(
@@ -46,8 +37,8 @@ object Dependencies {
     Libraries.camelJackson,
     Libraries.camelNetty,
     Libraries.camelRest,
-    Libraries.pulsar,
-    Libraries.minio
+    Libraries.minio,
+    Libraries.kakfaCamel
   )
 
   val integrations = Seq(
@@ -55,7 +46,7 @@ object Dependencies {
     Libraries.camelJackson,
     Libraries.camelNetty,
     Libraries.camelRest,
-    Libraries.pulsar
+    Libraries.kakfaCamel
   )
 
 }

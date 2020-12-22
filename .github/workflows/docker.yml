@@ -15,6 +15,8 @@ jobs:
           java-version: 1.8
       - name: Compile Source Code
         run: sbt inference/assembly
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
@@ -35,6 +37,8 @@ jobs:
           java-version: 1.8
       - name: Compile Source Code
         run: sbt ingestion/assembly
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
@@ -55,6 +59,8 @@ jobs:
           java-version: 1.8
       - name: Compile Source Code
         run: sbt integrations/assembly
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
@@ -69,6 +75,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
         with:
@@ -82,6 +90,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
         with:
@@ -90,3 +100,18 @@ jobs:
           repository: cdliotprototype/cdl-refit-notebook
           tag_with_ref: true
           path: training
+
+  flink:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: cdliotprototype/cdl-refit-flink
+          tag_with_ref: true
+          path: resources/flink

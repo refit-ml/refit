@@ -3,12 +3,12 @@ package edu.cdl.iot.inference.evaluators
 import java.util.Collections
 
 import ai.onnxruntime.TensorInfo.OnnxTensorType
-import ai.onnxruntime.{ OnnxSequence, OnnxTensor, OrtEnvironment, OrtSession}
+import ai.onnxruntime.{OnnxSequence, OnnxTensor, OrtEnvironment, OrtSession}
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object OnnxEvaluator {
   val env: OrtEnvironment = OrtEnvironment.getEnvironment()
@@ -20,19 +20,16 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
   private val onnxEvaluator: OrtSession = OnnxEvaluator.env.createSession(model.bytes.toByteArray, new OrtSession.SessionOptions)
 
 
-  private def getOnnxMap(v: SensorData): Map[String, Float] =
-    v.doubles.map({
-      case (x, d) =>
-        x -> d.toFloat
-    }).++(v.integers.map({
-      case (x, d) =>
-        x -> d.toFloat
-    })).++(v.strings.map({
-      case (x, d) =>
-        x -> d.toFloat
-    }))
+  def getOnnxMap(v: SensorData): Map[String, Float] = {
+    model.inputValues.map(
+      key => {
+        key -> (if (v.integers.contains(key)) v.integers(key).toFloat
+        else v.doubles(key).toFloat)
+      }
+    ).toMap
+  }
 
-  private def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
+  def mapEntryToScalar(x: Map[String, Float]): Array[Float] =
     x.toList.map(tuple => tuple._2).toArray
 
   private def getOnnxVector(v: SensorData): Array[Array[Float]] =
@@ -48,13 +45,14 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
     onnxEvaluator
       .run(i)
       .iterator()
+      .asScala
       .toList
       .map(x => x.getKey -> x.getValue)
       .flatMap(entry => {
         val c = entry._2.getClass.toString
         val sequenceClass = classOf[OnnxSequence].toString
 
-        val result = if(sequenceClass == c) entry._2.asInstanceOf[OnnxSequence].getValue.map(x => x.toString).toArray
+        val result = if (sequenceClass == c) entry._2.asInstanceOf[OnnxSequence].getValue.asScala.map(x => x.toString).toArray
         else {
           val output = entry._2.asInstanceOf[OnnxTensor]
           val outputType = output.getInfo.onnxType
@@ -68,6 +66,7 @@ class OnnxEvaluator(private val model: Model) extends IRefitEvaluator {
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16 => output.getFloatBuffer.array
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16 => output.getFloatBuffer.array
             case OnnxTensorType.ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE => output.getDoubleBuffer.array
+            case _ => output.getFloatBuffer.array
           }
           buffer.map(x => x.toString)
         }

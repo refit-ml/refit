@@ -1,28 +1,26 @@
 package edu.cdl.iot.ingestion.transform
 
-import com.sksamuel.pulsar4s.{ProducerConfig, PulsarClient, Topic}
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.SensorDataHelper
-import edu.cdl.iot.common.yaml.PulsarConfig
 import edu.cdl.iot.ingestion.dao.ModelDao
 import edu.cdl.iot.protocol.SensorData.SensorData
+import org.apache.camel.component.kafka.KafkaConstants
 import org.apache.camel.{Exchange, Processor}
+import org.slf4j.LoggerFactory
 
 // This is a class to just produce fake data
-class SenosrDataProcessors(config: PulsarConfig,
-                           modelDao: ModelDao) {
-  private val client = PulsarClient(config.host)
-  private val producerTopic = Topic(config.topics.data)
+class SenosrDataProcessors(modelDao: ModelDao) {
+
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
-  private val producerConfig = ProducerConfig(producerTopic)
-  private val producer = client.producer(producerConfig)(org.apache.pulsar.client.api.Schema.BYTES)
 
   private val sensors = (1000 to 1100).toList
 
   val schemaProcessor: Processor = new Processor {
     override def process(exchange: Exchange): Unit = {
+      logger.info("fetch schema")
       val schema = modelDao.getProjectSchema(projectGuid)
       exchange.getIn.setHeader("SCHEMA", schema)
     }
@@ -30,21 +28,24 @@ class SenosrDataProcessors(config: PulsarConfig,
 
   val sensorDataProducer: Processor = new Processor() {
     override def process(exchange: Exchange): Unit = {
+      logger.info("create synthetic data")
       val schema = exchange.getIn.getHeader("SCHEMA").asInstanceOf[Schema]
-      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString, includeLabels = true))
+      val sensorReadings = sensors.map(sensorId => SensorDataHelper.getRandomReadings(schema, sensorId.toString)).head
 
       exchange.getIn.setBody(sensorReadings)
     }
   }
 
-  val sendToPulsar: Processor = new Processor {
+  val serialize: Processor = new Processor() {
     override def process(exchange: Exchange): Unit = {
-      val sensorReadings = exchange.getIn.getBody(classOf[List[SensorData]])
-      println("Send sensor data")
-      sensorReadings.map(x => x.toByteArray)
-        .foreach(producer.send)
-      println("Sent")
+      logger.info("serialize synthetic data")
+      val record = exchange.getIn.getBody(classOf[SensorData])
+      val key = s"${record.projectGuid}_${record.sensorId}_${record.timestamp}".getBytes()
+      exchange.getIn().setHeader(KafkaConstants.KEY, key)
+      exchange.getIn().removeHeader("SCHEMA")
+      exchange.getIn.setBody(record.toByteArray)
     }
   }
+
 
 }

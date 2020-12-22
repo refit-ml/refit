@@ -1,10 +1,10 @@
 package edu.cdl.iot.common.config
 
-import edu.cdl.iot.common.yaml.{CassandraConfig, MinioConfig, PulsarConfig}
+import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, MinioConfig}
 
 trait RefitConfig {
 
-  val getPulsarConfig: () => PulsarConfig
+  val getKafkaConfig: () => KafkaConfig
 
   val getCassandraConfig: () => CassandraConfig
 

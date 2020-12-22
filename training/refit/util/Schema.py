@@ -64,11 +64,20 @@ class Schema:
             cursor = self.get_next_partition(cursor)
         return partitions
 
+    def get_doubles(self):
+        return [x.name.lower() for x in self.fields if x.type == 'Double']
+
+    def get_strings(self):
+        return [x.name.lower() for x in self.fields if x.type == 'String']
+
+    def get_integers(self):
+        return [x.name.lower() for x in self.fields if x.type == 'Integer']
+
 
 class SchemaFactory:
     def __init__(self, dao: TrainingDao):
         self.dao = dao
 
-    def getSchema(self, project_guid: string) -> Schema:
+    def get_schema(self, project_guid: string) -> Schema:
         (schema_yaml, org_guid) = self.dao.get_schema(project_guid)
         return Schema(schema_yaml)

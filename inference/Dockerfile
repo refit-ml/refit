@@ -1,11 +1,12 @@
-FROM cdliotprototype/cdl-refit-flink:1.10.1
+FROM cdliotprototype/cdl-refit-flink:BETA-1.0
 
-COPY ./target/scala-2.11/inference.jar /app/inference.jar
-COPY ./src/main/python/deploy.py /app/deploy.py
-COPY ./src/main/python/requirements.txt /app/requirements.txt
+COPY ./target/scala-2.12/inference.jar /app/inference.jar
+ADD ./src/main/python /app
 
 WORKDIR /app
 
+RUN apt-get install python3 python3-pip wait-for-it -y
+
 RUN pip3 install -r requirements.txt
 
-CMD wait-for-it ${WAIT_PULSAR_HOST}:6650 -t 300 -s -- wait-for-it ${WAIT_FLINK_HOST}:8081 -t 300 -s -- python3 /app/deploy.py
+CMD wait-for-it ${KAFKA_HOST} -t 300 -s -- wait-for-it ${WAIT_FLINK_HOST}:8081 -t 300 -s -- python3 /app/deploy.py

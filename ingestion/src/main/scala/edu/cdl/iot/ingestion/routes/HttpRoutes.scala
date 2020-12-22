@@ -1,5 +1,6 @@
 package edu.cdl.iot.ingestion.routes
 
+import edu.cdl.iot.common.yaml.KafkaConfig
 import edu.cdl.iot.ingestion.constants.{HttpConstants, PulsarConstants}
 import edu.cdl.iot.ingestion.dto.request.{ImportRequest, ModelRequest, SchemaRequest}
 import edu.cdl.iot.ingestion.dto.response.ImportResponse
@@ -9,6 +10,7 @@ import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestBindingMode
 
 class HttpRoutes(val context: CamelContext,
+                 val kafkaConfig: KafkaConfig,
                  val importProcessors: ImportProcessors,
                  val modelProcessors: ModelProcessors,
                  val schemaProcessors: SchemaProcessors) extends RouteBuilder(context) {
@@ -43,10 +45,8 @@ class HttpRoutes(val context: CamelContext,
       .route()
       .process(schemaProcessors.createSchema)
 
-    from(s"timer://sensor-data?period=${PulsarConstants.POLL_INTERVAL_MILLS}")
-      .process(importProcessors.consumeImportRequests)
+    from(s"kafka:${kafkaConfig.topics.`import`}?brokers=${kafkaConfig.host}")
       .process(importProcessors.deseralizeImportRequest)
-      .process(importProcessors.ackImportRequest)
       .process(importProcessors.doImport)
 
 

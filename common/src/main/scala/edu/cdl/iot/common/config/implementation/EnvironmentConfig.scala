@@ -2,19 +2,20 @@ package edu.cdl.iot.common.config.implementation
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
-import edu.cdl.iot.common.yaml.{CassandraConfig, MinioBucket, MinioConfig, PulsarConfig, PulsarTopic}
+import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
 
 
 class EnvironmentConfig extends RefitConfig {
 
-  override val getPulsarConfig: () => PulsarConfig = () => new PulsarConfig(
-    sys.env(EnvConstants.PULSAR_HOST),
-    new PulsarTopic(
+  override val getKafkaConfig: () => KafkaConfig = () => new KafkaConfig(
+    sys.env(EnvConstants.KAFKA_HOST),
+    new KafkaTopic(
       sys.env(EnvConstants.MODELS_TOPIC),
       sys.env(EnvConstants.DATA_TOPIC),
       sys.env(EnvConstants.PREDICTIONS_TOPIC),
       sys.env(EnvConstants.IMPORT_TOPIC),
-      sys.env(EnvConstants.MODEL_PUBLISH_TOPIC)
+      sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
+      sys.env(EnvConstants.SENSOR_DATA_TOPIC)
     )
   )
 
