@@ -1,0 +1,8 @@
+package edu.cdl.iot.integrations.cassandra.repository
+
+import edu.cdl.iot.data.cassandra.CassandraRepository
+import edu.cdl.iot.data.cassandra.repository.CassandraSensorDataRepository
+import edu.cdl.iot.integrations.core.repository.IntegrationsSensorDataRepository
+
+class IntegrationsCassandraSensorDataRepository(cassandraRepository: CassandraRepository)
+extends CassandraSensorDataRepository(cassandraRepository) with IntegrationsSensorDataRepository

@@ -16,9 +16,8 @@ lazy val db = project in file("db")
 
 lazy val inference = project in file("inference")
 
-lazy val integrations = project in file("integrations")
-
 lazy val `ingestion-application` = project in file("ingestion/ingestion-application")
+lazy val `integrations-application` = project in file("integrations/integrations-application")
 lazy val `demo-application` = project in file("demo/demo-application")
 
 
