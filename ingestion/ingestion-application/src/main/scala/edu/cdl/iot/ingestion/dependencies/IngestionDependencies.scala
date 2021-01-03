@@ -6,7 +6,7 @@ import edu.cdl.iot.data.kafka.KafkaRepository
 import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.ingestion.cassandra.repository.{IngestionOrganizationRepository, IngestionProjectRepository, IngestionSensorRepository, IngestionTrainingWindowRepository}
 import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService, ProjectService}
-import edu.cdl.iot.ingestion.kafka.{IngestionImportRepository, IngestionKafkaSensorDataRepository}
+import edu.cdl.iot.ingestion.kafka.{IngestionImportRepository, IngestionSensorDataRepository}
 import edu.cdl.iot.ingestion.minio.{IngestionModelFileRepository, IngestionSchemaRepository}
 import edu.cdl.iot.ingestion.kafka.IngestionModelRepository
 import edu.cdl.iot.ingestion.routes.ImportRoutes
@@ -21,7 +21,7 @@ class IngestionDependencies(config: RefitConfig,
 
   private val organizationRepository = new IngestionOrganizationRepository(cassandraRepository)
   private val projectRepository = new IngestionProjectRepository(cassandraRepository)
-  private val sensorDataRepository = new IngestionKafkaSensorDataRepository(kafkaRepository)
+  private val sensorDataRepository = new IngestionSensorDataRepository(kafkaRepository)
   private val trainingWindowRepository = new IngestionTrainingWindowRepository(cassandraRepository)
   private val importRepository = new IngestionImportRepository(kafkaRepository)
 
