@@ -3,10 +3,11 @@ object Dependencies {
     Libraries.protobuf,
     Libraries.joda,
     Libraries.selfForj,
-    Libraries.selfForjSimple
+    Libraries.selfForjSimple,
+    Libraries.scalaTest
   )
 
-  val cassandraDependencies = Seq(
+  val cassandra = Seq(
     Libraries.cassandra
   )
 
@@ -14,34 +15,28 @@ object Dependencies {
     Libraries.kakfaCamel
   )
 
-  val testDependencies = Seq(
-    Libraries.scalaTest
-  )
-
-  val common = Seq(
-    Libraries.codec,
-    Libraries.snakeYaml
-  )
-
-  val inference = Seq(
+  val flink = Seq(
     Libraries.flinkScala,
     Libraries.flinkStreaming,
     Libraries.flinkKafka,
-    Libraries.flinkClients,
-    Libraries.jpmml,
-    Libraries.jaxb,
-    Libraries.onnx,
-    Libraries.scalaTest,
-    Libraries.jackson,
+    Libraries.flinkClients
+  )
+
+  val jackson = Seq(
+    Libraries.jackson
+  )
+
+  val gson = Seq(
     Libraries.gson
   )
 
-  val ingestion = Seq(
-    Libraries.camelCore,
-    Libraries.camelJackson,
-    Libraries.camelNetty,
-    Libraries.camelRest,
-    Libraries.minio
+  val pmml = Seq(
+    Libraries.jpmml,
+    Libraries.jaxb
+  )
+
+  val onnx = Seq(
+    Libraries.onnx
   )
 
   val camel = Seq(
@@ -53,13 +48,6 @@ object Dependencies {
     Libraries.kakfaCamel
   )
 
-  val integrations = Seq(
-    Libraries.camelCore,
-    Libraries.camelJackson,
-    Libraries.camelNetty,
-    Libraries.camelRest,
-    Libraries.kakfaCamel
-  )
 
   val minio = Seq(
     Libraries.minio

@@ -1,5 +1,5 @@
 name := "integrations-core"
 Settings.default
 baseAssemblySettings
-libraryDependencies += Libraries.jackson
+libraryDependencies ++= Dependencies.jackson
 dependsOn(Shared.common)
