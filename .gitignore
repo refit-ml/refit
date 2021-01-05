@@ -20,7 +20,7 @@ training/notebooks/refit/
 .cache/
 .ipynb_checkpoints/
 db/data/
-data/
+training/data/
 baseline_model/
 infrastructure/refit/refit/
 infrastructure/refit/charts/

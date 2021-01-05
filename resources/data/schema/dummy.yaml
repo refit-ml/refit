@@ -1,0 +1,35 @@
+name: Dummy
+projectGuid: b6ee5bab-08dd-49b0-98b6-45cd0a28b12f
+partitionScheme: HOUR
+importOptions:
+  includesHeader: true
+featureType: Double
+fields:
+  - name: Auto-Increment
+    type: Integer
+    classification: ThrowAway
+  - name: SensorID
+    type: Integer
+    classification: Key
+  - name: Timestamp
+    type: String
+    classification: Timestamp
+  - name: Temperature
+    type: Double
+    classification: Feature
+  - name: Pressure
+    type: Double
+    classification: Feature
+  - name: Wind
+    type: Double
+    classification: Feature
+  - name: Operable
+    type: Double
+    classification: Label
+  - name: Probability(1)
+    type: Double
+    classification: Label
+  - name: Probability(0)
+    type: Double
+    classification: Label
+
