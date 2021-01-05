@@ -1,28 +1,35 @@
 import sbt.Keys._
 import sbt._
-import sbtassembly.AssemblyPlugin.autoImport.{MergeStrategy, assembly, assemblyMergeStrategy}
+import sbtassembly.AssemblyPlugin.autoImport.{MergeStrategy, assembly, assemblyMergeStrategy, baseAssemblySettings}
 import sbtassembly.PathList
 
+
 object Settings {
-  lazy val camel = Seq(
-    libraryDependencies ++= Dependencies.camel,
-    assemblyMergeStrategy in assembly := {
+  lazy val assembly = default ++ baseAssemblySettings ++ Seq(
+    assemblyMergeStrategy in sbtassembly.AssemblyKeys.assembly := {
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
+      case PathList("META-INF", "versions", "9", "javax", "xml", "bind", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "jandex.idx", xs@_*) => MergeStrategy.last
+      case PathList("google", "protobuf", xs@_*) => MergeStrategy.first
+      case PathList("commons-configuration", "commons-configuration", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "avro", "reflect", xs@_*) => MergeStrategy.first
+      case PathList("org", "apache", "spark", xs@_*) => MergeStrategy.first
+      case PathList("org", "slf4j", "impl", xs@_*) => MergeStrategy.first
+      case PathList("javax", "activation", xs@_*) => MergeStrategy.last
+      case PathList("javax", xs@_*) => MergeStrategy.first
+
       case "component.properties" => MergeStrategy.last
       case "language.properties" => MergeStrategy.last
       case "module-info.class" => MergeStrategy.last
       case "MANIFEST.MF" => MergeStrategy.last
-      case PathList("javax", "activation", xs@_*) => MergeStrategy.last
-      case PathList("org", "slf4j", "impl", xs@_*) => MergeStrategy.first
       case x =>
-        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        val oldStrategy = (assemblyMergeStrategy in sbtassembly.AssemblyKeys.assembly).value
         oldStrategy(x)
     }
   )
 
   lazy val default = Seq(
-    assembly := null,
+    sbtassembly.AssemblyKeys.assembly := null,
     scalacOptions ++= Seq(
       "-unchecked",
       "-feature",
