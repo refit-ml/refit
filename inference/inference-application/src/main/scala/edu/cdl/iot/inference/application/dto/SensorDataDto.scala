@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import edu.cdl.iot.protocol.SensorData.SensorData
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters.{asJavaIterableConverter, mapAsScalaMapConverter}
-
+import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
 
 case class SensorDataDto(@BeanProperty projectGuid: String,
                          @BeanProperty sensorId: String,

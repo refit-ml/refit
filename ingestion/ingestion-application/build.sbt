@@ -7,7 +7,7 @@ name := "ingestion-application"
 Settings.default
 baseAssemblySettings
 libraryDependencies ++= Dependencies.camel
-assemblyJarName in assembly := "ingestion_h.jar"
+assemblyJarName in assembly := "ingestion.jar"
 mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.application.CamelMain")
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last

@@ -1,6 +1,6 @@
 FROM openjdk:11
 
-COPY ./target/scala-2.12/integrations.jar /app/app.jar
+COPY ./target/scala-2.12/demo.jar /app/app.jar
 
 RUN apt-get update
 
