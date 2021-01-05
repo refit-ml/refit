@@ -8,6 +8,9 @@ Global / cancelable := true
 
 lazy val protocol = project in file("protocol")
 lazy val common = project in file("common")
+lazy val `data-cassandra` = project in file("data/data-cassandra")
+lazy val `data-minio` = project in file("data/data-minio")
+lazy val `data-kafka` = project in file("data/data-kafka")
 
 lazy val `inference-application` = project in file("inference/inference-application")
 lazy val `ingestion-application` = project in file("ingestion/ingestion-application")
