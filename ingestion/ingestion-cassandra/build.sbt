@@ -1,6 +1,5 @@
-val `data-cassandra` = project in file("../../data/data-cassandra")
 val `ingestion-core` = project in file("../ingestion-core")
 name := "ingestion-cassandra"
 Settings.default
 baseAssemblySettings
-dependsOn(`data-cassandra`, `ingestion-core`)
+dependsOn(Shared.`data-cassandra`, `ingestion-core`)
