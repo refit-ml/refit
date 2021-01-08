@@ -7,7 +7,7 @@ Settings.assembly
 libraryDependencies ++= Dependencies.flink
 libraryDependencies ++= Dependencies.gson
 libraryDependencies ++= Dependencies.jackson
-mainClass in assembly := Some("edu.cdl.iot.inference.Main")
+mainClass in assembly := Some("edu.cdl.iot.inference.application.Main")
 assemblyJarName in assembly := "inference.jar"
 
 dependsOn(Shared.protocol, Shared.common, `inference-core`)

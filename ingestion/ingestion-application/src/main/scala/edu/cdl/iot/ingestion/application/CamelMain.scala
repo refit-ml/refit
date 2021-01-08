@@ -1,7 +1,7 @@
 package edu.cdl.iot.ingestion.application
 
 import edu.cdl.iot.common.factories.ConfigFactory
-import edu.cdl.iot.ingestion.dependencies.IngestionDependencies
+import edu.cdl.iot.ingestion.application.dependencies.IngestionDependencies
 import org.apache.camel.component.kafka.{KafkaComponent, KafkaConfiguration}
 import org.apache.camel.component.netty.http.NettyHttpComponent
 import org.apache.camel.impl.DefaultCamelContext
@@ -27,6 +27,8 @@ object CamelMain {
     context.addComponent("netty-http", new NettyHttpComponent)
     context.addComponent("kafka", kafkaComponent)
     context.addRoutes(ingestionDependencies.importRoutes)
+
+    context.start()
 
   }
 }

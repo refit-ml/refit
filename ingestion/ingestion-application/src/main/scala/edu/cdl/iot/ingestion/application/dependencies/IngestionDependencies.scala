@@ -1,4 +1,4 @@
-package edu.cdl.iot.ingestion.dependencies
+package edu.cdl.iot.ingestion.application.dependencies
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.data.cassandra.CassandraRepository
@@ -7,9 +7,9 @@ import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.ingestion.cassandra.repository.{IngestionOrganizationRepository, IngestionProjectRepository, IngestionSensorRepository, IngestionTrainingWindowRepository}
 import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService, ProjectService}
 import edu.cdl.iot.ingestion.kafka.{IngestionImportRepository, IngestionSensorDataRepository}
-import edu.cdl.iot.ingestion.minio.{IngestionModelFileRepository, IngestionSchemaRepository}
+import edu.cdl.iot.ingestion.minio.{IngestionImportFileRepository, IngestionModelFileRepository, IngestionSchemaRepository}
 import edu.cdl.iot.ingestion.kafka.IngestionModelRepository
-import edu.cdl.iot.ingestion.routes.ImportRoutes
+import edu.cdl.iot.ingestion.application.routes.ImportRoutes
 import org.apache.camel.CamelContext
 
 class IngestionDependencies(config: RefitConfig,
@@ -28,11 +28,12 @@ class IngestionDependencies(config: RefitConfig,
   private val schemaRepository = new IngestionSchemaRepository(minioRepository)
   private val modelRepository = new IngestionModelRepository(kafkaRepository)
   private val modelFileRepository = new IngestionModelFileRepository(minioRepository)
+  private val importFileRepository = new IngestionImportFileRepository(minioRepository)
 
 
   private val importService = new ImportService(
     minioConfig = config.getMinioConfig(),
-    fileRepository = null,
+    fileRepository = importFileRepository,
     projectRepository = projectRepository,
     sensorDataRepository = sensorDataRepository,
     trainingWindowRepository = trainingWindowRepository,

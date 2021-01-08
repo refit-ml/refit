@@ -1,7 +1,7 @@
-package edu.cdl.iot.ingestion.routes
+package edu.cdl.iot.ingestion.application.routes
 
 import edu.cdl.iot.common.yaml.KafkaConfig
-import edu.cdl.iot.ingestion.constants.HttpConstants
+import edu.cdl.iot.ingestion.application.constants.HttpConstants
 import edu.cdl.iot.ingestion.core.dto.request.{ImportRequest, ModelRequest, SchemaRequest}
 import edu.cdl.iot.ingestion.core.dto.response.ImportResponse
 import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService, ProjectService}

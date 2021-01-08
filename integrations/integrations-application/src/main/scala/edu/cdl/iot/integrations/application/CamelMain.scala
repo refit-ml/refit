@@ -29,5 +29,7 @@ class CamelMain {
     context.addRoutes(dependencies.grafanaRoutes)
     context.addRoutes(dependencies.predictionRoutes)
 
+    context.start()
+
   }
 }

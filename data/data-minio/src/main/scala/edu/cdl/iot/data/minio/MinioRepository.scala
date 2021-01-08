@@ -3,7 +3,7 @@ package edu.cdl.iot.data.minio
 import java.io.InputStream
 
 import edu.cdl.iot.common.yaml.{MinioBucket, MinioConfig}
-import io.minio.{GetObjectArgs, MinioClient}
+import io.minio.{GetObjectArgs, MinioClient, RemoveObjectArgs}
 
 class MinioRepository(config: MinioConfig) {
 
@@ -27,5 +27,8 @@ class MinioRepository(config: MinioConfig) {
       .takeWhile(_ != -1)
       .map(_.toByte)
       .toArray
+
+  def deleteFile(bucketName: String, filePath: String): Unit =
+    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).`object`(filePath).build)
 
 }
