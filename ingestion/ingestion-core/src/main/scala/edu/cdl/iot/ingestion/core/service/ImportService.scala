@@ -4,6 +4,7 @@ import edu.cdl.iot.common.yaml.MinioConfig
 import edu.cdl.iot.ingestion.core.dto.request.ImportRequest
 import edu.cdl.iot.ingestion.core.factory.{SensorDataFactory, TrainingWindowFactory}
 import edu.cdl.iot.ingestion.core.repository.{ImportFileRepository, ImportRepository, ProjectRepository, SensorDataRepository, TrainingWindowRepository}
+import org.slf4j.LoggerFactory
 
 class ImportService(minioConfig: MinioConfig,
                     fileRepository: ImportFileRepository,
@@ -11,13 +12,14 @@ class ImportService(minioConfig: MinioConfig,
                     sensorDataRepository: SensorDataRepository,
                     trainingWindowRepository: TrainingWindowRepository,
                     importRepository: ImportRepository) {
+  private val logger = LoggerFactory.getLogger(classOf[ImportService])
 
   def performSensorDataImport(request: ImportRequest): Unit = {
     val schema = projectRepository.getSchema(request.projectGuid)
     val lineIterator = fileRepository.lineIterator(minioConfig.buckets.`import`, request.filePath)
 
-
     if (request.importTrainingWindow) {
+      logger.info("Start training window import")
       val trainingWindowFactory = new TrainingWindowFactory(schema)
       lineIterator
         .drop(1)
@@ -26,6 +28,7 @@ class ImportService(minioConfig: MinioConfig,
         .foreach(trainingWindowRepository.createTrainingWindow)
     }
     else {
+      logger.info("Start sensor data import")
       val sensorDataFactory = new SensorDataFactory(schema)
       lineIterator
         .drop(1)

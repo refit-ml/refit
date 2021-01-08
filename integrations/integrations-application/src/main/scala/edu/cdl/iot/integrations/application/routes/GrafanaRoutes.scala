@@ -53,9 +53,9 @@ class GrafanaRoutes(private val context: CamelContext,
         exchange.getIn().setBody(queryData)
       })
       .process((exchange: Exchange) => {
-        val queryData = exchange.getIn().getBody(classOf[GrafanaSensorDataDto])
-        val response = grafanaQueryService.query(queryData)
-        exchange.getIn().setBody(response)
+        val queryData = exchange.getIn().getBody(classOf[List[GrafanaSensorDataDto]])
+        val response = queryData.flatMap(x => grafanaQueryService.query(x))
+        exchange.getIn().setBody(response.toArray)
       })
 
 

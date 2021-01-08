@@ -6,7 +6,7 @@ Settings.assembly
 
 libraryDependencies ++= Dependencies.camel
 assemblyJarName in assembly := "integrations.jar"
-mainClass in (run / assembly) := Some("edu.cdl.iot.ingestion.application.CamelMain")
+mainClass in (run / assembly) := Some("edu.cdl.iot.integrations.application.CamelMain")
 
 dependsOn(
   `integrations-core`,
