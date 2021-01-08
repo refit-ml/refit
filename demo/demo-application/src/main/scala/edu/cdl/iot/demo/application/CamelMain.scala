@@ -27,5 +27,7 @@ object CamelMain {
 
     context.addRoutes(ingestionDependencies.demoRoutes)
 
+    context.start()
+
   }
 }
