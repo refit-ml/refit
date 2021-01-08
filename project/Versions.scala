@@ -17,6 +17,7 @@ object Versions {
   val self4J = "1.7.30"
   var jackson = "2.11.2"
   val gson = "1.7.1"
+  val logback = "1.2.3"
 
   // test dependencies
   val scalaTest = "3.2.0"

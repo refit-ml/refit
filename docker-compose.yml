@@ -22,7 +22,7 @@ services:
       - zookeeper
   #
   cassandra:
-    build: ./db/src/main/cql/
+    build: ./resources/cql
     ports:
       - "7000:7000"
       - "9042:9042"
@@ -101,7 +101,7 @@ services:
       retries: 3
 
   inference:
-    build: ./inference/
+    build: ./inference/inference-application
     environment:
       WAIT_FLINK_HOST: flink-jobmanager
       FLINK_HOST: flink-jobmanager
@@ -112,7 +112,7 @@ services:
       - cassandra
 
   ingestion:
-    build: ./ingestion/
+    build: ./ingestion/ingestion-application
     environment:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
@@ -144,7 +144,7 @@ services:
       - "3030:3030"
 
   integrations:
-    build: ./integrations/
+    build: ./integrations/integrations-application
     environment:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
