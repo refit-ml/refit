@@ -5,7 +5,8 @@ import java.sql.Timestamp
 import com.datastax.driver.core.PreparedStatement
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
-import scala.collection.JavaConverters.asJavaIterableConverter
+import scala.collection.JavaConverters.mapAsJavaMapConverter
+
 
 class CassandraPredictionRepository(cassandraRepository: CassandraRepository) {
   private val keyspace = cassandraRepository.keyspace

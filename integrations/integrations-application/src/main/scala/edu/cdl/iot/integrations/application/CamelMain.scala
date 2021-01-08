@@ -6,7 +6,7 @@ import org.apache.camel.component.kafka.{KafkaComponent, KafkaConfiguration}
 import org.apache.camel.component.netty.http.NettyHttpComponent
 import org.apache.camel.impl.DefaultCamelContext
 
-class CamelMain {
+object CamelMain {
   def main(args: Array[String]) {
     val configFactory = new ConfigFactory()
     val config = configFactory.getConfig
