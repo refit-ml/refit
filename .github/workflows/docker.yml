@@ -90,7 +90,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          path: integrations
+          path: integrations/integrations-application
 
   cassandra:
     runs-on: ubuntu-latest
