@@ -16,7 +16,9 @@ object CamelMain {
     val dependencies = new IntegrationsDependencies(config, context)
 
     val kafkaComponent = new KafkaComponent()
+    val nettyHttpComponent = new NettyHttpComponent
     val kafkaConfig = new KafkaConfiguration
+
 
     kafkaConfig.setSerializerClass("org.apache.kafka.common.serialization.ByteArraySerializer")
     kafkaConfig.setKeySerializerClass("org.apache.kafka.common.serialization.ByteArraySerializer")
@@ -28,6 +30,7 @@ object CamelMain {
     context.addComponent("kafka", kafkaComponent)
     context.addRoutes(dependencies.grafanaRoutes)
     context.addRoutes(dependencies.predictionRoutes)
+    context.addRoutes(dependencies.notebookRoutes)
 
     context.start()
 

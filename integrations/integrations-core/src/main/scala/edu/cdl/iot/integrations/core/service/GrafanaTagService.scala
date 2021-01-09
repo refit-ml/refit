@@ -1,7 +1,7 @@
 package edu.cdl.iot.integrations.core.service
 
-import edu.cdl.iot.integrations.core.dto.request.TagRequest
-import edu.cdl.iot.integrations.core.dto.response.TagResponse
+import edu.cdl.iot.integrations.core.request.TagRequest
+import edu.cdl.iot.integrations.core.response.TagResponse
 import edu.cdl.iot.integrations.core.repository.{IntegrationsOrganizationRepository, IntegrationsProjectRepository, IntegrationsSensorRepository}
 
 class GrafanaTagService(sensorRepository: IntegrationsSensorRepository,

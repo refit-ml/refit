@@ -1,4 +1,4 @@
-package edu.cdl.iot.integrations.core.dto.request
+package edu.cdl.iot.integrations.core.request
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

@@ -2,7 +2,7 @@ package edu.cdl.iot.integrations.core.service
 
 import edu.cdl.iot.common.schema.Field
 import edu.cdl.iot.common.schema.enums.FieldClassification
-import edu.cdl.iot.integrations.core.dto.request.SearchRequest
+import edu.cdl.iot.integrations.core.request.SearchRequest
 import edu.cdl.iot.integrations.core.repository.{IntegrationsProjectRepository, IntegrationsSensorRepository}
 
 class GrafanaSearchService(projectRepository: IntegrationsProjectRepository,
