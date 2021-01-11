@@ -1,0 +1,8 @@
+package edu.cdl.iot.integrations.cassandra.repository
+
+import edu.cdl.iot.data.cassandra.CassandraRepository
+import edu.cdl.iot.data.cassandra.repository.CassandraPredictionRepository
+import edu.cdl.iot.integrations.core.repository.IntegrationsPredictionRepository
+
+class IntegrationsCassandraPredictionRepository(cassandraRepository: CassandraRepository)
+  extends CassandraPredictionRepository(cassandraRepository) with IntegrationsPredictionRepository

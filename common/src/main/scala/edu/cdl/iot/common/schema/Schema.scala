@@ -10,6 +10,7 @@ import org.joda.time.DateTime
 import org.yaml.snakeyaml.Yaml
 
 import collection.JavaConverters._
+import scala.collection.mutable
 
 case class Schema(yaml: SchemaYaml) {
   val org: String = yaml.org
@@ -38,6 +39,17 @@ case class Schema(yaml: SchemaYaml) {
       case PartitionScheme.HOUR => date.plusHours(1)
       case PartitionScheme.MINUTE => date.plusMinutes(1)
     }
+  }
+
+  def getPartitionsInRange(from: DateTime, to: DateTime): List[String] = {
+    val partitions = mutable.Set[String]()
+    var cursor = from
+    while (to.getMillis >= cursor.getMillis) {
+      partitions.add(getPartitionString(cursor))
+      cursor = getNextPartition(cursor)
+    }
+
+    partitions.toList
   }
 
   def getFileName: String = (if (importOptions == null || importOptions.fileName == null) name else s"$name.csv").toLowerCase()
@@ -77,5 +89,10 @@ case class Schema(yaml: SchemaYaml) {
 
   // TODO We will want to create actual type checks for this
   def validate(row: Array[String]): Boolean = fields.length == row.length
+
+  def getFields: Array[Field] = fields.toArray
+  def getImportOptions: ImportOptions = importOptions
+  def getPartitionScheme: String = partitionScheme.toString
+  def getFeatureType: String = featureType.toString
 }
 

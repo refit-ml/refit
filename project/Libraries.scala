@@ -11,6 +11,8 @@ object Libraries {
   val camelJackson = "org.apache.camel" % "camel-jackson" % Versions.camel
   val camelNetty = "org.apache.camel" % "camel-netty-http" % Versions.camel
 
+  val logBack =  "ch.qos.logback" % "logback-classic" % Versions.logback
+
   val flinkScala = "org.apache.flink" %% "flink-scala" % Versions.flink
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
   val flinkClients = "org.apache.flink" %% "flink-clients" % Versions.flink

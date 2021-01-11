@@ -22,7 +22,7 @@ services:
       - zookeeper
   #
   cassandra:
-    build: ./db/src/main/cql/
+    build: ./resources/cql
     ports:
       - "7000:7000"
       - "9042:9042"
@@ -36,7 +36,7 @@ services:
       - ./resources/grafana/config.ini:/etc/grafana/config.ini
       - ./resources/grafana/dashboards/:/var/lib/grafana/dashboards
     ports:
-      - 8000:3000
+      - 8000:8000
     user: "104"
     environment:
       GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,simpod-json-datasource
@@ -101,7 +101,7 @@ services:
       retries: 3
 
   inference:
-    build: ./inference/
+    build: ./inference/inference-application
     environment:
       WAIT_FLINK_HOST: flink-jobmanager
       FLINK_HOST: flink-jobmanager
@@ -112,7 +112,7 @@ services:
       - cassandra
 
   ingestion:
-    build: ./ingestion/
+    build: ./ingestion/ingestion-application
     environment:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
@@ -144,7 +144,7 @@ services:
       - "3030:3030"
 
   integrations:
-    build: ./integrations/
+    build: ./integrations/integrations-application
     environment:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
@@ -172,6 +172,8 @@ services:
       - flink-jobmanager
       - refit-kafka
       - cassandra
+    ports:
+      - "3000:3000"
 
 
   notebook:
@@ -190,19 +192,6 @@ services:
       NB_GID: 1011
       CHOWN_HOME: 'yes'
       CHOWN_HOME_OPTS: -R
-      WAIT_CASSANDRA_HOST: cassandra
-      KAFKA_HOST: "refit-kafka:9092"
-      KAFKA_DATA_TOPIC: refit.inference.data
-      KAFKA_MODELS_TOPIC: refit.training.models
-      KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
-      KAFKA_IMPORT_TOPIC: refit.training.import
-      KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
-      KAFKA_SENSOR_DATA_TOPIC: refit.inference.sensor.data
-      CASSANDRA_HOST: cassandra
-      CASSANDRA_PORT: 9042
-      CASSANDRA_USER: cassandra
-      CASSANDRA_PASSWORD: cassandra
-      CASSANDRA_KEYSPACE: cdl_refit
       MINIO_HOST: minio:9000
       MINIO_ACCESS_KEY: refit
       MINIO_SECRET_KEY: refit-key
@@ -213,6 +202,7 @@ services:
       REFIT_DEMO: "false"
       PROJECT: ingestion
       INGESTION_HOST: ingestion
+      INTEGRATIONS_HOST: integrations
       FLINK_HOST: flink-jobmanager
 
 networks:

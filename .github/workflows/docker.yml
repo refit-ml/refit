@@ -5,6 +5,27 @@ on:
     types: [published]
 
 jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Compile Source Code
+        run: sbt demo-application/assembly
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: cdliotprototype/cdl-refit-demo
+          tag_with_ref: true
+          path: demo/demo-application
   inference:
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +35,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Compile Source Code
-        run: sbt inference/assembly
+        run: sbt inference-application/assembly
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
 
@@ -25,7 +46,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
-          path: inference
+          path: inference/inference-application
 
   ingestion:
     runs-on: ubuntu-latest
@@ -36,7 +57,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Compile Source Code
-        run: sbt ingestion/assembly
+        run: sbt ingestion-application/assembly
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
 
@@ -47,7 +68,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          path: ingestion
+          path: ingestion/ingestion-application
 
   integrations:
     runs-on: ubuntu-latest
@@ -58,7 +79,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Compile Source Code
-        run: sbt integrations/assembly
+        run: sbt integrations-application/assembly
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
 
@@ -69,7 +90,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          path: integrations
+          path: integrations/integrations-application
 
   cassandra:
     runs-on: ubuntu-latest
@@ -84,7 +105,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
-          path: db/src/main/cql
+          path: resources/cql
 
   notebook:
     runs-on: ubuntu-latest
