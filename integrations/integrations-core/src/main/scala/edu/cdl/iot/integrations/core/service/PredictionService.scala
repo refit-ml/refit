@@ -1,5 +1,7 @@
 package edu.cdl.iot.integrations.core.service
 
+import java.util.UUID
+
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.domain.Sensor
 import edu.cdl.iot.common.schema.Schema
@@ -21,8 +23,8 @@ class PredictionService(private val config: RefitConfig,
 
   val encryptionHelpers: mutable.HashMap[String, EncryptionHelper] = new mutable.HashMap[String, EncryptionHelper]()
 
-  def getSchema(projectGuid: String): Schema =
-    projectRepository.getSchema(projectGuid)
+  def getSchema(projectGuid: UUID): Schema =
+    projectRepository.find(projectGuid).schema
 
   def savePrediction(prediction: Prediction, schema: Schema): Unit = {
     val helper = encryptionHelpers.getOrElseUpdate(prediction.projectGuid, {

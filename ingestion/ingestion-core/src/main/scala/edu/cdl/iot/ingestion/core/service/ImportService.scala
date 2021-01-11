@@ -1,5 +1,7 @@
 package edu.cdl.iot.ingestion.core.service
 
+import java.util.UUID
+
 import edu.cdl.iot.common.yaml.MinioConfig
 import edu.cdl.iot.ingestion.core.dto.request.ImportRequest
 import edu.cdl.iot.ingestion.core.factory.{SensorDataFactory, TrainingWindowFactory}
@@ -15,7 +17,8 @@ class ImportService(minioConfig: MinioConfig,
   private val logger = LoggerFactory.getLogger(classOf[ImportService])
 
   def performSensorDataImport(request: ImportRequest): Unit = {
-    val schema = projectRepository.getSchema(request.projectGuid)
+    val projectGuid = UUID.fromString(request.projectGuid)
+    val schema = projectRepository.find(projectGuid).schema
     val lineIterator = fileRepository.lineIterator(minioConfig.buckets.`import`, request.filePath)
 
     if (request.importTrainingWindow) {

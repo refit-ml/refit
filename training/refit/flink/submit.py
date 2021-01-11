@@ -4,7 +4,6 @@ import uuid
 
 import requests
 
-from refit.flink.refit_feature_extractor import RefitFeatureExtractor
 
 base_dir = "./"
 scala_job_name = "CDL IoT - Inference"

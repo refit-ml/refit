@@ -1,5 +1,7 @@
 package edu.cdl.iot.integrations.core.service
 
+import java.util.UUID
+
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.integrations.core.request.{QueryFilters, QueryRequest}
@@ -71,13 +73,13 @@ class GrafanaQueryService(projectRepository: IntegrationsProjectRepository,
       .trim
 
   def getSchema(request: QueryRequest): Schema = {
-    val projectGuid = request.adhocFilters
+    val projectGuid = UUID.fromString(request.adhocFilters
       .filter(x => isEqualToType(x, "project"))
       .head.value
       .split(" - ")
       .last
-      .trim
-    projectRepository.getSchema(projectGuid)
+      .trim)
+    projectRepository.find(projectGuid).schema
   }
 
   def getQueryPartitions(request: QueryRequest, schema: Schema): List[String] = {

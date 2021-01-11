@@ -1,4 +1,4 @@
-from refit.util.EncryptionHelper import EncryptionMode, EncryptionHelper
+from refit.util.encryption_helper import EncryptionMode, EncryptionHelper
 
 key = "keyboard_cat"
 salt = "project_guid"

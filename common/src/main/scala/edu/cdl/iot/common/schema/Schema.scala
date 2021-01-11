@@ -89,5 +89,10 @@ case class Schema(yaml: SchemaYaml) {
 
   // TODO We will want to create actual type checks for this
   def validate(row: Array[String]): Boolean = fields.length == row.length
+
+  def getFields: Array[Field] = fields.toArray
+  def getImportOptions: ImportOptions = importOptions
+  def getPartitionScheme: String = partitionScheme.toString
+  def getFeatureType: String = featureType.toString
 }
 

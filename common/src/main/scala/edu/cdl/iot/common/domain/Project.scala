@@ -12,6 +12,7 @@ object Project {
   def fromSchema(schema: Schema): Project = Project(
     schema.orgGuid,
     schema.projectGuid,
+    null,
     schema.name,
     "",
     TimestampHelper.toTimestamp(DateTime.now()),
@@ -21,9 +22,16 @@ object Project {
 
 case class Project(orgGuid: UUID,
                    projectGuid: UUID,
+                   modelGuid: UUID,
                    name: String,
                    description: String,
                    timestamp: Timestamp,
                    schema: Schema) {
-
+  def getOrgGuid: UUID = orgGuid
+  def getProjectGuid: UUID = projectGuid
+  def getModelGuid: UUID = modelGuid
+  def getName: String = name
+  def getDescription: String = description
+  def getTimestamp: Timestamp = timestamp
+  def getSchema: Schema = schema
 }

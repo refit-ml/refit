@@ -17,8 +17,8 @@ class GrafanaTagService(sensorRepository: IntegrationsSensorRepository,
         .getAllSensors
         .map(x => new TagResponse(x))
         .toArray
-      case "project" => projectRepository.getProjects
-        .map(x => new TagResponse(x))
+      case "project" => projectRepository.find
+        .map(x => new TagResponse(s"${x.name} - ${x.projectGuid}"))
         .toArray
       case "org" => organizationRepository.getOrganizations
         .map(x => new TagResponse(x))

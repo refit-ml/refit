@@ -1,11 +1,12 @@
 package edu.cdl.iot.integrations.core.repository
 
-import edu.cdl.iot.common.schema.Schema
+import java.util.UUID
+import edu.cdl.iot.common.domain.Project
 
 trait IntegrationsProjectRepository {
-  def getSchema(projectGuid: String): Schema
+  def find(projectGuid: UUID): Project
 
-  def getSchemas: List[Schema]
+  def find: List[Project]
 
-  def getProjects: List[String]
+  def save(project: Project)
 }
