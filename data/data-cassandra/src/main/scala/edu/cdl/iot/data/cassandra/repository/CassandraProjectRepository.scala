@@ -46,7 +46,7 @@ class CassandraProjectRepository(cassandraRepository: CassandraRepository) {
     Project(
       orgGuid = UUID.fromString(row.get("org_guid", classOf[String])),
       projectGuid = UUID.fromString(row.get("project_guid", classOf[String])),
-      modelGuid = UUID.fromString(row.get("model_guid", classOf[String])),
+      modelGuid = if (row.isNull("model_guid")) null else UUID.fromString(row.get("model_guid", classOf[String])),
       name = row.getString("name"),
       description = row.getString("description"),
       schema = SchemaFactory.parse(row.getString("schema")),
