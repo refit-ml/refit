@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 from pandas import DataFrame
 
-from refit.api.refit import Refit
+from refit import Refit
 from refit.flink.refit_feature_extractor import RefitFeatureExtractor
 
 

@@ -9,7 +9,7 @@ notebook_repository = NotebookRepository("localhost", 3000)
 @pytest.mark.skipif(True, reason="Requires integrations API running")
 def test_get_project():
     project_guid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
-    project = notebook_repository.get_project(project_guid)
+    project = notebook_repository.get_schema(project_guid)
     assert project is not None
     assert project['projectGuid'] == project_guid
 
