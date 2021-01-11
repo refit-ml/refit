@@ -1,9 +1,12 @@
 package edu.cdl.iot.data.cassandra.repository
 
-import com.datastax.driver.core.PreparedStatement
+import java.sql.Timestamp
+import java.util.UUID
+
+import com.datastax.driver.core.{PreparedStatement, Row}
 import edu.cdl.iot.common.domain.Project
 import edu.cdl.iot.common.factories.SchemaFactory
-import edu.cdl.iot.common.schema.Schema
+import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
 import collection.JavaConverters._
@@ -18,44 +21,39 @@ class CassandraProjectRepository(cassandraRepository: CassandraRepository) {
          |VALUES (?, ?, ?, ?, ?)
          |""".stripMargin
 
-    val getSchema: String =
+    val getProjects: String =
       s"""
-         |SELECT project_guid, "schema"
+         |SELECT org_guid, project_guid, name, description, "schema", timestamp, model_guid
          |FROM $keyspace.project
          |""".stripMargin
 
-    val getProjects: String =
+    val getProject: String =
       s"""
-         |SELECT project_guid, name
+         |SELECT org_guid, project_guid, name, description, "schema", timestamp, model_guid
          |FROM $keyspace.project
+         |WHERE org_guid = ?
+         |AND project_guid = ?
          |""".stripMargin
   }
 
   private object Statement {
     lazy val createProject: PreparedStatement = cassandraRepository.prepare(Query.createProject)
-    lazy val getSchema: PreparedStatement = cassandraRepository.prepare(Query.getSchema)
     lazy val getProjects: PreparedStatement = cassandraRepository.prepare(Query.getProjects)
+    lazy val getProject: PreparedStatement = cassandraRepository.prepare(Query.getProject)
   }
 
-  def getSchema(projectGuid: String): Schema =
-    cassandraRepository
-      .execute(Statement.getSchema.bind())
-      .all
-      .asScala
-      .filter(x => x.getString("project_guid") == projectGuid)
-      .map(x => SchemaFactory.parse(x.get("schema", classOf[String])))
-      .toList
-      .head
+  private def rowToProject(row: Row) =
+    Project(
+      orgGuid = UUID.fromString(row.get("org_guid", classOf[String])),
+      projectGuid = UUID.fromString(row.get("project_guid", classOf[String])),
+      modelGuid = UUID.fromString(row.get("model_guid", classOf[String])),
+      name = row.getString("name"),
+      description = row.getString("description"),
+      schema = SchemaFactory.parse(row.getString("schema")),
+      timestamp = Timestamp.from(row.getTimestamp("timestamp").toInstant)
+    )
 
-  def getSchemas: List[Schema] =
-    cassandraRepository
-      .execute(Statement.getSchema.bind())
-      .all
-      .asScala
-      .map(x => SchemaFactory.parse(x.get("schema", classOf[String])))
-      .toList
-
-  def createProject(project: Project): Unit =
+  def save(project: Project): Unit =
     cassandraRepository
       .execute(Statement.createProject.bind(
         project.orgGuid.toString,
@@ -65,10 +63,24 @@ class CassandraProjectRepository(cassandraRepository: CassandraRepository) {
         project.timestamp
       ))
 
-  def getProjects: List[String] =
+
+  def find: List[Project] =
     cassandraRepository.execute(Statement.getProjects.bind())
       .all()
       .asScala
-      .map(x => s"${x.get("name", classOf[String])} - ${x.get("project_guid", classOf[String])}")
+      .map(rowToProject)
       .toList
+
+  def find(projectGuid: UUID): Project = {
+    val row = cassandraRepository
+      .execute(Statement.getProjects.bind())
+      .all()
+      .asScala
+      .filter(x => x.getString("project_guid") == projectGuid.toString)
+      .head
+
+    rowToProject(row)
+  }
+
+
 }

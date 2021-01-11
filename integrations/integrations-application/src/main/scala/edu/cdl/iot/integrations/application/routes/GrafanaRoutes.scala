@@ -4,8 +4,8 @@ import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.integrations.application.IntegrationConstants
 import edu.cdl.iot.integrations.application.IntegrationConstants.SCHEMA_HEADER
 import edu.cdl.iot.integrations.core.dto.{GrafanaSensorDataDto, HealthCheckDto}
-import edu.cdl.iot.integrations.core.dto.request.{QueryRequest, SearchRequest, TagRequest}
-import edu.cdl.iot.integrations.core.dto.response.AnnotationResponse
+import edu.cdl.iot.integrations.core.request.{QueryRequest, SearchRequest, TagRequest}
+import edu.cdl.iot.integrations.core.response.AnnotationResponse
 import edu.cdl.iot.integrations.core.service.{GrafanaAnnotationService, GrafanaQueryService, GrafanaSearchService, GrafanaTagService}
 import org.apache.camel.{CamelContext, Exchange}
 import org.apache.camel.builder.RouteBuilder
@@ -19,7 +19,6 @@ class GrafanaRoutes(private val context: CamelContext,
   val projectGuid = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
 
   override def configure(): Unit = {
-
     restConfiguration.component("netty-http")
       .enableCORS(true)
       .corsHeaderProperty("Access-Control-Allow-Origin", "*")

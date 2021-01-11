@@ -1,7 +1,7 @@
 package edu.cdl.iot.integrations.core.service
 
-import edu.cdl.iot.integrations.core.dto.request.TagRequest
-import edu.cdl.iot.integrations.core.dto.response.TagResponse
+import edu.cdl.iot.integrations.core.request.TagRequest
+import edu.cdl.iot.integrations.core.response.TagResponse
 import edu.cdl.iot.integrations.core.repository.{IntegrationsOrganizationRepository, IntegrationsProjectRepository, IntegrationsSensorRepository}
 
 class GrafanaTagService(sensorRepository: IntegrationsSensorRepository,
@@ -17,8 +17,8 @@ class GrafanaTagService(sensorRepository: IntegrationsSensorRepository,
         .getAllSensors
         .map(x => new TagResponse(x))
         .toArray
-      case "project" => projectRepository.getProjects
-        .map(x => new TagResponse(x))
+      case "project" => projectRepository.find
+        .map(x => new TagResponse(s"${x.name} - ${x.projectGuid}"))
         .toArray
       case "org" => organizationRepository.getOrganizations
         .map(x => new TagResponse(x))

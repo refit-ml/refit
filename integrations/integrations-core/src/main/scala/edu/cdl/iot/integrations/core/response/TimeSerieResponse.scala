@@ -1,4 +1,4 @@
-package edu.cdl.iot.integrations.core.dto.response
+package edu.cdl.iot.integrations.core.response
 
 import org.joda.time.{Duration, Instant}
 

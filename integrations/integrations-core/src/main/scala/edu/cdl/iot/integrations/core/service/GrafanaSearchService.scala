@@ -2,7 +2,7 @@ package edu.cdl.iot.integrations.core.service
 
 import edu.cdl.iot.common.schema.Field
 import edu.cdl.iot.common.schema.enums.FieldClassification
-import edu.cdl.iot.integrations.core.dto.request.SearchRequest
+import edu.cdl.iot.integrations.core.request.SearchRequest
 import edu.cdl.iot.integrations.core.repository.{IntegrationsProjectRepository, IntegrationsSensorRepository}
 
 class GrafanaSearchService(projectRepository: IntegrationsProjectRepository,
@@ -18,6 +18,6 @@ class GrafanaSearchService(projectRepository: IntegrationsProjectRepository,
   def search(request: SearchRequest): Array[String] =
     request.target match {
       case "sensors" => sensorRepository.getAllSensors.toArray
-      case _ => projectRepository.getSchemas.flatMap(schema => schema.fields.flatMap(fieldMapper)).toArray
+      case _ => projectRepository.find.flatMap(project => project.schema.fields.flatMap(fieldMapper)).toArray
     }
 }

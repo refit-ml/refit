@@ -1,10 +1,12 @@
 package edu.cdl.iot.integrations.core.service
 
+import java.util.UUID
+
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.util.TimestampHelper
-import edu.cdl.iot.integrations.core.dto.request.{QueryFilters, QueryRequest}
+import edu.cdl.iot.integrations.core.request.{QueryFilters, QueryRequest}
 import edu.cdl.iot.integrations.core.dto.{GrafanaSensorDataDto, GrafanaSensorsDto, TableColumn}
-import edu.cdl.iot.integrations.core.dto.response.{TableResponse, TimeSerieResponse}
+import edu.cdl.iot.integrations.core.response.{TableResponse, TimeSerieResponse}
 import edu.cdl.iot.integrations.core.repository.{IntegrationsProjectRepository, IntegrationsSensorDataRepository, IntegrationsSensorRepository}
 import org.joda.time.DateTime
 
@@ -71,27 +73,19 @@ class GrafanaQueryService(projectRepository: IntegrationsProjectRepository,
       .trim
 
   def getSchema(request: QueryRequest): Schema = {
-    val projectGuid = request.adhocFilters
+    val projectGuid = UUID.fromString(request.adhocFilters
       .filter(x => isEqualToType(x, "project"))
       .head.value
       .split(" - ")
       .last
-      .trim
-    projectRepository.getSchema(projectGuid)
+      .trim)
+    projectRepository.find(projectGuid).schema
   }
 
   def getQueryPartitions(request: QueryRequest, schema: Schema): List[String] = {
     val from = DateTime.parse(request.range.from)
     val to = DateTime.parse(request.range.to)
-
-    val partitions = mutable.Set[String]()
-    var cursor = from
-    while (to.getMillis >= cursor.getMillis) {
-      partitions.add(schema.getPartitionString(cursor))
-      cursor = schema.getNextPartition(cursor)
-    }
-
-    partitions.toList
+    schema.getPartitionsInRange(from, to)
   }
 
   private val mapToSensorIds: (Schema, QueryRequest) => GrafanaSensorsDto =

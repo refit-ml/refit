@@ -1,5 +1,7 @@
 package edu.cdl.iot.demo.application
 
+import java.util.UUID
+
 import edu.cdl.iot.common.yaml.KafkaConfig
 import edu.cdl.iot.demo.core.DemoService
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -11,7 +13,7 @@ class DemoRoutes(kafkaConfig: KafkaConfig,
                  demoService: DemoService,
                  context: CamelContext) extends RouteBuilder(context) {
   private val PROCESS_INTERVAL = 5000
-  private val PROJECT_GUID = "b6ee5bab-08dd-49b0-98b6-45cd0a28b12f"
+  private val PROJECT_GUID = UUID.fromString("b6ee5bab-08dd-49b0-98b6-45cd0a28b12f")
 
   override def configure(): Unit = {
     from(s"timer://sensor-data?period=$PROCESS_INTERVAL")

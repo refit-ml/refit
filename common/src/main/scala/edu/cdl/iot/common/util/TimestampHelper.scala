@@ -2,6 +2,7 @@ package edu.cdl.iot.common.util
 
 import java.sql.Timestamp
 import java.time.Instant
+import java.util.Date
 
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatterBuilder}
@@ -27,6 +28,7 @@ object TimestampHelper {
   val parse: String => Timestamp =
     (timestamp: String) =>
       Timestamp.from(Instant.ofEpochMilli(parseDate(timestamp).getMillis))
+
 
   val toTimestamp: DateTime => Timestamp =
     (timestamp: DateTime) =>

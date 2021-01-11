@@ -1,9 +1,5 @@
-import string
 from datetime import datetime, timedelta
 
-import yaml
-
-from refit.dao.TrainingDao import TrainingDao
 
 
 class ImportOptions:
@@ -19,24 +15,25 @@ class Field:
 
 
 class Schema:
-    def __init__(self, schema_yaml: string):
-        dict = yaml.load(schema_yaml)
-        self.name = dict['name']
-        self.project_guid = dict['projectGuid']
-        self.partition_scheme = dict['partitionScheme']
-        self.import_options = ImportOptions(dict['importOptions'])
-        self.feature_type = dict['featureType']
-        self.fields = list(map(lambda x: Field(x), dict['fields']))
-        self.org_guid = dict['orgGuid']
+    def __init__(self, project: dict):
+        schema: dict = project['schema']
+        self.name = project['name']
+        self.project_guid = project['projectGuid']
+        self.org_guid = project['orgGuid']
 
-    def __repr__(self) -> string:
+        self.partition_scheme = schema['partitionScheme']
+        self.import_options = ImportOptions(schema['importOptions'])
+        self.feature_type = schema['featureType']
+        self.fields = [Field(x) for x in schema['fields']]
+
+    def __repr__(self) -> str:
         return "name:%s guid:%s" % (self.name, self.project_guid)
 
-    def prediction_label(self) -> string:
+    def prediction_label(self) -> str:
         results = list(filter(lambda x: x.classification == "Label", self.fields))
         return results[0].name.lower()
 
-    def get_partition_key(self, date: datetime) -> string:
+    def get_partition_key(self, date: datetime) -> str:
         if self.partition_scheme == "DAY":
             return date.strftime("%Y-%m-%d")
         elif self.partition_scheme == "HOUR":
@@ -73,11 +70,3 @@ class Schema:
     def get_integers(self):
         return [x.name.lower() for x in self.fields if x.type == 'Integer']
 
-
-class SchemaFactory:
-    def __init__(self, dao: TrainingDao):
-        self.dao = dao
-
-    def get_schema(self, project_guid: string) -> Schema:
-        (schema_yaml, org_guid) = self.dao.get_schema(project_guid)
-        return Schema(schema_yaml)

@@ -22,6 +22,7 @@ class ProjectService(organizationRepository: OrganizationRepository,
     val project = Project(
       orgGuid = schema.orgGuid,
       projectGuid = schema.projectGuid,
+      modelGuid = null,
       name = schema.name,
       description = "",
       timestamp = Timestamp.from(Instant.now()),
@@ -29,6 +30,6 @@ class ProjectService(organizationRepository: OrganizationRepository,
     )
 
     organizationRepository.createOrg(organization)
-    projectRepository.createProject(project)
+    projectRepository.save(project)
   }
 }

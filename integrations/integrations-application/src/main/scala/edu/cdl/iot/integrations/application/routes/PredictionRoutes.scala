@@ -1,5 +1,7 @@
 package edu.cdl.iot.integrations.application.routes
 
+import java.util.UUID
+
 import edu.cdl.iot.common.schema.Schema
 import edu.cdl.iot.common.yaml.KafkaConfig
 import edu.cdl.iot.integrations.application.IntegrationConstants
@@ -22,7 +24,8 @@ class PredictionRoutes(private val context: CamelContext,
       })
       .process((exchange: Exchange) => {
         val prediction = exchange.getIn().getBody(classOf[Prediction])
-        val schema = predictionService.getSchema(prediction.projectGuid)
+        val projectGuid = UUID.fromString(prediction.projectGuid)
+        val schema = predictionService.getSchema(projectGuid)
         exchange.getIn().setHeader(IntegrationConstants.SCHEMA_HEADER, schema)
       })
       .process((exchange: Exchange) => {

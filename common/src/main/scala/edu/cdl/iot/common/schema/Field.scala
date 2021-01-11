@@ -10,4 +10,8 @@ case class Field(yaml: FieldYaml) {
   val name: String = yaml.name
   val `type`: FeatureType = FieldType.fromString(yaml.`type`)
   val classification: FeatureClassification = FieldClassification.fromString(yaml.classification)
+
+  def getName: String = name
+  def getType: String = `type`.toString
+  def getClassification: String = classification.toString
 }
