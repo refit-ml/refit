@@ -3,9 +3,11 @@ package edu.cdl.iot.integrations.application.dependencies
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
-import edu.cdl.iot.integrations.application.routes.{GrafanaRoutes, NotebookRoutes, PredictionRoutes}
-import edu.cdl.iot.integrations.cassandra.repository.{IntegrationsCassandraOrganizationRepository, IntegrationsCassandraPredictionRepository, IntegrationsCassandraProjectRepository, IntegrationsCassandraSensorDataRepository, IntegrationsCassandraSensorRepository, IntegrationsCassandraTrainingWindowRepository}
-import edu.cdl.iot.integrations.core.service.{GrafanaAnnotationService, GrafanaQueryService, GrafanaSearchService, GrafanaTagService, NotebookQueryService, PredictionService}
+import edu.cdl.iot.integrations.application.routes.{NotebookRoutes, PredictionRoutes}
+import edu.cdl.iot.integrations.cassandra.repository.{IntegrationsCassandraPredictionRepository, IntegrationsCassandraProjectRepository, IntegrationsCassandraSensorDataRepository, IntegrationsCassandraSensorRepository, IntegrationsCassandraTrainingWindowRepository}
+import edu.cdl.iot.integrations.core.service.{NotebookQueryService, PredictionService}
+import edu.cdl.iot.integrations.grafana.camel.dependencies.GrafanaDependencies
+import edu.cdl.iot.integrations.grafana.camel.routes.GrafanaRoutes
 import javax.crypto.Cipher
 import org.apache.camel.CamelContext
 
@@ -18,7 +20,11 @@ class IntegrationsDependencies(config: RefitConfig,
 
   private val cassandraRepository = new CassandraRepository(config.getCassandraConfig())
 
-  private val organizationRepository = new IntegrationsCassandraOrganizationRepository(cassandraRepository)
+  private val grafanaDependencies = new GrafanaDependencies(
+    cassandraRepository = cassandraRepository,
+    camelContext=camelContext
+  )
+
   private val predictionRepository = new IntegrationsCassandraPredictionRepository(cassandraRepository)
   private val projectRepository = new IntegrationsCassandraProjectRepository(cassandraRepository)
   private val sensorRepository = new IntegrationsCassandraSensorRepository(cassandraRepository)
@@ -35,10 +41,6 @@ class IntegrationsDependencies(config: RefitConfig,
       })
     })
 
-  private val grafanaAnnotationService = new GrafanaAnnotationService()
-  private val grafanaQueryService = new GrafanaQueryService(projectRepository, sensorRepository, sensorDataRepository)
-  private val grafanaSearchService = new GrafanaSearchService(projectRepository, sensorRepository)
-  private val grafanaTagService = new GrafanaTagService(sensorRepository, projectRepository, organizationRepository)
   private val predictionService = new PredictionService(config, projectRepository, sensorRepository, predictionRepository)
   private val notebookQueryService = new NotebookQueryService(projectRepository, sensorRepository, sensorDataRepository, trainingWindowRepository)
 
@@ -47,13 +49,9 @@ class IntegrationsDependencies(config: RefitConfig,
     notebookQueryService
   )
 
-  val grafanaRoutes = new GrafanaRoutes(
-    camelContext,
-    grafanaAnnotationService,
-    grafanaQueryService,
-    grafanaTagService,
-    grafanaSearchService
-  )
+
+
+  val grafanaRoutes: GrafanaRoutes = grafanaDependencies.grafanaRoutes
 
   val predictionRoutes = new PredictionRoutes(camelContext, config.getKafkaConfig(), predictionService)
 
