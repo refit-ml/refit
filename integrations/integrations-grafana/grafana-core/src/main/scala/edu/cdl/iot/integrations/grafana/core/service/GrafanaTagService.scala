@@ -14,16 +14,16 @@ class GrafanaTagService(sensorRepository: GrafanaSensorRepository,
   def getTagValues(request: TagRequest): Array[TagResponse] =
     request.key match {
       case "sensor" => sensorRepository
-        .getAllSensors
+        .findAll
         .map(x => new TagResponse(x))
         .toArray
       case "project" => projectRepository.find
         .map(x => new TagResponse(s"${x.name} - ${x.projectGuid}"))
         .toArray
-      case "org" => organizationRepository.getOrganizations
+      case "org" => organizationRepository.findAll
         .map(x => new TagResponse(x))
         .toArray
-      case _ => organizationRepository.getOrganizations
+      case _ => organizationRepository.findAll
         .map(x => new TagResponse(x))
         .toArray
     }

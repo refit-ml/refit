@@ -60,7 +60,7 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
       filters.filter(sensorFilterPredicate)
         .map(filter => filter.value).toList
     else
-      sensorRepository.getSensors(projectGuid)
+      sensorRepository.findAll(projectGuid)
 
   def getOrganization(request: QueryRequest): String =
     request.adhocFilters
@@ -96,7 +96,7 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
 
   private val getSensorReadings: (GrafanaSensorsDto, String, List[String]) => GrafanaSensorDataDto =
     (sensors: GrafanaSensorsDto, sensorId: String, partitions: List[String]) => {
-      val result = sensorDataRepository.getSensorData(
+      val result = sensorDataRepository.find(
         sensors.projectGuid,
         sensorId,
         partitions)

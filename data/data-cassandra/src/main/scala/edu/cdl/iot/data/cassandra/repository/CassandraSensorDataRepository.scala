@@ -46,16 +46,16 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
       sensorData.prediction.asJava
     )
 
-  def createSensorData(sensorData: Seq[SensorData]): Unit = {
+  def save(sensorData: Seq[SensorData]): Unit = {
     val batchedStatement = new BatchStatement()
     sensorData.toList.map(createSensorData)
       .foreach(batchedStatement.add)
     cassandraRepository.execute(batchedStatement)
   }
 
-  private def getSensorData(projectGuid: String,
-                            sensorId: String,
-                            partition: String): List[Row] =
+  private def find(projectGuid: String,
+                   sensorId: String,
+                   partition: String): List[Row] =
     cassandraRepository.execute(
       Statement.getSensorData.bind(
         projectGuid,
@@ -65,10 +65,10 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
       .asScala
       .toList
 
-  def getSensorData(projectGuid: String,
-                    sensorId: String,
-                    partitions: List[String]): List[Map[String, String]] = {
-    partitions.flatMap(partition => getSensorData(projectGuid, sensorId, partition))
+  def find(projectGuid: String,
+           sensorId: String,
+           partitions: List[String]): List[Map[String, String]] = {
+    partitions.flatMap(partition => find(projectGuid, sensorId, partition))
       .map(row => {
         val helper = decryptionHelper(projectGuid)
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

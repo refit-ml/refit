@@ -1,6 +1,6 @@
 package edu.cdl.iot.integrations.grafana.camel.dependencies
 
-import edu.cdl.iot.common.config.RefitConfig
+import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
 import edu.cdl.iot.integrations.grafana.camel.routes.GrafanaRoutes
 import edu.cdl.iot.integrations.grafana.cassandra.repository.{GrafanaCassandraOrganizationRepository, GrafanaCassandraProjectRepository, GrafanaCassandraSensorDataRepository, GrafanaCassandraSensorRepository}
@@ -8,11 +8,15 @@ import edu.cdl.iot.integrations.grafana.core.service.{GrafanaAnnotationService, 
 import org.apache.camel.CamelContext
 
 class GrafanaDependencies(cassandraRepository: CassandraRepository,
-                          camelContext: CamelContext) {
+                          camelContext: CamelContext,
+                          decryptionHelperProvider: String => EncryptionHelper) {
 
   private val organizationRepository = new GrafanaCassandraOrganizationRepository(cassandraRepository)
   private val projectRepository = new GrafanaCassandraProjectRepository(cassandraRepository)
-  private val sensorDataRepository = new GrafanaCassandraSensorDataRepository(cassandraRepository)
+  private val sensorDataRepository = new GrafanaCassandraSensorDataRepository(
+    cassandraRepository = cassandraRepository,
+    decryptionHelper = decryptionHelperProvider
+  )
   private val sensorRepository = new GrafanaCassandraSensorRepository(cassandraRepository)
 
   private val annotationService = new GrafanaAnnotationService()

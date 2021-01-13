@@ -17,7 +17,7 @@ class GrafanaSearchService(projectRepository: GrafanaProjectRepository,
 
   def search(request: SearchRequest): Array[String] =
     request.target match {
-      case "sensors" => sensorRepository.getAllSensors.toArray
+      case "sensors" => sensorRepository.findAll.toArray
       case _ => projectRepository.find.flatMap(project => project.schema.fields.flatMap(fieldMapper)).toArray
     }
 }

@@ -2,9 +2,10 @@ package edu.cdl.iot.ingestion.application.routes
 
 import edu.cdl.iot.common.yaml.KafkaConfig
 import edu.cdl.iot.ingestion.application.constants.HttpConstants
-import edu.cdl.iot.ingestion.core.dto.request.{ImportRequest, ModelRequest, SchemaRequest}
-import edu.cdl.iot.ingestion.core.dto.response.ImportResponse
-import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService, ProjectService}
+import edu.cdl.iot.ingestion.core.dto.request.ModelRequest
+import edu.cdl.iot.ingestion.core.dto.response.ModelResponse
+import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService}
+import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService}
 import edu.cdl.iot.protocol.ImportRequest.{ImportRequest => ImportEnvelope}
 import org.apache.camel.{CamelContext, Exchange}
 import org.apache.camel.builder.RouteBuilder
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory
 class ImportRoutes(private val kafkaConfig: KafkaConfig,
                    private val importService: ImportService,
                    private val modelService: ModelService,
-                   private val projectService: ProjectService,
                    private val context: CamelContext) extends RouteBuilder(context) {
   private val logger = LoggerFactory.getLogger(classOf[ImportRoutes])
 
@@ -28,50 +28,23 @@ class ImportRoutes(private val kafkaConfig: KafkaConfig,
       .bindingMode(RestBindingMode.json)
 
     rest()
-      .post("/import")
-      .`type`(classOf[ImportRequest])
-      .outType(classOf[ImportResponse])
-      .route()
-      .process((exchange: Exchange) => {
-        logger.info("Import request received")
-        val request = exchange.getIn.getBody(classOf[ImportRequest])
-        importService.saveImportRequest(request)
-        exchange.getIn.setBody(new ImportResponse(true))
-      })
-
-    rest()
       .post("/models")
       .`type`(classOf[ModelRequest])
-      .outType(classOf[ImportResponse])
+      .outType(classOf[ModelResponse])
       .route()
       .process((exchange: Exchange) => {
 
         val request = exchange.getIn.getBody(classOf[ModelRequest])
         modelService.updateModel(request)
-        new ImportResponse(requestSuccessful = true)
-      })
-
-
-    rest()
-      .post("/project")
-      .`type`(classOf[SchemaRequest])
-      .outType(classOf[ImportResponse])
-      .route()
-      .process((exchange: Exchange) => {
-        val body = exchange.getIn.getBody(classOf[SchemaRequest])
-        projectService.createProject(body)
-        new ImportResponse(requestSuccessful = true)
+        new ModelResponse(requestSuccessful = true)
       })
 
     from(s"kafka:${kafkaConfig.topics.`import`}?brokers=${kafkaConfig.host}")
       .process((exchange: Exchange) => {
         val body = exchange.getIn.getBody(classOf[Array[Byte]])
         logger.info("Begin processing Import request")
-        val envelope = ImportEnvelope.parseFrom(body)
-        val request = ImportRequest.of(envelope)
+        val request = ImportEnvelope.parseFrom(body)
         importService.performSensorDataImport(request)
       })
-
-
   }
 }

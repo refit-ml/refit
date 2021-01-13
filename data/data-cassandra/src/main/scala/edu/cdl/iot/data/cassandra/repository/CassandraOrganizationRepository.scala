@@ -30,14 +30,14 @@ class CassandraOrganizationRepository(cassandraRepository: CassandraRepository) 
   }
 
 
-  def createOrg(organization: Organization): Unit =
+  def save(organization: Organization): Unit =
     cassandraRepository.execute(Statement.createOrg.bind(
       organization.orgGuid.toString,
       organization.name,
       organization.timestamp
     ))
 
-  def getOrganizations: List[String] =
+  def findAll: List[String] =
     cassandraRepository.execute(Statement.getOrganizations.bind())
       .all
       .asScala
