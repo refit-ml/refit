@@ -38,28 +38,28 @@ class CassandraSensorRepository(cassandraRepository: CassandraRepository) {
     lazy val getAllSensors: PreparedStatement = cassandraRepository.prepare(Query.getAllSensors)
   }
 
-  private def createSensor(sensor: Sensor): BoundStatement =
+  private def save(sensor: Sensor): BoundStatement =
     Statement.createSensor.bind(
       sensor.projectGuid,
       sensor.sensorId,
       sensor.createdAt
     )
 
-  def createSensors(sensors: Seq[Sensor]): Unit = {
+  def save(sensors: Seq[Sensor]): Unit = {
     val batchStatement = new BatchStatement()
-    sensors.map(createSensor)
+    sensors.map(save)
       .foreach(batchStatement.add)
     cassandraRepository.execute(batchStatement)
   }
 
-  def getSensors(projectGuid: String): List[String] =
+  def findAll(projectGuid: String): List[String] =
     cassandraRepository.execute(Statement.getSensors.bind(projectGuid))
       .all()
       .asScala
       .map(x => x.get("sensor_id", classOf[String]))
       .toList
 
-  def getAllSensors: List[String] = cassandraRepository.execute(Statement.getAllSensors.bind())
+  def findAll: List[String] = cassandraRepository.execute(Statement.getAllSensors.bind())
     .all()
     .asScala
     .map(x => x.get("sensor_id", classOf[String]))

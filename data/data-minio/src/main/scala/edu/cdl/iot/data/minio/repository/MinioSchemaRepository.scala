@@ -6,7 +6,7 @@ import edu.cdl.iot.data.minio.MinioRepository
 
 class MinioSchemaRepository(minioRepository: MinioRepository) {
 
-  def getSchema(filePath: String): Schema = {
+  def findByPath(filePath: String): Schema = {
     val inputStream = minioRepository.getInputStream(
       bucketName = minioRepository.buckets.schema,
       filePath = filePath
