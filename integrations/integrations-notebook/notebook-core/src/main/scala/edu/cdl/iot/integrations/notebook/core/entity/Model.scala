@@ -1,11 +1,11 @@
-package edu.cdl.iot.integrations.notebook.core.entity.request
+package edu.cdl.iot.integrations.notebook.core.entity
 
 import scala.collection.JavaConverters._
 
-class ModelRequest(var projectGuid: String,
-                   var modelGuid: String,
-                   var path: String,
-                   var inputFields: java.util.List[String]) {
+class Model(var projectGuid: String,
+            var modelGuid: String,
+            var path: String,
+            var inputFields: java.util.List[String]) {
   def this() = this(null, null, null, null)
 
 

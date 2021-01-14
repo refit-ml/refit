@@ -2,6 +2,7 @@ package edu.cdl.iot.inference.application.transform
 
 import edu.cdl.iot.inference.application.Helpers
 import edu.cdl.iot.inference.core.evaluator.{EvaluatorFactory, RefitEvaluator}
+import edu.cdl.iot.inference.minio.InferenceMinioModelFileRepository
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -12,7 +13,7 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction
 import org.apache.flink.util.Collector
 
-class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
+class EvaluationProcessor(modelFileRepository: InferenceMinioModelFileRepository) extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
 
   private var evaluators: Map[String, RefitEvaluator] = _
   private var evaluatorState: MapState[String, Array[Byte]] = _
@@ -34,10 +35,11 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
 
   override def processElement2(model: Model, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     println(s"Model update: ${model.key}")
+    val modelBytes = modelFileRepository.getModel(model.filePath)
     val key = ctx.getCurrentKey
     try {
       evaluators += (
-        key -> EvaluatorFactory.getEvaluator(model))
+        key -> EvaluatorFactory.getEvaluator(model, modelBytes))
       println("Model updated")
     }
     catch {

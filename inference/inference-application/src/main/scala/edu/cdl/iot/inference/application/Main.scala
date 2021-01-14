@@ -3,9 +3,11 @@ package edu.cdl.iot.inference.application
 import java.util.Properties
 
 import edu.cdl.iot.common.factories.ConfigFactory
+import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.inference.application.constants.Sources
 import edu.cdl.iot.inference.application.schema.{ModelSchema, PredictionSchema, SensorDataJsonSchema, SensorDataSchema}
 import edu.cdl.iot.inference.application.transform.EvaluationProcessor
+import edu.cdl.iot.inference.minio.InferenceMinioModelFileRepository
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -23,6 +25,8 @@ object Main {
     val configFactory = new ConfigFactory()
     val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
     val kafkaSettings = refitConfig.getKafkaConfig()
+    val minioRepository = new MinioRepository(refitConfig.getMinioConfig())
+    val modelFileRepository = new InferenceMinioModelFileRepository(minioRepository)
 
     val kafkaConfig = new Properties
     kafkaConfig.put("bootstrap.servers", kafkaSettings.host)
@@ -35,7 +39,7 @@ object Main {
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     config.setCheckpointInterval(checkpointInterval)
 
-    val modelSrc = new FlinkKafkaConsumer[Model](kafkaSettings.topics.models, new ModelSchema, kafkaConfig)
+    val modelSrc = new FlinkKafkaConsumer[Model](kafkaSettings.topics.modelPublished, new ModelSchema, kafkaConfig)
     val rawSensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema, kafkaConfig)
     val sensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.sensorData, new SensorDataJsonSchema, kafkaConfig)
 
@@ -56,7 +60,7 @@ object Main {
 
     val inference = sensorData
       .connect(model)
-      .process(new EvaluationProcessor)
+      .process(new EvaluationProcessor(modelFileRepository))
 
     val predictionSink = new FlinkKafkaProducer[Prediction](
       kafkaSettings.topics.predictions,

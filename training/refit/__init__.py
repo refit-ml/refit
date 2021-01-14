@@ -10,7 +10,6 @@ from refit.enums.model_format import ModelFormat
 from refit.flink import submit
 from refit.flink.refit_feature_extractor import RefitFeatureExtractor
 from refit.repository.file_repository import FileRepository
-from refit.repository.ingestion_repository import IngestionRepository
 from refit.repository.notebook_repository import NotebookRepository
 from refit.util import model_factory
 from refit.util.dataframe_helpers import extract_flag
@@ -22,14 +21,12 @@ def submit_job(feature_extractor=None):
     submit.submit_python(feature_extractor)
 
 
-class Refit():
+class Refit:
     def __init__(self,
                  project_guid: str,
                  config: RefitConfig = None,
                  notebook_repository: NotebookRepository = None,
-                 ingestion_repository: IngestionRepository = None,
                  file_repository: FileRepository = None):
-
         config = RefitConfig() if config is None else config
         self._import_bucket = config.minio_bucket_import
         self._model_bucket = config.minio_bucket_models
@@ -37,8 +34,6 @@ class Refit():
         self.project_guid = project_guid
         self.notebook_repository = NotebookRepository(
             config.integrations_host) if notebook_repository is None else notebook_repository
-        self.ingestion_repository = IngestionRepository(
-            config.ingestion_host) if ingestion_repository is None else ingestion_repository
 
         self.file_repository = FileRepository(config) if file_repository is None else file_repository
 
@@ -97,7 +92,7 @@ class Refit():
 
         self.file_repository.upload_file(self._model_bucket, path, file_name)
         self.notebook_repository.save_model(self.project_guid, model_guid)
-        self.ingestion_repository.publish_model(self.project_guid, model_guid, path, input_fields)
+        self.notebook_repository.publish_model(self.project_guid, model_guid, path, input_fields)
         return "Model Published"
 
     def __get_file_path(self, object_name: str):
@@ -111,14 +106,14 @@ class Refit():
         if not self.file_repository.upload_file(self._import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
 
-        return self.ingestion_repository.import_file(self.project_guid, path, delete_when_complete)
+        return self.notebook_repository.import_file(self.project_guid, path, delete_when_complete)
 
     def import_training_window(self, file_path: str, object_name: str, delete_when_complete: bool = True):
         path = self.__get_file_path(object_name)
         if not self.file_repository.upload_file(self._import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
 
-        return self.ingestion_repository.import_file(
+        return self.notebook_repository.import_file(
             project_guid=self.project_guid,
             path=path,
             delete_when_complete=delete_when_complete,
@@ -132,11 +127,11 @@ def create_project(file_path: str, project_guid: str = None) -> dict:
 
     config = RefitConfig()
     file_repository = FileRepository(config)
-    ingestion_repository = IngestionRepository(config.ingestion_host)
+    notebook_repository = NotebookRepository(config.integrations_host)
 
     path = f"schemas/{project_guid}/schema.yaml"
 
     if not file_repository.upload_file(config.minio_bucket_schema, path, file_path):
         raise Exception("Error Uploading file to bucket")
 
-    return ingestion_repository.create_project(path)
+    return notebook_repository.create_project(path)

@@ -1,12 +1,12 @@
-package edu.cdl.iot.integrations.notebook.core.entity.request
+package edu.cdl.iot.integrations.notebook.core.entity
 
 import java.util.UUID
 
 import edu.cdl.iot.protocol.ImportRequest.{ImportRequest => ImportEvelope}
 
-case class ImportRequest(var filePath: String,
-                         var importType: String,
-                         var deleteWhenComplete: Boolean) {
+case class FileImport(var filePath: String,
+                      var importType: String,
+                      var deleteWhenComplete: Boolean) {
   def this() = this(null, null, true)
 
   def getFilePath: String = filePath
@@ -23,8 +23,8 @@ case class ImportRequest(var filePath: String,
 
 }
 
-object ImportRequest {
-  def of(request: ImportEvelope): ImportRequest = new ImportRequest(
+object FileImport {
+  def of(request: ImportEvelope): FileImport = new FileImport(
     request.filePath,
     if (request.importTrainingWindow) "training_window" else "sensor_data",
     request.deleteWhenComplete

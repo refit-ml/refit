@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import List
 
@@ -59,3 +60,38 @@ class NotebookRepository:
         url = self.url(f"notebook/project/{project_guid}/model/{model_guid}")
         response = requests.put(url)
         return response.json()
+
+    def create_project(self, path: str) -> dict:
+        url = self.url("project")
+        payload = json.dumps({
+            "path": path
+        })
+        response = requests.post(url, payload)
+        return response.json()
+
+    def publish_model(self,
+                      project_guid: str,
+                      model_guid: str,
+                      path: str,
+                      input_fields: List[str]):
+        url = self.url(f"project/{project_guid}/model")
+        payload = json.dumps({
+            "modelGuid": model_guid,
+            "path": path,
+            "inputFields": input_fields
+        })
+        requests.post(url, payload)
+
+    def import_file(self,
+                    project_guid: str,
+                    path: str,
+                    delete_when_complete: bool,
+                    import_type: str = 'sensor_data'):
+        url = self.url(f"project/{project_guid}/import")
+        payload = json.dumps({
+            "filePath": path,
+            "deleteWhenComplete": delete_when_complete,
+            "importType": import_type
+        })
+        response = requests.post(url, payload)
+        return response.text

@@ -19,28 +19,27 @@ class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))
-  val bs = ByteString.copyFrom(byteArray)
-  val model = new Model(projectGuid, modelKey, bs, SerializationFormat.PMML)
+  val model = new Model(projectGuid, modelKey, filename, SerializationFormat.PMML)
 
   val input = new FileInputStream(new File(schemaFileName))
   val schema = SchemaFactory.parse(input)
 
 
   "Model" should "Return PmmlEvaluator" in {
-    val expected = new PmmlEvaluator(model)
-    val actual = EvaluatorFactory.getEvaluator(model)
+    val expected = new PmmlEvaluator(model, byteArray)
+    val actual = EvaluatorFactory.getEvaluator(model, byteArray)
     actual.getClass should be(expected.getClass)
   }
 
   "Evaluation" should "return a map" in {
-    val evaluator = EvaluatorFactory.getEvaluator(model)
+    val evaluator = EvaluatorFactory.getEvaluator(model, byteArray)
     val input = SensorDataHelper.getRandomReadings(schema)
     val output = evaluator.getPrediction(input)
     output should not be (null)
   }
 
   "Serialization" should "Work" in {
-    val evaluator = EvaluatorFactory.getEvaluator(model)
+    val evaluator = EvaluatorFactory.getEvaluator(model, byteArray)
     val actual = evaluator.toByteArray
     actual should be(model.toByteArray)
   }

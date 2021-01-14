@@ -62,6 +62,7 @@ services:
         hive.s3.aws-secret-key: refit-key
         hive.s3.endpoint: http://minio:9000
         s3.path.style.access: true
+
   flink-taskmanager:
     #    image: cdliotprototype/cdl-refit-flink:BETA-TEST-0.3
     build: resources/flink
@@ -117,7 +118,7 @@ services:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
       KAFKA_DATA_TOPIC: refit.inference.data
-      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_MODEL_PUBLISHED_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
       KAFKA_IMPORT_TOPIC: refit.training.import
       KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
@@ -149,7 +150,7 @@ services:
       WAIT_CASSANDRA_HOST: cassandra
       KAFKA_HOST: "refit-kafka:9092"
       KAFKA_DATA_TOPIC: refit.inference.data
-      KAFKA_MODELS_TOPIC: refit.training.models
+      KAFKA_MODEL_PUBLISHED_TOPIC: refit.training.models
       KAFKA_PREDICTIONS_TOPIC: refit.inference.predictions
       KAFKA_IMPORT_TOPIC: refit.training.import
       KAFKA_RAW_SENSOR_DATA_TOPIC: refit.inference.raw.data
@@ -201,7 +202,6 @@ services:
       ENCRYPTION_KEY: keyboard_cat
       REFIT_DEMO: "false"
       PROJECT: ingestion
-      INGESTION_HOST: ingestion
       INTEGRATIONS_HOST: integrations
       FLINK_HOST: flink-jobmanager
 
