@@ -5,17 +5,17 @@ import edu.cdl.iot.common.constants.EnvConstants
 import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
 
 
-class EnvironmentConfig extends RefitConfig {
+class EnvironmentConfig extends RefitConfig with Serializable {
 
   override val getKafkaConfig: () => KafkaConfig = () => new KafkaConfig(
     sys.env(EnvConstants.KAFKA_HOST),
     new KafkaTopic(
-      sys.env(EnvConstants.MODELS_TOPIC),
-      sys.env(EnvConstants.DATA_TOPIC),
-      sys.env(EnvConstants.PREDICTIONS_TOPIC),
-      sys.env(EnvConstants.IMPORT_TOPIC),
-      sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
-      sys.env(EnvConstants.SENSOR_DATA_TOPIC)
+      modelPublished = sys.env(EnvConstants.MODEL_PUBLISHED_TOPIC),
+      data = sys.env(EnvConstants.DATA_TOPIC),
+      predictions = sys.env(EnvConstants.PREDICTIONS_TOPIC),
+      `import` = sys.env(EnvConstants.IMPORT_TOPIC),
+      rawSensorData = sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
+      sensorData = sys.env(EnvConstants.SENSOR_DATA_TOPIC)
     )
   )
 
@@ -24,21 +24,21 @@ class EnvironmentConfig extends RefitConfig {
 
   override val getProject: () => String = () => sys.env(EnvConstants.PROJECT)
   override val getCassandraConfig: () => CassandraConfig = () => new CassandraConfig(
-    sys.env(EnvConstants.CASSANDRA_KEYSPACE),
-    sys.env(EnvConstants.CASSANDRA_HOST),
-    sys.env(EnvConstants.CASSANDRA_PORT).toInt,
-    sys.env(EnvConstants.CASSANDRA_USER),
-    sys.env(EnvConstants.CASSANDRA_PASSWORD)
+    keyspace = sys.env(EnvConstants.CASSANDRA_KEYSPACE),
+    host = sys.env(EnvConstants.CASSANDRA_HOST),
+    port = sys.env(EnvConstants.CASSANDRA_PORT).toInt,
+    user = sys.env(EnvConstants.CASSANDRA_USER),
+    password = sys.env(EnvConstants.CASSANDRA_PASSWORD)
   )
   override val runDemo: () => Boolean = () => sys.env(EnvConstants.DEMO).toBoolean
   override val getMinioConfig: () => MinioConfig = () => new MinioConfig(
-    sys.env(EnvConstants.MINIO_HOST),
-    sys.env(EnvConstants.MINIO_ACCESS_KEY),
-    sys.env(EnvConstants.MINIO_SECRET_KEY),
+    host = sys.env(EnvConstants.MINIO_HOST),
+    accessKey = sys.env(EnvConstants.MINIO_ACCESS_KEY),
+    secretKey = sys.env(EnvConstants.MINIO_SECRET_KEY),
     new MinioBucket(
-      sys.env(EnvConstants.MINIO_BUCKET_IMPORT),
-      sys.env(EnvConstants.MINIO_BUCKET_MODELS),
-      sys.env(EnvConstants.MINIO_BUCKET_SCHEMA)
+      `import` = sys.env(EnvConstants.MINIO_BUCKET_IMPORT),
+      models = sys.env(EnvConstants.MINIO_BUCKET_MODELS),
+      schema = sys.env(EnvConstants.MINIO_BUCKET_SCHEMA)
     )
   )
 }

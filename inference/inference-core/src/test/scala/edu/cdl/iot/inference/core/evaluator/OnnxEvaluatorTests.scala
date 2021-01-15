@@ -19,17 +19,17 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAnd
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))
-  val bs = ByteString.copyFrom(byteArray)
-  val model = new Model(projectGuid, modelKey, bs, SerializationFormat.ONNX, List("temperature", "pressure", "wind"))
+  val model = new Model(
+    projectGuid, modelKey, ByteString.copyFrom(byteArray), SerializationFormat.ONNX, List("temperature", "pressure", "wind"))
 
   val input = new FileInputStream(new File(schemaFileName))
   val schema = SchemaFactory.parse(input)
 
-  val evaluator = EvaluatorFactory.getEvaluator(model)
+  val evaluator = EvaluatorFactory.getEvaluator(model, byteArray)
 
 
   "Model" should "Return OnnxEvaluator" in {
-    val actual = EvaluatorFactory.getEvaluator(model)
+    val actual = EvaluatorFactory.getEvaluator(model, byteArray)
     actual.getClass should be(evaluator.getClass)
   }
 
@@ -41,7 +41,7 @@ class OnnxEvaluatorTests extends AnyFlatSpec with should.Matchers with BeforeAnd
 
 
   "Serialization" should "Work" in {
-    val evaluator = EvaluatorFactory.getEvaluator(model)
+    val evaluator = EvaluatorFactory.getEvaluator(model, byteArray)
     val actual = evaluator.toByteArray
     actual should be(model.toByteArray)
   }

@@ -3,9 +3,11 @@ package edu.cdl.iot.inference.application
 import java.util.Properties
 
 import edu.cdl.iot.common.factories.ConfigFactory
+import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.inference.application.constants.Sources
 import edu.cdl.iot.inference.application.schema.{ModelSchema, PredictionSchema, SensorDataJsonSchema, SensorDataSchema}
 import edu.cdl.iot.inference.application.transform.EvaluationProcessor
+import edu.cdl.iot.inference.minio.InferenceMinioModelFileRepository
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -29,13 +31,13 @@ object Main {
     kafkaConfig.put("auto.offset.reset", "latest")
     kafkaConfig.put("group.id", "refit.inference")
 
-    val checkpointInterval = (1000 * 60)
+    val checkpointInterval = 1000 * 60
     println(s"Kafka host: ${kafkaSettings.host}")
 
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
     config.setCheckpointInterval(checkpointInterval)
 
-    val modelSrc = new FlinkKafkaConsumer[Model](kafkaSettings.topics.models, new ModelSchema, kafkaConfig)
+    val modelSrc = new FlinkKafkaConsumer[Model](kafkaSettings.topics.modelPublished, new ModelSchema, kafkaConfig)
     val rawSensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.data, new SensorDataSchema, kafkaConfig)
     val sensorDataSource = new FlinkKafkaConsumer[SensorData](kafkaSettings.topics.sensorData, new SensorDataJsonSchema, kafkaConfig)
 

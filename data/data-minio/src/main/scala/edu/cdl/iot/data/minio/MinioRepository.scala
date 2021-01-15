@@ -5,7 +5,7 @@ import java.io.InputStream
 import edu.cdl.iot.common.yaml.{MinioBucket, MinioConfig}
 import io.minio.{GetObjectArgs, MinioClient, RemoveObjectArgs}
 
-class MinioRepository(config: MinioConfig) {
+class MinioRepository(config: MinioConfig) extends Serializable {
 
   val buckets: MinioBucket = config.buckets
 

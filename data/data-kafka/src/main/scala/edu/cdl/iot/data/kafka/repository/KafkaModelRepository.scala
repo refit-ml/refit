@@ -6,6 +6,6 @@ import edu.cdl.iot.protocol.Model.Model
 
 class KafkaModelRepository(kafkaRepository: KafkaRepository) {
 
-  def saveModel(model: Model): Unit =
-    kafkaRepository.send(kafkaRepository.topics.models, model.toByteArray)
+  def save(model: Model): Unit =
+    kafkaRepository.send(kafkaRepository.topics.modelPublished, model.toByteArray)
 }

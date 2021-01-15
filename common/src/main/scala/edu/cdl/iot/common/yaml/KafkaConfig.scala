@@ -24,7 +24,7 @@ class KafkaConfig(@BeanProperty var host: String,
   }
 }
 
-class KafkaTopic(@BeanProperty var models: String,
+class KafkaTopic(@BeanProperty var modelPublished: String,
                  @BeanProperty var data: String,
                  @BeanProperty var predictions: String,
                  @BeanProperty var `import`: String,
