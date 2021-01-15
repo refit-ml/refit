@@ -5,7 +5,7 @@ import edu.cdl.iot.common.constants.EnvConstants
 import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
 
 
-class EnvironmentConfig extends RefitConfig {
+class EnvironmentConfig extends RefitConfig with Serializable {
 
   override val getKafkaConfig: () => KafkaConfig = () => new KafkaConfig(
     sys.env(EnvConstants.KAFKA_HOST),

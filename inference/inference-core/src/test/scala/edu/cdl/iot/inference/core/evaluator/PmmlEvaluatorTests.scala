@@ -19,7 +19,7 @@ class PmmlEvaluatorTests extends AnyFlatSpec with should.Matchers {
   val projectGuid = "fake-project-guid"
   val modelKey = "fake-model-guid"
   val byteArray = Files.readAllBytes(Paths.get(filename))
-  val model = new Model(projectGuid, modelKey, filename, SerializationFormat.PMML)
+  val model = new Model(projectGuid, modelKey, ByteString.copyFrom(byteArray), SerializationFormat.PMML)
 
   val input = new FileInputStream(new File(schemaFileName))
   val schema = SchemaFactory.parse(input)

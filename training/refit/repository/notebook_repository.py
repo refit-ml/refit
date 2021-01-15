@@ -54,13 +54,6 @@ class NotebookRepository:
         response = requests.get(self.url(path), headers=headers)
         return response.json()
 
-    def save_model(self,
-                   project_guid: str,
-                   model_guid: str):
-        url = self.url(f"notebook/project/{project_guid}/model/{model_guid}")
-        response = requests.put(url)
-        return response.json()
-
     def create_project(self, path: str) -> dict:
         url = self.url("project")
         payload = json.dumps({
@@ -80,7 +73,13 @@ class NotebookRepository:
             "path": path,
             "inputFields": input_fields
         })
-        requests.post(url, payload)
+        response = requests.put(url, payload)
+        status_code = response.status_code
+
+        if status_code == 200:
+            return "Model Published"
+        else:
+            return response.text
 
     def import_file(self,
                     project_guid: str,

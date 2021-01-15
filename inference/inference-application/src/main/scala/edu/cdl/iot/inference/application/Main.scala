@@ -25,15 +25,13 @@ object Main {
     val configFactory = new ConfigFactory()
     val refitConfig = configFactory.getConfig(getClass.getResourceAsStream(resourceFileName))
     val kafkaSettings = refitConfig.getKafkaConfig()
-    val minioRepository = new MinioRepository(refitConfig.getMinioConfig())
-    val modelFileRepository = new InferenceMinioModelFileRepository(minioRepository)
 
     val kafkaConfig = new Properties
     kafkaConfig.put("bootstrap.servers", kafkaSettings.host)
     kafkaConfig.put("auto.offset.reset", "latest")
     kafkaConfig.put("group.id", "refit.inference")
 
-    val checkpointInterval = (1000 * 60)
+    val checkpointInterval = 1000 * 60
     println(s"Kafka host: ${kafkaSettings.host}")
 
     config.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE)
@@ -60,7 +58,7 @@ object Main {
 
     val inference = sensorData
       .connect(model)
-      .process(new EvaluationProcessor(modelFileRepository))
+      .process(new EvaluationProcessor)
 
     val predictionSink = new FlinkKafkaProducer[Prediction](
       kafkaSettings.topics.predictions,

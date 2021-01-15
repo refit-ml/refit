@@ -91,7 +91,6 @@ class Refit:
         path = f"{self.project_guid}/models/{model_guid}/model.onnx"
 
         self.file_repository.upload_file(self._model_bucket, path, file_name)
-        self.notebook_repository.save_model(self.project_guid, model_guid)
         self.notebook_repository.publish_model(self.project_guid, model_guid, path, input_fields)
         return "Model Published"
 

@@ -6,9 +6,10 @@ import edu.cdl.iot.data.kafka.KafkaRepository
 import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.integrations.notebook.camel.routes.NotebookRoutes
 import edu.cdl.iot.integrations.notebook.cassandra.repository.{NotebookCassandraOrganizationRepository, NotebookCassandraProjectRepository, NotebookCassandraSensorDataRepository, NotebookCassandraSensorRepository, NotebookCassandraTrainingWindowRepository}
+import edu.cdl.iot.integrations.notebook.core.repository.NotebookModelFileRepository
 import edu.cdl.iot.integrations.notebook.core.service.NotebookIntegrationService
 import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRepository, NotebookKafkaModelRepository}
-import edu.cdl.iot.integrations.notebook.minio.repository.NotebookMinioSchemaRepository
+import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioModelRepository, NotebookMinioSchemaRepository}
 import org.apache.camel.CamelContext
 
 class NotebookDependencies(cassandraRepository: CassandraRepository,
@@ -27,6 +28,7 @@ class NotebookDependencies(cassandraRepository: CassandraRepository,
   private val importRepository = new NotebookKafkaImportRepository(kafkaRepository)
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
+  private val modelFileRepository = new NotebookMinioModelRepository(minioRepository)
 
   private val notebookIntegrationService = new NotebookIntegrationService(
     projectRepository = projectRepository,
@@ -36,7 +38,8 @@ class NotebookDependencies(cassandraRepository: CassandraRepository,
     organizationRepository = organizationRepository,
     importRepository = importRepository,
     schemaRepository = schemaRepository,
-    modelRepository = modelRepository
+    modelRepository = modelRepository,
+    modelFileRepository = modelFileRepository
   )
 
   val notebookRoutes = new NotebookRoutes(camelContext, notebookIntegrationService)
