@@ -1,6 +1,6 @@
-lazy val `integrations-cassandra` = project in file("../integrations-cassandra")
-lazy val `integrations-core` = project in file("../integrations-core")
-
+lazy val `notebook-camel` = project in file("../integrations-notebook/notebook-camel")
+lazy val `grafana-camel` = project in file("../integrations-grafana/grafana-camel")
+lazy val `prediction-camel` = project in file("../integrations-prediction/prediction-camel")
 name := "integrations-application"
 Settings.assembly
 
@@ -9,7 +9,8 @@ assemblyJarName in assembly := "integrations.jar"
 mainClass in (run / assembly) := Some("edu.cdl.iot.integrations.application.CamelMain")
 
 dependsOn(
-  `integrations-core`,
-  `integrations-cassandra`,
+  `grafana-camel`,
+  `notebook-camel`,
+  `prediction-camel`,
   Shared.protocol
 )

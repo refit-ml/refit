@@ -5,8 +5,8 @@ import edu.cdl.iot.data.cassandra.CassandraRepository
 import edu.cdl.iot.data.kafka.KafkaRepository
 import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.ingestion.cassandra.repository.{IngestionOrganizationRepository, IngestionProjectRepository, IngestionSensorRepository, IngestionTrainingWindowRepository}
-import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService, ProjectService}
-import edu.cdl.iot.ingestion.kafka.{IngestionImportRepository, IngestionSensorDataRepository}
+import edu.cdl.iot.ingestion.core.service.{ImportService, ModelService}
+import edu.cdl.iot.ingestion.kafka.IngestionSensorDataRepository
 import edu.cdl.iot.ingestion.minio.{IngestionImportFileRepository, IngestionModelFileRepository, IngestionSchemaRepository}
 import edu.cdl.iot.ingestion.kafka.IngestionModelRepository
 import edu.cdl.iot.ingestion.application.routes.ImportRoutes
@@ -23,7 +23,6 @@ class IngestionDependencies(config: RefitConfig,
   private val projectRepository = new IngestionProjectRepository(cassandraRepository)
   private val sensorDataRepository = new IngestionSensorDataRepository(kafkaRepository)
   private val trainingWindowRepository = new IngestionTrainingWindowRepository(cassandraRepository)
-  private val importRepository = new IngestionImportRepository(kafkaRepository)
 
   private val schemaRepository = new IngestionSchemaRepository(minioRepository)
   private val modelRepository = new IngestionModelRepository(kafkaRepository)
@@ -36,8 +35,7 @@ class IngestionDependencies(config: RefitConfig,
     fileRepository = importFileRepository,
     projectRepository = projectRepository,
     sensorDataRepository = sensorDataRepository,
-    trainingWindowRepository = trainingWindowRepository,
-    importRepository = importRepository
+    trainingWindowRepository = trainingWindowRepository
   )
 
   private val modelService = new ModelService(
@@ -45,17 +43,10 @@ class IngestionDependencies(config: RefitConfig,
     modelFileRepository = modelFileRepository
   )
 
-  private val projectService = new ProjectService(
-    organizationRepository = organizationRepository,
-    projectRepository = projectRepository,
-    schemaRepository = schemaRepository
-  )
-
   val importRoutes = new ImportRoutes(
     kafkaConfig = config.getKafkaConfig(),
     importService = importService,
     modelService = modelService,
-    projectService = projectService,
     context
   )
 }

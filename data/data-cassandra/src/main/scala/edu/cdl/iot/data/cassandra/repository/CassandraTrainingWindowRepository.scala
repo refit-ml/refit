@@ -34,7 +34,7 @@ class CassandraTrainingWindowRepository(cassandraRepository: CassandraRepository
     lazy val getTrainingWindow: PreparedStatement = cassandraRepository.prepare(Query.getTrainingWindow)
   }
 
-  def createTrainingWindow(trainingWindow: TrainingWindow): BoundStatement =
+  def save(trainingWindow: TrainingWindow): BoundStatement =
     Statement.createTrainingWindow.bind(
       trainingWindow.project_guid,
       trainingWindow.sensor_id,
@@ -43,9 +43,9 @@ class CassandraTrainingWindowRepository(cassandraRepository: CassandraRepository
       trainingWindow.end
     )
 
-  def createTrainingWindow(records: Seq[TrainingWindow]): Unit = {
+  def save(records: Seq[TrainingWindow]): Unit = {
     val batchedStatement = new BatchStatement()
-    records.map(createTrainingWindow)
+    records.map(save)
       .foreach(batchedStatement.add)
     cassandraRepository.execute(batchedStatement)
   }

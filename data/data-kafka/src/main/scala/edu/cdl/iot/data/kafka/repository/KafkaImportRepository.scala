@@ -5,6 +5,6 @@ import edu.cdl.iot.protocol.ImportRequest.ImportRequest
 
 class KafkaImportRepository(kafkaRepository: KafkaRepository) {
 
-  def saveImportRequest(importRequest: ImportRequest): Unit =
+  def save(importRequest: ImportRequest): Unit =
     kafkaRepository.send(kafkaRepository.topics.`import`, importRequest.toByteArray)
 }

@@ -30,7 +30,7 @@ class CassandraPredictionRepository(cassandraRepository: CassandraRepository) {
   }
 
 
-  def savePrediction(partition: String,
+  def save(partition: String,
                      timestamp: Timestamp,
                      projectGuid: String,
                      sensorId: String,
