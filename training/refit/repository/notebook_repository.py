@@ -92,5 +92,5 @@ class NotebookRepository:
             "deleteWhenComplete": delete_when_complete,
             "importType": import_type
         })
-        response = requests.post(url, payload)
+        response = requests.put(url, payload)
         return response.text
