@@ -28,7 +28,6 @@ class NotebookDependencies(cassandraRepository: CassandraRepository,
   private val importRepository = new NotebookKafkaImportRepository(kafkaRepository)
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
-  private val modelFileRepository = new NotebookMinioModelRepository(minioRepository)
 
   private val notebookIntegrationService = new NotebookIntegrationService(
     projectRepository = projectRepository,
@@ -38,8 +37,7 @@ class NotebookDependencies(cassandraRepository: CassandraRepository,
     organizationRepository = organizationRepository,
     importRepository = importRepository,
     schemaRepository = schemaRepository,
-    modelRepository = modelRepository,
-    modelFileRepository = modelFileRepository
+    modelRepository = modelRepository
   )
 
   val notebookRoutes = new NotebookRoutes(camelContext, notebookIntegrationService)
