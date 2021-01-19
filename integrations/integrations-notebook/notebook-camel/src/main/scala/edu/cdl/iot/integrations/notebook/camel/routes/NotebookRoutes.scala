@@ -98,6 +98,7 @@ class NotebookRoutes(private val context: CamelContext,
     rest("/notebook/project")
       .put("/{projectGuid}/import")
       .`type`(classOf[FileImport])
+      .outType(classOf[String])
       .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
       .route()
       .process((exchange: Exchange) => {
@@ -107,6 +108,7 @@ class NotebookRoutes(private val context: CamelContext,
         val request = exchange.getIn.getBody(classOf[FileImport])
         notebookIntegrationService.saveImportRequest(projectGuid, request)
         logger.info("Import Request Queued")
+        message.setBody("Import queued")
       })
 
     rest("/notebook/project")

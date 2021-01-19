@@ -4,13 +4,13 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
 
-import com.google.protobuf.ByteString
 import edu.cdl.iot.common.domain.{Organization, Project, TrainingWindow}
 import edu.cdl.iot.integrations.notebook.core.entity.{FileImport, SchemaImport}
 import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportRepository, NotebookModelFileRepository, NotebookModelRepository, NotebookOrganizationRepository, NotebookProjectRepository, NotebookSchemaRepository, NotebookSensorDataRepository, NotebookSensorRepository, NotebookTrainingWindowRepository}
 import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
 import org.joda.time.DateTime
 import edu.cdl.iot.integrations.notebook.core.entity.{Model => ModelRequest}
+import org.slf4j.LoggerFactory
 
 
 class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
@@ -20,8 +20,9 @@ class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
                                  importRepository: NotebookImportRepository,
                                  schemaRepository: NotebookSchemaRepository,
                                  organizationRepository: NotebookOrganizationRepository,
-                                 modelRepository: NotebookModelRepository,
-                                 modelFileRepository: NotebookModelFileRepository) {
+                                 modelRepository: NotebookModelRepository) {
+
+  private val logger = LoggerFactory.getLogger(classOf[NotebookIntegrationService])
 
   private def getSensors(sensors: List[String]): List[String] =
     if (sensors.isEmpty) sensorRepository.findAll
@@ -91,12 +92,12 @@ class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
   def updateModel(projectGuid: UUID, request: ModelRequest): Project = {
     val project = projectRepository.find(projectGuid)
     val modelGuid = UUID.fromString(request.modelGuid)
+    logger.info(s"Queue model update with model located at: ${request.path}")
     val updatedProject = project.copy(modelGuid = modelGuid)
-    val bytes = modelFileRepository.getModel(request.path)
     val model = Model(
       projectGuid = projectGuid.toString,
-      key = request.modelGuid,
-      bytes = ByteString.copyFrom(bytes),
+      modelGuid = request.modelGuid,
+      path = request.path,
       format = SerializationFormat.ONNX,
       inputValues = request.getInputFields
     )

@@ -3,9 +3,12 @@ package edu.cdl.iot.common.config.implementation
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
 import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
+import org.slf4j.LoggerFactory
 
 
 class EnvironmentConfig extends RefitConfig with Serializable {
+
+  private val logger = LoggerFactory.getLogger(classOf[EnvironmentConfig])
 
   override val getKafkaConfig: () => KafkaConfig = () => new KafkaConfig(
     sys.env(EnvConstants.KAFKA_HOST),
@@ -31,14 +34,23 @@ class EnvironmentConfig extends RefitConfig with Serializable {
     password = sys.env(EnvConstants.CASSANDRA_PASSWORD)
   )
   override val runDemo: () => Boolean = () => sys.env(EnvConstants.DEMO).toBoolean
-  override val getMinioConfig: () => MinioConfig = () => new MinioConfig(
-    host = sys.env(EnvConstants.MINIO_HOST),
-    accessKey = sys.env(EnvConstants.MINIO_ACCESS_KEY),
-    secretKey = sys.env(EnvConstants.MINIO_SECRET_KEY),
-    new MinioBucket(
+  override val getMinioConfig: () => MinioConfig = () => {
+    val buckets = new MinioBucket(
       `import` = sys.env(EnvConstants.MINIO_BUCKET_IMPORT),
       models = sys.env(EnvConstants.MINIO_BUCKET_MODELS),
       schema = sys.env(EnvConstants.MINIO_BUCKET_SCHEMA)
     )
-  )
+
+    logger.info("Minio buckets loaded from environment")
+    logger.info(s"Import Bucket: ${buckets.`import`}")
+    logger.info(s"Model Bucket: ${buckets.models}")
+    logger.info(s"Schema Bucket: ${buckets.schema}")
+
+    new MinioConfig(
+      host = sys.env(EnvConstants.MINIO_HOST),
+      accessKey = sys.env(EnvConstants.MINIO_ACCESS_KEY),
+      secretKey = sys.env(EnvConstants.MINIO_SECRET_KEY),
+      buckets = buckets
+    )
+  }
 }
