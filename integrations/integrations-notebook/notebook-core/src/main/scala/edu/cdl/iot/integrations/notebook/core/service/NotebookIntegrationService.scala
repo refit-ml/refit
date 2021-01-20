@@ -5,9 +5,12 @@ import java.time.Instant
 import java.util.UUID
 
 import edu.cdl.iot.common.domain.{Organization, Project, TrainingWindow}
-import edu.cdl.iot.integrations.notebook.core.entity.request.{ImportRequest, SchemaRequest}
-import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportRepository, NotebookOrganizationRepository, NotebookProjectRepository, NotebookSchemaRepository, NotebookSensorDataRepository, NotebookSensorRepository, NotebookTrainingWindowRepository}
+import edu.cdl.iot.integrations.notebook.core.entity.{FileImport, SchemaImport}
+import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportRepository, NotebookModelFileRepository, NotebookModelRepository, NotebookOrganizationRepository, NotebookProjectRepository, NotebookSchemaRepository, NotebookSensorDataRepository, NotebookSensorRepository, NotebookTrainingWindowRepository}
+import edu.cdl.iot.protocol.Model.{Model, SerializationFormat}
 import org.joda.time.DateTime
+import edu.cdl.iot.integrations.notebook.core.entity.{Model => ModelRequest}
+import org.slf4j.LoggerFactory
 
 
 class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
@@ -16,7 +19,10 @@ class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
                                  trainingWindowRepository: NotebookTrainingWindowRepository,
                                  importRepository: NotebookImportRepository,
                                  schemaRepository: NotebookSchemaRepository,
-                                 organizationRepository: NotebookOrganizationRepository) {
+                                 organizationRepository: NotebookOrganizationRepository,
+                                 modelRepository: NotebookModelRepository) {
+
+  private val logger = LoggerFactory.getLogger(classOf[NotebookIntegrationService])
 
   private def getSensors(sensors: List[String]): List[String] =
     if (sensors.isEmpty) sensorRepository.findAll
@@ -55,19 +61,12 @@ class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
   def project(projectGuid: UUID): Project =
     projectRepository.find(projectGuid)
 
-  def putModel(projectGuid: UUID, modelGuid: UUID): Project = {
-    val project = projectRepository.find(projectGuid)
-    val updatedProject = project.copy(modelGuid = modelGuid)
-    projectRepository.save(updatedProject)
-    updatedProject
-  }
 
-
-  def saveImportRequest(projectGuid: UUID, importRequest: ImportRequest): Unit =
+  def saveImportRequest(projectGuid: UUID, importRequest: FileImport): Unit =
     importRepository.save(importRequest.envelope(projectGuid))
 
 
-  def createProject(request: SchemaRequest): Unit = {
+  def createProject(request: SchemaImport): Unit = {
     val schema = schemaRepository.findByPath(request.path)
     val organization = Organization(
       orgGuid = schema.orgGuid,
@@ -87,5 +86,25 @@ class NotebookIntegrationService(projectRepository: NotebookProjectRepository,
 
     organizationRepository.save(organization)
     projectRepository.save(project)
+  }
+
+
+  def updateModel(projectGuid: UUID, request: ModelRequest): Project = {
+    val project = projectRepository.find(projectGuid)
+    val modelGuid = UUID.fromString(request.modelGuid)
+    logger.info(s"Queue model update with model located at: ${request.path}")
+    val updatedProject = project.copy(modelGuid = modelGuid)
+    val model = Model(
+      projectGuid = projectGuid.toString,
+      modelGuid = request.modelGuid,
+      path = request.path,
+      format = SerializationFormat.ONNX,
+      inputValues = request.getInputFields
+    )
+
+    projectRepository.save(updatedProject)
+    modelRepository.save(model)
+
+    updatedProject
   }
 }

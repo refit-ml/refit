@@ -5,7 +5,7 @@ import java.io.InputStream
 import edu.cdl.iot.common.yaml.{MinioBucket, MinioConfig}
 import io.minio.{GetObjectArgs, MinioClient, RemoveObjectArgs}
 
-class MinioRepository(config: MinioConfig) {
+class MinioRepository(config: MinioConfig) extends Serializable {
 
   val buckets: MinioBucket = config.buckets
 
@@ -22,11 +22,16 @@ class MinioRepository(config: MinioConfig) {
         .`object`(filePath)
         .build())
 
-  def getBytes(bucketName: String, filePath: String): Array[Byte] =
-    Stream.continually(getInputStream(bucketName, filePath).read)
+  def getBytes(bucketName: String, filePath: String): Array[Byte] = {
+    val inputStream = getInputStream(bucketName, filePath)
+    val bytes = Stream.continually(inputStream.read())
       .takeWhile(_ != -1)
       .map(_.toByte)
       .toArray
+    inputStream.close()
+    bytes
+  }
+
 
   def deleteFile(bucketName: String, filePath: String): Unit =
     minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).`object`(filePath).build)

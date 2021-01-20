@@ -1,7 +1,10 @@
 package edu.cdl.iot.inference.application.transform
 
+import edu.cdl.iot.common.factories.ConfigFactory
+import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.inference.application.Helpers
 import edu.cdl.iot.inference.core.evaluator.{EvaluatorFactory, RefitEvaluator}
+import edu.cdl.iot.inference.minio.InferenceMinioModelFileRepository
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
@@ -11,11 +14,19 @@ import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSn
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction
 import org.apache.flink.util.Collector
+import org.slf4j.LoggerFactory
 
 class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Model, Prediction] with CheckpointedFunction {
-
+  private lazy val logger = LoggerFactory.getLogger(classOf[EvaluationProcessor])
   private var evaluators: Map[String, RefitEvaluator] = _
   private var evaluatorState: MapState[String, Array[Byte]] = _
+
+  private lazy val modelFileRepository = {
+    val minioConfig = new ConfigFactory().getConfig.getMinioConfig()
+    logger.info(s"Received minio config from environment: ${minioConfig.host}:${minioConfig.accessKey}:${minioConfig.secretKey}")
+    val minioRepository = new MinioRepository(minioConfig)
+    new InferenceMinioModelFileRepository(minioRepository)
+  }
 
   override def processElement1(value: SensorData, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
     val key = ctx.getCurrentKey
@@ -23,7 +34,7 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     if (evaluators.contains(key)) {
       val evaluator = evaluators(key)
       val prediction = evaluator.getPrediction(value)
-      println(s"Prediction Made (${prediction} ${value})")
+      logger.info(s"Prediction Made (${prediction} ${value})")
       out.collect(prediction)
     }
     else {
@@ -33,11 +44,12 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
   }
 
   override def processElement2(model: Model, ctx: KeyedCoProcessFunction[String, SensorData, Model, Prediction]#Context, out: Collector[Prediction]): Unit = {
-    println(s"Model update: ${model.key}")
+    logger.info(s"Model update: ${model.modelGuid}")
+    val modelBytes = modelFileRepository.getModel(model.path)
     val key = ctx.getCurrentKey
     try {
       evaluators += (
-        key -> EvaluatorFactory.getEvaluator(model))
+        key -> EvaluatorFactory.getEvaluator(model, modelBytes))
       println("Model updated")
     }
     catch {
@@ -55,11 +67,6 @@ class EvaluationProcessor extends KeyedCoProcessFunction[String, SensorData, Mod
     val evaluatorStateDescriptor = new MapStateDescriptor[String, Array[Byte]]("EvaluatorState", classOf[String], classOf[Array[Byte]])
     evaluatorState = context.getKeyedStateStore.getMapState[String, Array[Byte]](evaluatorStateDescriptor)
     evaluators = Map()
-    //    if (context.isRestored) {
-    //      evaluatorState.keys().asScala.foreach(
-    //        key => evaluators +=
-    //          (key -> EvaluatorFactory.getEvaluator(evaluatorState.get(key))))
-    //    }
   }
 
   override def snapshotState(ctx: FunctionSnapshotContext): Unit = {

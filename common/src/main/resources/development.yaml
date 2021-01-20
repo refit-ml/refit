@@ -13,13 +13,13 @@ minio:
     import: refit-import
     models: refit-models
     schema: refit-schema
-  accessKey: minio
-  secretKey: minio123
+  accessKey: refit
+  secretKey: refit-key
 
 kafka:
   host: "127.0.0.1:9092"
   topics:
     import: "refit.training.import"
-    models: "refit.training.models"
+    modelPublished: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"

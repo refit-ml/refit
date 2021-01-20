@@ -12,10 +12,11 @@ import org.jpmml.evaluator._
 import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
 
 
-class PmmlEvaluator(private val model: Model) extends RefitEvaluator {
+class PmmlEvaluator(private val model: Model,
+                    modelBytes: Array[Byte]) extends RefitEvaluator {
 
   private val pmmlEvaluator: ModelEvaluator[_] = new LoadingModelEvaluatorBuilder()
-    .load(new ByteArrayInputStream(model.bytes.toByteArray))
+    .load(new ByteArrayInputStream(modelBytes))
     .build()
 
 
@@ -44,7 +45,7 @@ class PmmlEvaluator(private val model: Model) extends RefitEvaluator {
     new Prediction(sensorData.projectGuid,
       sensorData.sensorId,
       sensorData.timestamp,
-      model.key,
+      model.modelGuid,
       sensorData.doubles,
       sensorData.strings,
       sensorData.integers,

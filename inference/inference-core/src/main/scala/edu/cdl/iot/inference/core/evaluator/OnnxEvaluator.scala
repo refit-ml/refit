@@ -14,10 +14,11 @@ object OnnxEvaluator {
   val env: OrtEnvironment = OrtEnvironment.getEnvironment()
 }
 
-class OnnxEvaluator(private val model: Model) extends RefitEvaluator {
+class OnnxEvaluator(private val model: Model,
+                    modelBytes: Array[Byte]) extends RefitEvaluator {
 
 
-  private val onnxEvaluator: OrtSession = OnnxEvaluator.env.createSession(model.bytes.toByteArray, new OrtSession.SessionOptions)
+  private val onnxEvaluator: OrtSession = OnnxEvaluator.env.createSession(modelBytes, new OrtSession.SessionOptions)
 
 
   def getOnnxMap(v: SensorData): Map[String, Float] = {
@@ -82,7 +83,7 @@ class OnnxEvaluator(private val model: Model) extends RefitEvaluator {
     new Prediction(sensorData.projectGuid,
       sensorData.sensorId,
       sensorData.timestamp,
-      model.key,
+      model.modelGuid,
       sensorData.doubles,
       sensorData.strings,
       sensorData.integers,

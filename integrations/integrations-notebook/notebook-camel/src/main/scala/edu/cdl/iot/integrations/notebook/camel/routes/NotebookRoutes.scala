@@ -5,8 +5,7 @@ import java.util.UUID
 
 import edu.cdl.iot.common.domain.{Project, TrainingWindow}
 import edu.cdl.iot.common.util.TimestampHelper
-import edu.cdl.iot.integrations.notebook.core.entity.request.{ImportRequest, SchemaRequest}
-import edu.cdl.iot.integrations.notebook.core.entity.response.ImportResponse
+import edu.cdl.iot.integrations.notebook.core.entity.{FileImport, Model, SchemaImport}
 import edu.cdl.iot.integrations.notebook.core.service.NotebookIntegrationService
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestParamType
@@ -46,6 +45,7 @@ class NotebookRoutes(private val context: CamelContext,
           .toArray
 
         message.setBody(response)
+        logger.info("Sensor Data Fetched")
       })
 
     rest("/notebook/project")
@@ -65,6 +65,7 @@ class NotebookRoutes(private val context: CamelContext,
         val response = notebookIntegrationService.trainingWindow(projectGuid, from, to, sensors).toArray
 
         message.setBody(response)
+        logger.info("Training-window fetched")
       })
 
     rest("/notebook/project")
@@ -77,48 +78,51 @@ class NotebookRoutes(private val context: CamelContext,
         val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
         val project = notebookIntegrationService.project(projectGuid)
         message.setBody(project)
-      })
-
-    rest()
-      .post("/project")
-      .`type`(classOf[SchemaRequest])
-      .outType(classOf[ImportResponse])
-      .route()
-      .process((exchange: Exchange) => {
-        val body = exchange.getIn.getBody(classOf[SchemaRequest])
-        notebookIntegrationService.createProject(body)
-        new ImportResponse(requestSuccessful = true)
+        logger.info("Project fetched")
       })
 
     rest("/notebook/project")
-      .put("/{projectGuid}/model/{modelGuid}")
+      .post()
+      .`type`(classOf[SchemaImport])
       .outType(classOf[Project])
-      .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
-      .param.name("modelGuid").`type`(RestParamType.path).required(true).endParam()
-      .route
+      .route()
       .process((exchange: Exchange) => {
-        val message = exchange.getIn
-        val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
-        val modelGuid = UUID.fromString(message.getHeader("modelGuid", classOf[String]))
-        val project = notebookIntegrationService.putModel(projectGuid, modelGuid)
-        message.setBody(project)
+        val message = exchange.getIn()
+        val body = message.getBody(classOf[SchemaImport])
+        notebookIntegrationService.createProject(body)
+        logger.info("Project created/updated")
+
       })
 
 
     rest("/notebook/project")
       .put("/{projectGuid}/import")
-      .`type`(classOf[ImportRequest])
-      .outType(classOf[ImportResponse])
+      .`type`(classOf[FileImport])
+      .outType(classOf[String])
       .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
       .route()
       .process((exchange: Exchange) => {
         val message = exchange.getIn()
         val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
         logger.info("Import request received")
-        val request = exchange.getIn.getBody(classOf[ImportRequest])
+        val request = exchange.getIn.getBody(classOf[FileImport])
         notebookIntegrationService.saveImportRequest(projectGuid, request)
-        exchange.getIn.setBody(new ImportResponse(true))
         logger.info("Import Request Queued")
+        message.setBody("Import queued")
+      })
+
+    rest("/notebook/project")
+      .put("/{projectGuid}/model")
+      .`type`(classOf[Model])
+      .outType(classOf[Project])
+      .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
+      .route()
+      .process((exchange: Exchange) => {
+        val message = exchange.getIn()
+        val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
+        val request = exchange.getIn.getBody(classOf[Model])
+        notebookIntegrationService.updateModel(projectGuid, request)
+        logger.info("Model published")
       })
   }
 }

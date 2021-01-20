@@ -8,9 +8,8 @@ enum SerializationFormat {
 
 message Model  {
   string project_guid = 1;
-  string key = 2;
-  bytes bytes = 3;
+  string model_guid = 2;
+  string path = 3;
   SerializationFormat format = 4;
   repeated string input_values = 5;
-
 }

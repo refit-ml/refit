@@ -16,7 +16,6 @@ object CamelMain {
     val dependencies = new IntegrationsDependencies(config, context)
 
     val kafkaComponent = new KafkaComponent()
-    val nettyHttpComponent = new NettyHttpComponent
     val kafkaConfig = new KafkaConfiguration
 
 
@@ -29,7 +28,7 @@ object CamelMain {
     context.addComponent("netty-http", new NettyHttpComponent)
     context.addComponent("kafka", kafkaComponent)
     context.addRoutes(dependencies.grafanaRoutes)
-    context.addRoutes(dependencies.predictionRoutes)
+//    context.addRoutes(dependencies.predictionRoutes)
     context.addRoutes(dependencies.notebookRoutes)
 
     context.start()

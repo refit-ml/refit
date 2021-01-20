@@ -18,6 +18,6 @@ kafka:
   host: "127.0.0.1:9092"
   topics:
     import: "refit.training.import"
-    models: "refit.training.models"
+    modelPublished: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"
