@@ -21,6 +21,16 @@ services:
     depends_on:
       - zookeeper
   #
+  postgres:
+    build: ./resources/pql
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_PASSWORD=refit
+      - POSTGRESQL_USERNAME=refit
+      - POSTGRESQL_DATABASE=refit
+    volumes:
+      - postgres:/bitnami
   cassandra:
     build: ./resources/cql
     ports:
@@ -324,3 +334,4 @@ networks:
 volumes:
   minio-1:
   cassandra:
+  postgres:

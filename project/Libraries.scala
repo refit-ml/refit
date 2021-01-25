@@ -10,6 +10,7 @@ object Libraries {
   val camelRest = "org.apache.camel" % "camel-rest" % Versions.camel
   val camelJackson = "org.apache.camel" % "camel-jackson" % Versions.camel
   val camelNetty = "org.apache.camel" % "camel-netty-http" % Versions.camel
+  val camelQuartz = "org.apache.camel" % "camel-quartz" % Versions.camel
 
   val logBack =  "ch.qos.logback" % "logback-classic" % Versions.logback
 
@@ -17,6 +18,9 @@ object Libraries {
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
   val flinkClients = "org.apache.flink" %% "flink-clients" % Versions.flink
   val pulsarFlink = "org.apache.pulsar" % "pulsar-flink" % "2.5.2"
+
+  val postgres = "org.postgresql" % "postgresql" % Versions.postgres
+
   val jpmml = "org.jpmml" % "pmml-evaluator-extension" % Versions.pmml
   val jaxb = "org.glassfish.jaxb" % "jaxb-runtime" % Versions.jaxb
   val onnx = "com.microsoft.onnxruntime" % "onnxruntime" % Versions.onnx

@@ -5,6 +5,7 @@ object Versions {
   val sparkMLeap = "0.16.0"
   val sparkCassandra = "2.5.1"
   val pulsar4s = "2.4.0"
+  val postgres = "42.2.18"
   val camel = "3.5.0"
   val joda = "2.10.6"
   val cassandra = "3.5.0"
