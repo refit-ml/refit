@@ -2,7 +2,7 @@ package edu.cdl.iot.common.config.implementation
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
-import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
+import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig, PostgresConfig}
 import org.slf4j.LoggerFactory
 
 
@@ -53,4 +53,11 @@ class EnvironmentConfig extends RefitConfig with Serializable {
       buckets = buckets
     )
   }
+  override val getPostgresConfig: () => PostgresConfig = () => new PostgresConfig(
+    schema = sys.env(EnvConstants.POSTGRES_SCHEMA),
+    host = sys.env(EnvConstants.POSTGRES_HOST),
+    username = sys.env(EnvConstants.POSTGRES_USERNAME),
+    password = sys.env(EnvConstants.POSTGRES_PASSWORD),
+    port = 5432
+  )
 }

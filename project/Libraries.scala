@@ -12,7 +12,7 @@ object Libraries {
   val camelNetty = "org.apache.camel" % "camel-netty-http" % Versions.camel
   val camelQuartz = "org.apache.camel" % "camel-quartz" % Versions.camel
 
-  val logBack =  "ch.qos.logback" % "logback-classic" % Versions.logback
+  val logBack = "ch.qos.logback" % "logback-classic" % Versions.logback
 
   val flinkScala = "org.apache.flink" %% "flink-scala" % Versions.flink
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
@@ -37,12 +37,15 @@ object Libraries {
   val selfForjSimple = "org.slf4j" % "slf4j-simple" % Versions.self4J
 
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
+  val jdbi = "org.jdbi" % "jdbi3-core" % Versions.jdbi
+  val jdbiSqlObject = "org.jdbi" % "jdbi3-sqlobject" % Versions.jdbi
+  val jdbiPostgres = "org.jdbi" % "jdbi3-postgres" % Versions.jdbi
+
+
   val gson = "com.google.code.gson" % "gson" % Versions.gson
+
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
-
-
-
 
 
 }

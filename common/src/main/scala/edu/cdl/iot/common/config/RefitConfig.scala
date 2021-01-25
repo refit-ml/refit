@@ -1,6 +1,6 @@
 package edu.cdl.iot.common.config
 
-import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, MinioConfig}
+import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, MinioConfig, PostgresConfig}
 
 trait RefitConfig {
 
@@ -9,6 +9,8 @@ trait RefitConfig {
   val getCassandraConfig: () => CassandraConfig
 
   val getMinioConfig: () => MinioConfig
+
+  val getPostgresConfig: () => PostgresConfig
 
   val getEncryptionKey: () => String
 

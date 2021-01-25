@@ -48,6 +48,12 @@ object Dependencies {
     Libraries.kakfaCamel
   )
 
+  val jdbi = Seq(
+    Libraries.jdbi,
+    Libraries.jdbiPostgres,
+    Libraries.jdbiSqlObject
+  )
+
 
   val minio = Seq(
     Libraries.minio
