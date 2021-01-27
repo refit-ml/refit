@@ -9,7 +9,13 @@ USER root
 
 RUN apt-get update
 
-RUN apt-get install default-jre software-properties-common python3 python3-pip git -y
+RUN apt-get install default-jre \
+    software-properties-common \
+    python3 \
+    python3-pip \
+    git \
+    unzip -y
+    
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get install python3.7 -y
 RUN which python3.7
