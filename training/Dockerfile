@@ -51,6 +51,13 @@ RUN mkdir /home/jovyan/demo/data
 COPY notebooks/ /home/jovyan/demo/notebooks
 COPY data/ /home/jovyan/demo/data
 
+RUN touch /root/.bashrc
+echo "parse_git_branch() {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}" >> /root/.bashrc
+echo '' >> /root/.bashrc
+echo "Export PS1=\"\u@\H:\w \[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ \"" >> /root/.bashrc
+
 RUN chmod -R 777 /home/jovyan
 RUN chmod -R 777 /libs/flink
 
