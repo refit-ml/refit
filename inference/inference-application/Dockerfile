@@ -4,9 +4,8 @@ COPY ./target/scala-2.12/inference.jar /app/inference.jar
 ADD ./src/main/python /app
 
 WORKDIR /app
-
-RUN apt-get dist-upgrade  -y
 RUN apt-get update
+RUN apt-get dist-upgrade  -y
 
 RUN apt-get install python3 python3-pip wait-for-it -y
 
