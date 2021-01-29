@@ -88,11 +88,11 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
     if (filters.exists(sensorFilterPredicate)) {
 
       if (filters.exists(sensorFilterGreater)) {
-        val G = Greater(filters.filter(sensorFilterGreater).map(filter => filter.value.toInt).max(), allSensors(projectGuid))
+        val G = Greater(filters.filter(sensorFilterGreater).map(filter => filter.value.toInt).max(), projectGuid.allSensors)
         G.toList
       }
       else if (filters.exists(sensorFilterLesser)) {
-        val L = Lesser(filters.filter(sensorFilterLesser).map(filter => filter.value.toInt).min(), allSensors(projectGuid) )
+        val L = Lesser(filters.filter(sensorFilterLesser).map(filter => filter.value.toInt).min(), projectGuid.allSensors )
         L.toList
       }
       else  {
