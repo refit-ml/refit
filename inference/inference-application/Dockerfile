@@ -5,6 +5,9 @@ ADD ./src/main/python /app
 
 WORKDIR /app
 
+RUN apt-get dist-upgrade  -y
+RUN apt-get update
+
 RUN apt-get install python3 python3-pip wait-for-it -y
 
 RUN pip3 install -r requirements.txt
