@@ -54,7 +54,8 @@ COPY data/ /home/jovyan/demo/data
 RUN touch ~/.bashrc
 RUN echo "parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'}" >> ~/.bashrc
 RUN echo '' >> ~/.bashrc
-RUN echo "Export PS1=\"\u@\H:\w \[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ \"" >> ~/.bashrc
+RUN echo "export PS1=\"\u@\H:\w \[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ \"" >> ~/.bashrc
+RUN echo '' >> ~/.bashrc
 
 RUN chmod -R 777 /home/jovyan
 RUN chmod -R 777 /libs/flink
