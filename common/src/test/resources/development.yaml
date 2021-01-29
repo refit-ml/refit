@@ -1,18 +1,28 @@
-project: local
+project: test
 encryptionKey: keyboard_cat
-demo: false
+demo: true
 cassandra:
   keyspace: cdl_refit
   host: 127.0.0.1
   port: 9042
   user: cassandra
   password: cassandra
+
+postgres:
+  host: 127.0.0.1
+  port: 5432
+  username: refit
+  password: refit
+  schema: refit
+
 minio:
   host: "http://127.0.0.1:9000"
   buckets:
-    import: raw-import
-  accessKey: minio
-  secretKey: minio123
+    import: refit-import
+    models: refit-models
+    schema: refit-schema
+  accessKey: refit
+  secretKey: refit-key
 
 kafka:
   host: "127.0.0.1:9092"

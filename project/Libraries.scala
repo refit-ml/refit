@@ -33,6 +33,8 @@ object Libraries {
   val kakfa = "org.apache.kafka" %% "kafka" % Versions.kafka
   val kakfaCamel = "org.apache.camel" % "camel-kafka" % Versions.camel
 
+  val kubeClient = "io.kubernetes" % "client-java" % Versions.kubeClient
+
   val selfForj = "org.slf4j" % "slf4j-api" % Versions.self4J
   val selfForjSimple = "org.slf4j" % "slf4j-simple" % Versions.self4J
 

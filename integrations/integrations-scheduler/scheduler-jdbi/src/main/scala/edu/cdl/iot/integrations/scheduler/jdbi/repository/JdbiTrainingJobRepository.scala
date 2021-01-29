@@ -7,15 +7,17 @@ import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobRepository
 import edu.cdl.iot.integrations.scheduler.jdbi.dao.TrainingJobDao
 import org.jdbi.v3.core.Jdbi
 
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+
 class JdbiTrainingJobRepository(val jdbi: Jdbi) extends TrainingJobRepository {
   override def find(): List[TrainingJob] = jdbi.withHandle(handle => {
     val dao = handle.attach(classOf[TrainingJobDao])
-    dao.findAllTrainingJobs()
+    dao.findAllTrainingJobs().asScala.toList
   })
 
   override def find(projectGuid: UUID): List[TrainingJob] = jdbi.withHandle(handle => {
     val dao = handle.attach(classOf[TrainingJobDao])
-    dao.findTrainingJobsInProject(projectGuid)
+    dao.findTrainingJobsInProject(projectGuid).asScala.toList
   })
 
   override def find(projectGuid: UUID, name: String): TrainingJob = jdbi.withHandle(handle => {
@@ -25,6 +27,15 @@ class JdbiTrainingJobRepository(val jdbi: Jdbi) extends TrainingJobRepository {
 
   override def save(trainingJob: TrainingJob): Unit = jdbi.useHandle(handle => {
     val dao = handle.attach(classOf[TrainingJobDao])
-    dao.save(trainingJob.projectGuid, trainingJob.jobName, trainingJob.cronExpression)
+    dao.save(projectGuid = trainingJob.projectGuid,
+      name = trainingJob.jobName,
+      cronExpression = trainingJob.cronExpression,
+      createdAt = trainingJob.createdAt
+    )
+  })
+
+  override def delete(trainingJob: TrainingJob): Unit = jdbi.useHandle(handle => {
+    val dao = handle.attach(classOf[TrainingJobDao])
+    dao.delete(trainingJob.projectGuid, trainingJob.jobName)
   })
 }

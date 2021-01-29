@@ -4,7 +4,9 @@ name := "scheduler-jdbi"
 Settings.default
 libraryDependencies ++= Dependencies.jackson
 libraryDependencies ++= Dependencies.jdbi
+
 dependsOn(
   `scheduler-core`,
+  Shared.`data-postgres`,
   Shared.common
 )

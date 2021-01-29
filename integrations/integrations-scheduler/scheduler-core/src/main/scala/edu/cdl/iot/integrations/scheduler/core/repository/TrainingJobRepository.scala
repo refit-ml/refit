@@ -12,4 +12,6 @@ trait TrainingJobRepository {
   def find(projectGuid: UUID, name: String): TrainingJob
 
   def save(trainingJob: TrainingJob)
+
+  def delete(trainingJob: TrainingJob)
 }
