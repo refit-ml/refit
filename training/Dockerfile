@@ -6,16 +6,10 @@ FROM jupyter/base-notebook:python-3.7.6
 
 USER root
 
-
+RUN apt-get dist-upgrade  -y
 RUN apt-get update
+RUN apt-get install default-jre software-properties-common python3 python3-pip git unzip -y
 
-RUN apt-get install default-jre \
-    software-properties-common \
-    python3 \
-    python3-pip \
-    git \
-    unzip -y
-    
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get install python3.7 -y
 RUN which python3.7
@@ -56,6 +50,11 @@ RUN mkdir /home/jovyan/demo/data
 
 COPY notebooks/ /home/jovyan/demo/notebooks
 COPY data/ /home/jovyan/demo/data
+
+RUN touch /root/.bashrc
+RUN echo "parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'}" >> /root/.bashrc
+RUN echo '' >> /root/.bashrc
+RUN echo "Export PS1=\"\u@\H:\w \[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ \"" >> /root/.bashrc
 
 RUN chmod -R 777 /home/jovyan
 RUN chmod -R 777 /libs/flink
