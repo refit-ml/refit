@@ -14,5 +14,6 @@ libraryDependencies ++= Seq(
 dependsOn(
   `scheduler-core`,
   `scheduler-jdbi`,
+  `scheduler-kube`,
   Shared.protocol
 )

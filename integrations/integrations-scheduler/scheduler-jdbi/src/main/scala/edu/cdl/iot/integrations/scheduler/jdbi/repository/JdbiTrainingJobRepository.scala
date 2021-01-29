@@ -2,7 +2,7 @@ package edu.cdl.iot.integrations.scheduler.jdbi.repository
 
 import java.util.UUID
 
-import edu.cdl.iot.integrations.scheduler.core.entity.TrainingJob
+import edu.cdl.iot.integrations.scheduler.core.entity.{TrainingJob, TrainingJobError, TrainingJobNotFound}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobRepository
 import edu.cdl.iot.integrations.scheduler.jdbi.dao.TrainingJobDao
 import org.jdbi.v3.core.Jdbi
@@ -20,9 +20,15 @@ class JdbiTrainingJobRepository(val jdbi: Jdbi) extends TrainingJobRepository {
     dao.findTrainingJobsInProject(projectGuid).asScala.toList
   })
 
-  override def find(projectGuid: UUID, name: String): TrainingJob = jdbi.withHandle(handle => {
+  override def find(projectGuid: UUID, name: String): Either[TrainingJob, TrainingJobError] = jdbi.withHandle(handle => {
     val dao = handle.attach(classOf[TrainingJobDao])
-    dao.findTrainingJobById(projectGuid, name)
+
+    val trainingJob = dao.findTrainingJobById(projectGuid, name)
+    if (trainingJob == null)
+      Right(TrainingJobNotFound(projectGuid, name))
+    else
+      Left(dao.findTrainingJobById(projectGuid, name))
+
   })
 
   override def save(trainingJob: TrainingJob): Unit = jdbi.useHandle(handle => {

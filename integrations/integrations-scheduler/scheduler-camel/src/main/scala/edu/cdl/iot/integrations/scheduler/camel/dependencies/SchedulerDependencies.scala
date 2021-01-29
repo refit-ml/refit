@@ -6,7 +6,10 @@ import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.yaml.PostgresConfig
 import edu.cdl.iot.integrations.scheduler.camel.dependencies.SchedulerDependencies.{defaultCamelProperties, getJdbi}
 import edu.cdl.iot.integrations.scheduler.camel.routes.TrainingSchedulerRoute
+import edu.cdl.iot.integrations.scheduler.core.service.TrainingJobService
+import edu.cdl.iot.integrations.scheduler.jdbi.dependencies.SchedulerJdbiDependencies
 import edu.cdl.iot.integrations.scheduler.jdbi.repository.JdbiTrainingJobRepository
+import edu.cdl.iot.integrations.scheduler.kube.repository.KubeTrainingJobDeploymentRepository
 import org.apache.camel.CamelContext
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.postgres.PostgresPlugin
@@ -43,14 +46,21 @@ object SchedulerDependencies {
 
 class SchedulerDependencies(config: RefitConfig,
                             context: CamelContext) {
-
   private val postgresConfig = config.getPostgresConfig()
-  private val jdbi = getJdbi(config.getPostgresConfig())
 
-  private val trainingJobRepository = new JdbiTrainingJobRepository(jdbi)
+  private val jdbiDependencies = new SchedulerJdbiDependencies(postgresConfig)
+  private val trainingJobDeploymentRepository = new KubeTrainingJobDeploymentRepository
+
+  private val trainingJobService = new TrainingJobService(
+    trainingJobRepository = jdbiDependencies.trainingJobRepository,
+    trainingJobDeploymentRepository = trainingJobDeploymentRepository
+  )
 
   val properties: Properties = defaultCamelProperties(postgresConfig)
-  
-  val timedRoutesBuilder = new TrainingSchedulerRoute(context)
+
+  val timedRoutesBuilder = new TrainingSchedulerRoute(
+    trainingJobService = trainingJobService,
+    context = context
+  )
 
 }

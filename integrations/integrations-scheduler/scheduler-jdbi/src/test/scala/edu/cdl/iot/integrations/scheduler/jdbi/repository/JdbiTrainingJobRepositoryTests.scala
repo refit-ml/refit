@@ -36,17 +36,17 @@ class JdbiTrainingJobRepositoryTests extends AnyFlatSpec with BeforeAndAfterEach
 
     repository.save(expected)
     val actual = repository.find(expected.projectGuid, expected.jobName)
+      .fold(
+        trainingJob => trainingJob,
+        error => throw new Exception()
+      )
     assert(actual === expected)
   }
 
   "Training job" should "Overwrite existing entries" in {
     repository.save(trainingJob)
-    val entries = repository.find(trainingJob.projectGuid)
-
     val expected = trainingJob.copy(cronExpression = UUID.randomUUID().toString)
-
     repository.save(expected)
-
     val actualEntries = repository.find(trainingJob.projectGuid)
 
     assert(actualEntries === List(expected))
@@ -65,5 +65,11 @@ class JdbiTrainingJobRepositoryTests extends AnyFlatSpec with BeforeAndAfterEach
     assert(expected.length === 0)
   }
 
+  "Training Job" should "Be able to fetch all" in {
+    repository.save(trainingJob)
+    val entries = repository.find()
 
+    assert(entries.contains(trainingJob))
+
+  }
 }
