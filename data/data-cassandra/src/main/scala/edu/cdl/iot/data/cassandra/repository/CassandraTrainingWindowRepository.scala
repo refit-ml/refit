@@ -3,7 +3,7 @@ package edu.cdl.iot.data.cassandra.repository
 import java.sql.Timestamp
 import java.util.UUID
 
-import com.datastax.driver.core.{BatchStatement, BoundStatement, PreparedStatement, ResultSet}
+import com.datastax.oss.driver.api.core.cql.{BatchStatementBuilder, BatchType, BoundStatement, PreparedStatement}
 import edu.cdl.iot.common.domain.TrainingWindow
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
@@ -44,10 +44,10 @@ class CassandraTrainingWindowRepository(cassandraRepository: CassandraRepository
     )
 
   def save(records: Seq[TrainingWindow]): Unit = {
-    val batchedStatement = new BatchStatement()
+    val batchedStatement = new BatchStatementBuilder(BatchType.LOGGED)
     records.map(save)
-      .foreach(batchedStatement.add)
-    cassandraRepository.execute(batchedStatement)
+      .foreach(batchedStatement.addStatement)
+    cassandraRepository.execute(batchedStatement.build())
   }
 
   def find(projectGuid: UUID,
@@ -60,8 +60,8 @@ class CassandraTrainingWindowRepository(cassandraRepository: CassandraRepository
         val projectGuid = row.getString("project_guid")
         val sensorId = row.getString("sensor_id")
         val partitionKey = row.getString("partition_key")
-        val start = Timestamp.from(row.getTimestamp("start").toInstant)
-        val end = Timestamp.from(row.getTimestamp("end").toInstant)
+        val start = Timestamp.from(row.getInstant("start"))
+        val end = Timestamp.from(row.getInstant("end"))
 
         TrainingWindow(
           projectGuid,

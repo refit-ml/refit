@@ -18,7 +18,8 @@ class EnvironmentConfig extends RefitConfig with Serializable {
       predictions = sys.env(EnvConstants.PREDICTIONS_TOPIC),
       `import` = sys.env(EnvConstants.IMPORT_TOPIC),
       rawSensorData = sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
-      sensorData = sys.env(EnvConstants.SENSOR_DATA_TOPIC)
+      sensorData = sys.env(EnvConstants.SENSOR_DATA_TOPIC),
+      trainingJobScheduled = sys.env(EnvConstants.TRAINING_JOB_SCHEDULED_TOPIC)
     )
   )
 

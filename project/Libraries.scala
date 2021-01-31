@@ -3,7 +3,8 @@ import sbt._
 object Libraries {
   val protobuf = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"
   val joda = "joda-time" % "joda-time" % Versions.joda
-  val cassandra = "com.datastax.cassandra" % "cassandra-driver-core" % Versions.cassandra
+//  val cassandra = "com.datastax.cassandra" % "cassandra-driver-core" % Versions.cassandra
+  val cassandra =  "com.datastax.oss" % "java-driver-core" % Versions.cassandra
   val pulsar = "com.sksamuel.pulsar4s" %% "pulsar4s-core" % Versions.pulsar4s
 
   val camelCore = "org.apache.camel" % "camel-core" % Versions.camel

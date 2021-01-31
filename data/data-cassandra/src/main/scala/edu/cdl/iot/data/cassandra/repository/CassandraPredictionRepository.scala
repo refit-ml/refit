@@ -2,7 +2,7 @@ package edu.cdl.iot.data.cassandra.repository
 
 import java.sql.Timestamp
 
-import com.datastax.driver.core.PreparedStatement
+import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter

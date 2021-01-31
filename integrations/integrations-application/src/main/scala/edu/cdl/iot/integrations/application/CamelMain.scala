@@ -32,10 +32,6 @@ object CamelMain {
     //    context.addRoutes(dependencies.predictionRoutes)
     //    context.addRoutes(dependencies.notebookRoutes)
 
-    val quartzComponent = new QuartzComponent(context)
-    quartzComponent.setProperties(dependencies.schedulerDependencies.properties)
-
-    context.addComponent("quartz", quartzComponent)
 
     context.addRoutes(dependencies.schedulerDependencies.timedRoutesBuilder)
 
