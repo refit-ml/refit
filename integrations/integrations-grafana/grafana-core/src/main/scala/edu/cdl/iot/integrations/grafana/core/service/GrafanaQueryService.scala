@@ -45,25 +45,14 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
     if (record.`type` == "table") List(table(record)) else timeSeries(record)
 
 
-
-
   private val sensorFilterPredicate: QueryFilters => Boolean =
-    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
+    (x: QueryFilters) => x.key == "sensor" && (x.operator == "=" || x.operator == ">" || x.operator == "<")
 
   private val isEqualToType: (QueryFilters, String) => Boolean =
     (filter: QueryFilters, key: String) =>
       filter.operator == "=" && filter.key == key
 
   def query(request: GrafanaSensorDataDto): List[Object] = getResponse(request)
-
-
-
-
-
-
-
-  val sensorFilterPredicate: QueryFilters => Boolean =
-    (x: QueryFilters) => x.key == "sensor" && (x.operator == "=" || x.operator == "<" || x.operator == ">")
 
   val sensorFilterEquals: QueryFilters => Boolean =
     (x: QueryFilters) => x.operator == "="
@@ -88,29 +77,19 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
     if (filters.exists(sensorFilterPredicate)) {
 
       if (filters.exists(sensorFilterGreater)) {
-        val G = Greater(filters.filter(sensorFilterGreater).map(filter => filter.value.toInt).max(), projectGuid.allSensors)
+        val G = Greater(filters.filter(sensorFilterGreater).map(filter => filter.value.toInt).max, allSensors(projectGuid) )
         G.toList
       }
       else if (filters.exists(sensorFilterLesser)) {
-        val L = Lesser(filters.filter(sensorFilterLesser).map(filter => filter.value.toInt).min(), projectGuid.allSensors )
+        val L = Lesser(filters.filter(sensorFilterLesser).map(filter => filter.value.toInt).min, allSensors(projectGuid) )
         L.toList
       }
       else  {
         filters.filter(sensorFilterEquals).map(filter => filter.value).toList
       }
-
     }
     else
-      projectGuid.allSensors
-
-
-
-
-
-
-
-
-
+      allSensors(projectGuid)
 
 
   def getOrganization(request: QueryRequest): String =
