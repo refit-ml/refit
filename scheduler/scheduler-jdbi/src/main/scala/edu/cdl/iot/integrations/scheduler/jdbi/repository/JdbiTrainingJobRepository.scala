@@ -31,13 +31,13 @@ class JdbiTrainingJobRepository(val jdbi: Jdbi) extends TrainingJobRepository {
 
   })
 
-  override def save(trainingJob: TrainingJob): Unit = jdbi.useHandle(handle => {
+  override def save(trainingJob: TrainingJob): Either[Unit, TrainingJobError] = jdbi.withHandle(handle => {
     val dao = handle.attach(classOf[TrainingJobDao])
-    dao.save(projectGuid = trainingJob.projectGuid,
+    Left(dao.save(projectGuid = trainingJob.projectGuid,
       name = trainingJob.jobName,
       cronExpression = trainingJob.cronExpression,
       createdAt = trainingJob.createdAt
-    )
+    ))
   })
 
   override def delete(projectGuid: UUID, name: String): Either[Unit, TrainingJobError] = jdbi.withHandle(handle => {

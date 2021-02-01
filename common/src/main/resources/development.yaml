@@ -31,4 +31,4 @@ kafka:
     modelPublished: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"
-    trainingJobScheduled: "refit.training.job.scheduled"
+    trainingJobScheduled: "refit.training.scheduled"

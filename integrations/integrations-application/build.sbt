@@ -6,10 +6,6 @@ name := "integrations-application"
 Settings.assembly
 
 libraryDependencies ++= Dependencies.camel
-libraryDependencies ++= Seq(
-  Libraries.camelQuartz,
-  Libraries.postgres
-)
 
 assemblyJarName in assembly := "integrations.jar"
 mainClass in (run / assembly) := Some("edu.cdl.iot.integrations.application.CamelMain")

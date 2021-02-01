@@ -7,10 +7,6 @@ name := "scheduler-integrations"
 Settings.default
 
 libraryDependencies ++= Dependencies.camel
-libraryDependencies ++= Seq(
-  Libraries.camelQuartz,
-  Libraries.postgres
-)
 
 dependsOn(
   `scheduler-core`,

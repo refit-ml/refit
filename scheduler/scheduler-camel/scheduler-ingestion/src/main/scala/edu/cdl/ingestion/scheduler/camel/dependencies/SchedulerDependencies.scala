@@ -3,7 +3,6 @@ package edu.cdl.ingestion.scheduler.camel.dependencies
 
 import java.util.Properties
 
-import edu.cdl.ingestion.scheduler.camel.dependencies.SchedulerDependencies.defaultCamelProperties
 import edu.cdl.ingestion.scheduler.camel.routes.TrainingSchedulerRoute
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.yaml.PostgresConfig
@@ -12,8 +11,11 @@ import edu.cdl.iot.integrations.scheduler.jdbi.dependencies.SchedulerJdbiDepende
 import edu.cdl.iot.integrations.scheduler.kube.repository.KubeTrainingJobDeploymentRepository
 import org.apache.camel.CamelContext
 
-object SchedulerDependencies {
-  def defaultCamelProperties(config: PostgresConfig): Properties = {
+
+class SchedulerDependencies(config: RefitConfig,
+                            context: CamelContext) {
+
+  private def defaultCamelProperties(config: PostgresConfig): Properties = {
     val properties = new Properties()
     properties.setProperty("org.quartz.scheduler.instanceName", "PostgresScheduler")
     properties.setProperty("org.quartz.scheduler.instanceId", "AUTO")
@@ -32,12 +34,6 @@ object SchedulerDependencies {
     properties
   }
 
-
-}
-
-
-class SchedulerDependencies(config: RefitConfig,
-                            context: CamelContext) {
   private val postgresConfig = config.getPostgresConfig()
   private val kakfaConfig = config.getKafkaConfig()
 

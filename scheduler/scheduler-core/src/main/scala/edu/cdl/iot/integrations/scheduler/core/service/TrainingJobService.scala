@@ -12,6 +12,7 @@ class TrainingJobService(val trainingJobRepository: TrainingJobRepository,
 
   def saveTrainingJob(trainingJob: TrainingJob): Either[TrainingJob, TrainingJobError] =
     for (_ <- trainingJob.validate.left;
+         _ <- trainingJobRepository.save(trainingJob).left;
          _ <- trainingJobNotificationRepository.save(trainingJob).left)
       yield trainingJob
 

@@ -11,7 +11,7 @@ trait TrainingJobRepository {
 
   def find(projectGuid: UUID, name: String): Either[TrainingJob, TrainingJobError]
 
-  def save(trainingJob: TrainingJob)
+  def save(trainingJob: TrainingJob): Either[Unit, TrainingJobError]
 
   def delete(projectGuid: UUID, name: String): Either[Unit, TrainingJobError]
 }
