@@ -55,6 +55,16 @@ services:
       timeout: 20s
       retries: 3
 
+  job:
+    build: resources/job
+    environment:
+      MINIO_ACCESS_KEY: refit
+      MINIO_SECRET_KEY: refit-key
+      MINIO_HOST: http://minio:9000
+      MINIO_BUCKET: refit-jobs
+      SCRIPT_LOCATION: test-upload-folder/
+      SCRIPT_FILE: index.py
+
 
 networks:
   default:

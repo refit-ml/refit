@@ -21,7 +21,7 @@ class SchedulerIntegrationsDependencies(config: RefitConfig,
   private val postgresConfig = config.getPostgresConfig()
 
   private val jdbiDependencies = new SchedulerJdbiDependencies(postgresConfig)
-  private val trainingJobDeploymentRepository = new KubeTrainingJobDeploymentRepository
+  private val trainingJobDeploymentRepository = null
   private val trainingJobNotificationRepository = new KafkaTrainingJobNotificationRepository(kafkaRepository)
   private val trainingJobService = new TrainingJobService(
     trainingJobRepository = jdbiDependencies.trainingJobRepository,
