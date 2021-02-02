@@ -1,6 +1,6 @@
 lazy val `notebook-camel` = project in file("../integrations-notebook/notebook-camel")
 lazy val `grafana-camel` = project in file("../integrations-grafana/grafana-camel")
-lazy val `prediction-camel` = project in file("../integrations-prediction/prediction-camel")
+lazy val `prediction-camel` = project in file("../..//prediction/prediction-camel")
 lazy val `scheduler-integrations` = project in file("../../scheduler/scheduler-camel/scheduler-integrations")
 name := "integrations-application"
 Settings.assembly
