@@ -28,8 +28,8 @@ object CamelMain {
     context.addComponent("netty-http", new NettyHttpComponent)
     context.addComponent("kafka", kafkaComponent)
     context.addRoutes(dependencies.grafanaRoutes)
-//    context.addRoutes(dependencies.predictionRoutes)
-//    context.addRoutes(dependencies.notebookRoutes)
+    context.addRoutes(dependencies.predictionRoutes)
+    context.addRoutes(dependencies.notebookRoutes)
     context.addRoutes(dependencies.schedulerDependencies.timedRoutesBuilder)
 
     context.start()

@@ -34,7 +34,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       .withEnv(
         new V1EnvVarBuilder()
           .withName("SCRIPT_LOCATION")
-          .withValue(s"${trainingJob.projectGuid}/scripts/${trainingJob.jobName}/")
+          .withValue(s"${trainingJob.projectGuid}/jobs/${trainingJob.jobName}/")
           .build(),
         new V1EnvVarBuilder()
           .withName("SCRIPT_FILE")
