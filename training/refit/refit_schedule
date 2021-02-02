@@ -1,0 +1,25 @@
+#! /bin/sh
+
+project_guid=$1
+job_name=$2
+cron_expression=$3
+directory=$4
+
+# For local dev
+#MINIO_HOST="http://127.0.0.1:9000"
+#MINIO_ACCESS_KEY="refit"
+#MINIO_SECRET_KEY="refit-key"
+#MINIO_BUCKET_JOBS="refit-jobs"
+#INTEGRATIONS_HOST="http://127.0.0.1:3000"
+
+
+SCRIPT_LOCATION="$project_guid/jobs/$job_name/"
+
+mc alias set refit $MINIO_HOST $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
+mc mirror $directory refit/$MINIO_BUCKET_JOBS/$SCRIPT_LOCATION
+
+curl -i \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -X POST $INTEGRATIONS_HOST/notebook/project/$project_guid/schedule/$job_name \
+  --data "{\"cronExpression\": \"$cron_expression\"}"

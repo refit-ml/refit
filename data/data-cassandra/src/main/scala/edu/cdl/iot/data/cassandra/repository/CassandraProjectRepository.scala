@@ -3,10 +3,9 @@ package edu.cdl.iot.data.cassandra.repository
 import java.sql.Timestamp
 import java.util.UUID
 
-import com.datastax.driver.core.{PreparedStatement, Row}
+import com.datastax.oss.driver.api.core.cql.{PreparedStatement, Row}
 import edu.cdl.iot.common.domain.Project
 import edu.cdl.iot.common.factories.SchemaFactory
-import edu.cdl.iot.common.util.TimestampHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
 import collection.JavaConverters._
@@ -50,7 +49,7 @@ class CassandraProjectRepository(cassandraRepository: CassandraRepository) {
       name = row.getString("name"),
       description = row.getString("description"),
       schema = SchemaFactory.parse(row.getString("schema")),
-      timestamp = Timestamp.from(row.getTimestamp("timestamp").toInstant)
+      timestamp = Timestamp.from(row.getInstant("timestamp"))
     )
 
   def save(project: Project): Unit =

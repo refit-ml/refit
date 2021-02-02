@@ -1,6 +1,6 @@
 package edu.cdl.iot.data.cassandra.repository
 
-import com.datastax.driver.core.PreparedStatement
+import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import edu.cdl.iot.common.domain.Organization
 import edu.cdl.iot.data.cassandra.CassandraRepository
 

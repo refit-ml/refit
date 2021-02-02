@@ -6,4 +6,5 @@ object Shared {
   lazy val `data-cassandra` = project in file("data/data-cassandra")
   lazy val `data-minio` = project in file("data/data-minio")
   lazy val `data-kafka` = project in file("data/data-kafka")
+  lazy val `data-postgres` = project in file("data/data-postgres")
 }

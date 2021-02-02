@@ -1,8 +1,9 @@
 package edu.cdl.iot.data.cassandra.repository
 
+import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
-import com.datastax.driver.core.{BatchStatement, BoundStatement, PreparedStatement, Row}
+import com.datastax.oss.driver.api.core.cql.{BatchStatement, BatchStatementBuilder, BatchType, BoundStatement, PreparedStatement, Row}
 import edu.cdl.iot.common.domain.SensorData
 import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
@@ -47,10 +48,10 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
     )
 
   def save(sensorData: Seq[SensorData]): Unit = {
-    val batchedStatement = new BatchStatement()
+    val batchedStatement = new BatchStatementBuilder(BatchType.LOGGED)
     sensorData.toList.map(createSensorData)
-      .foreach(batchedStatement.add)
-    cassandraRepository.execute(batchedStatement)
+      .foreach(batchedStatement.addStatement)
+    cassandraRepository.execute(batchedStatement.build())
   }
 
   private def find(projectGuid: String,
@@ -72,7 +73,7 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
       .map(row => {
         val helper = decryptionHelper(projectGuid)
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val timestamp = formatter.format(row.getTimestamp("timestamp"))
+        val timestamp = formatter.format(row.get("timestamp", classOf[Timestamp]))
         val data = helper.transform(row.getMap("data", classOf[String], classOf[String]).asScala.toMap)
         val predictions = helper.transform(row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap)
           .map(x => s"prediction - ${x._1}" -> x._2)
