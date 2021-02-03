@@ -42,7 +42,7 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
       sensorData.project_guid,
       sensorData.sensor_id,
       sensorData.partition_key,
-      sensorData.timestamp,
+      sensorData.timestamp.toInstant,
       sensorData.data.asJava,
       sensorData.prediction.asJava
     )
@@ -73,7 +73,7 @@ class CassandraSensorDataRepository(cassandraRepository: CassandraRepository,
       .map(row => {
         val helper = decryptionHelper(projectGuid)
         val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val timestamp = formatter.format(row.get("timestamp", classOf[Timestamp]))
+        val timestamp = formatter.format(row.getInstant("timestamp"))
         val data = helper.transform(row.getMap("data", classOf[String], classOf[String]).asScala.toMap)
         val predictions = helper.transform(row.getMap("prediction", classOf[String], classOf[String]).asScala.toMap)
           .map(x => s"prediction - ${x._1}" -> x._2)

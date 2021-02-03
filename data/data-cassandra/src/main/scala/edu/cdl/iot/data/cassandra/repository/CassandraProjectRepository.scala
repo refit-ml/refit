@@ -59,7 +59,7 @@ class CassandraProjectRepository(cassandraRepository: CassandraRepository) {
         project.projectGuid.toString,
         project.name,
         project.schema.toYaml,
-        project.timestamp
+        project.timestamp.toInstant
       ))
 
 
