@@ -39,8 +39,8 @@ class CassandraTrainingWindowRepository(cassandraRepository: CassandraRepository
       trainingWindow.project_guid,
       trainingWindow.sensor_id,
       trainingWindow.partition_key,
-      trainingWindow.start,
-      trainingWindow.end
+      trainingWindow.start.toInstant,
+      trainingWindow.end.toInstant
     )
 
   def save(records: Seq[TrainingWindow]): Unit = {

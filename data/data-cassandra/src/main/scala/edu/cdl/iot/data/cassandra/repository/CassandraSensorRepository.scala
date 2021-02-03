@@ -42,7 +42,7 @@ class CassandraSensorRepository(cassandraRepository: CassandraRepository) {
     Statement.createSensor.bind(
       sensor.projectGuid,
       sensor.sensorId,
-      sensor.createdAt
+      sensor.createdAt.toInstant
     )
 
   def save(sensors: Seq[Sensor]): Unit = {

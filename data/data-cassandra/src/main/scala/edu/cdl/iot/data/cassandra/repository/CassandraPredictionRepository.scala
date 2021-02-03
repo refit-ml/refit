@@ -45,7 +45,7 @@ class CassandraPredictionRepository(cassandraRepository: CassandraRepository) {
         projectGuid,
         sensorId,
         partition,
-        timestamp
+        timestamp.toInstant
       ))
 
 }
