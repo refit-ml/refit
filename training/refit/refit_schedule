@@ -22,5 +22,5 @@ mc mirror $directory refit/$MINIO_BUCKET_JOBS/$SCRIPT_LOCATION
 curl -i \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -X POST $INTEGRATIONS_HOST/notebook/project/$project_guid/schedule/$job_name \
+  -X POST http://$INTEGRATIONS_HOST:3000/notebook/project/$project_guid/schedule/$job_name \
   --data "{\"cronExpression\": \"$cron_expression\"}"
