@@ -34,7 +34,7 @@ class CassandraOrganizationRepository(cassandraRepository: CassandraRepository) 
     cassandraRepository.execute(Statement.createOrg.bind(
       organization.orgGuid.toString,
       organization.name,
-      organization.timestamp
+      organization.timestamp.toInstant
     ))
 
   def findAll: List[String] =
