@@ -11,11 +11,12 @@ directory=$4
 #MINIO_SECRET_KEY="refit-key"
 #MINIO_BUCKET_JOBS="refit-jobs"
 #INTEGRATIONS_HOST="http://127.0.0.1:3000"
-
+# refit_schedule b6ee5bab-08dd-49b0-98b6-45cd0a28b12f test-job "*/5 * * * *" ./test-schedule/
+# mc mirror ./test-schedule/ refit/$MINIO_BUCKET_JOBS/b6ee5bab-08dd-49b0-98b6-45cd0a28b12f/jobs/test-job
 
 SCRIPT_LOCATION="$project_guid/jobs/$job_name/"
 
-mc alias set refit $MINIO_HOST $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
+mc alias set refit http://$MINIO_HOST $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
 mc mirror $directory refit/$MINIO_BUCKET_JOBS/$SCRIPT_LOCATION
 
 curl -i \
