@@ -16,7 +16,7 @@ class CassandraRepository(private val config: CassandraConfig) {
   private var session: CqlSession = CqlSession.builder()
     .addContactPoint(InetSocketAddress.createUnresolved(config.host, config.port))
     .withAuthCredentials(config.user, config.password)
-    .withLocalDatacenter("refit")
+    .withLocalDatacenter("datacenter1")
     .build()
 
 
