@@ -8,7 +8,7 @@ USER root
 
 RUN apt-get dist-upgrade  -y
 RUN apt-get update
-RUN apt-get install default-jre software-properties-common python3 python3-pip git unzip -y
+RUN apt-get install default-jre software-properties-common python3 python3-pip git unzip curl -y
 
 # Install minio client
 # https://docs.min.io/docs/minio-client-quickstart-guide.html
