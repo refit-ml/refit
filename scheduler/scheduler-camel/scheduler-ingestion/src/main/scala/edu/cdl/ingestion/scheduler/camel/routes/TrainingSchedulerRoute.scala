@@ -55,9 +55,10 @@ class TrainingSchedulerRoute(val kafkaConfig: KafkaConfig,
         trainingJobService
           .scheduleTrainingJob(projectGuid, jobName)
           .fold(
-            trainingJobDeployment => logger.info(s"Successfully scheduled job: $jobName for project $projectGuid", trainingJobDeployment),
-            trainingJobError => logger.error(s"Failed to schedule job: $jobName for project $projectGuid", trainingJobError)
+            trainingJobDeployment => logger.info(s"Successfully scheduled job: $jobName for project $projectGuid"),
+            trainingJobError => logger.info(s"Failed to schedule job: $jobName for project $projectGuid: ${trainingJobError.message}")
           )
+
       })
 
 
