@@ -1,4 +1,7 @@
 # REFIT
+![Release](https://github.com/refit-ml/refit/workflows/Releases/badge.svg?event=release)
+![Build](https://github.com/refit-ml/refit/workflows/Scala%20CI/badge.svg?event=check_run)
+
 This is a monorepo for the Center for Deep Learning IoT platform, REFIT. REFIT enables data science teams and researchers to decouple the deployment and management of machine learning infrastructure from the data science pipeline. For more information about REFIT or the Center for Deep Learning, visit the [project page](https://www.mccormick.northwestern.edu/research/deep-learning/projects/iot.html) 
 
 ## Architecture
