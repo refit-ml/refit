@@ -13,3 +13,6 @@ case class SchedulerUnavailable()
 
 case class TrainingJobNotFound(projectGuid: UUID, jobName: String)
   extends TrainingJobError(s"The training job $jobName in project $projectGuid does not exist")
+
+case class KubernetesApiConflict()
+  extends TrainingJobError("The kubernetes api has returned an error")

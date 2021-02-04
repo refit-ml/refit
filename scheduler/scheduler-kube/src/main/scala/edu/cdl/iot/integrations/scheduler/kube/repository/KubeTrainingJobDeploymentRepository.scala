@@ -2,13 +2,14 @@ package edu.cdl.iot.integrations.scheduler.kube.repository
 
 import java.io.FileReader
 
-import edu.cdl.iot.integrations.scheduler.core.entity.{TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError}
+import edu.cdl.iot.integrations.scheduler.core.entity.{KubernetesApiConflict, TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobDeploymentRepository
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
-import io.kubernetes.client.openapi.Configuration
+import io.kubernetes.client.openapi.{ApiException, Configuration}
 import io.kubernetes.client.openapi.apis.BatchV1Api
 import io.kubernetes.client.openapi.models.{V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
 import io.kubernetes.client.util.{ClientBuilder, Config, KubeConfig}
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
@@ -18,6 +19,8 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
   private val kubeConfigPath = "/.kube/config"
   private val client =
     ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
+
+  private val logger = LoggerFactory.getLogger(classOf[KubeTrainingJobDeploymentRepository])
 
   Configuration.setDefaultApiClient(client)
 
@@ -96,11 +99,17 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
   override def create(trainingJob: TrainingJob): Either[TrainingJobDeployment, TrainingJobError] = {
     val api = new BatchV1Api()
     val pod = buildPod(trainingJob)
-    val result = api.createNamespacedJob(config.namespace, pod, "true", null, null)
-
-    Left(
-      TrainingJobDeployment(
-        name = trainingJob.jobName,
-        status = TrainingJobDeploymentStatus.withName(result.getStatus.toString)))
+    try {
+      val result = api.replaceNamespacedJob(s"refit-job-${trainingJob.jobName}", config.namespace, pod, "true", null, null)
+      Left(
+        TrainingJobDeployment(
+          name = trainingJob.jobName,
+          status = TrainingJobDeploymentStatus.withName(result.getStatus.toString)))
+    } catch {
+      case e: ApiException => {
+        logger.error("Error scheduling job", e)
+        Right(KubernetesApiConflict())
+      }
+    }
   }
 }
