@@ -5,7 +5,7 @@ import java.io.FileReader
 import edu.cdl.iot.integrations.scheduler.core.entity.{KubernetesApiConflict, TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError, TrainingJobNotComplete}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobDeploymentRepository
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
-import io.kubernetes.client.openapi.Configuration
+import io.kubernetes.client.openapi.{ApiException, Configuration}
 import io.kubernetes.client.openapi.apis.BatchV1Api
 import io.kubernetes.client.openapi.models.{V1DeleteOptionsBuilder, V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
 import io.kubernetes.client.util.{ClientBuilder, KubeConfig}
@@ -99,22 +99,27 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
 
   private def availableToSchedule(trainingJob: TrainingJob): Boolean = {
     val jobName = s"refit-job-${trainingJob.jobName}"
-    val response = api.readNamespacedJobStatus(jobName, config.namespace, "true")
+    try {
+      val response = api.readNamespacedJobStatus(jobName, config.namespace, "true")
 
-    if (response != null) {
-      val activeCount = response.getStatus.getActive
-      if (activeCount == 0) {
-        val deleteOptions = new V1DeleteOptionsBuilder()
-          .build()
-        api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
-        true
+      if (response != null) {
+        val activeCount = response.getStatus.getActive
+        if (activeCount == 0) {
+          val deleteOptions = new V1DeleteOptionsBuilder()
+            .build()
+          api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
+          true
+        }
+        else {
+          false
+        }
       }
       else {
-        false
+        true
       }
     }
-    else {
-      true
+    catch {
+      case e: ApiException => true
     }
   }
 
