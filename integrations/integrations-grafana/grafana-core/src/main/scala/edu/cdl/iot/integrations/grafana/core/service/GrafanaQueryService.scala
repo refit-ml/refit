@@ -46,21 +46,51 @@ class GrafanaQueryService(projectRepository: GrafanaProjectRepository,
 
 
   private val sensorFilterPredicate: QueryFilters => Boolean =
-    (x: QueryFilters) => x.key == "sensor" && x.operator == "="
+    (x: QueryFilters) => x.key == "sensor" && (x.operator == "=" || x.operator == ">" || x.operator == "<")
 
   private val isEqualToType: (QueryFilters, String) => Boolean =
     (filter: QueryFilters, key: String) =>
       filter.operator == "=" && filter.key == key
 
-
   def query(request: GrafanaSensorDataDto): List[Object] = getResponse(request)
 
+  val sensorFilterEquals: QueryFilters => Boolean =
+    (x: QueryFilters) => x.operator == "="
+
+  val sensorFilterLesser: QueryFilters => Boolean =
+    (x: QueryFilters) => x.operator == "<"
+
+  val sensorFilterGreater: QueryFilters => Boolean =
+    (x: QueryFilters) => x.operator == ">"
+
+  def Greater(filter: Int, all: List[String]): Array[String] =
+    all.filter( _.toInt > filter ).toArray
+
+  def Lesser(filter: Int, all: List[String]): Array[String] =
+    all.filter( _.toInt < filter ).toArray
+
+  val allSensors : String => List[String] =
+    (x : String) => sensorRepository.findAll(x)
+
+
   def getSensorIds(projectGuid: String, filters: Array[QueryFilters]): List[String] =
-    if (filters.exists(sensorFilterPredicate))
-      filters.filter(sensorFilterPredicate)
-        .map(filter => filter.value).toList
+    if (filters.exists(sensorFilterPredicate)) {
+
+      if (filters.exists(sensorFilterGreater)) {
+        val G = Greater(filters.filter(sensorFilterGreater).map(filter => filter.value.toInt).max, allSensors(projectGuid) )
+        G.toList
+      }
+      else if (filters.exists(sensorFilterLesser)) {
+        val L = Lesser(filters.filter(sensorFilterLesser).map(filter => filter.value.toInt).min, allSensors(projectGuid) )
+        L.toList
+      }
+      else  {
+        filters.filter(sensorFilterEquals).map(filter => filter.value).toList
+      }
+    }
     else
-      sensorRepository.findAll(projectGuid)
+      allSensors(projectGuid)
+
 
   def getOrganization(request: QueryRequest): String =
     request.adhocFilters
