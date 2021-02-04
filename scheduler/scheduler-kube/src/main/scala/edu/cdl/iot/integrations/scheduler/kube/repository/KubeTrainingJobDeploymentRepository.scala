@@ -16,8 +16,9 @@ import scala.collection.JavaConverters.mapAsJavaMapConverter
 class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends TrainingJobDeploymentRepository {
 
   private val kubeConfigPath = "/.kube/config"
-  private val client =
-    ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
+  //  private val client =
+  //    ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
+  private val client = ClientBuilder.cluster().build()
   Configuration.setDefaultApiClient(client)
 
   def buildPod(trainingJob: TrainingJob): V1Job =
