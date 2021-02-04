@@ -136,7 +136,9 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
         Left(
           TrainingJobDeployment(
             name = trainingJob.jobName,
-            status = TrainingJobDeploymentStatus.withName(result.getStatus.toString)))
+            status = TrainingJobDeploymentStatus.UNKNOWN
+          )
+        )
       }
       else {
         Right(TrainingJobNotComplete())
