@@ -8,7 +8,7 @@ import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
 import io.kubernetes.client.openapi.{ApiException, Configuration}
 import io.kubernetes.client.openapi.apis.BatchV1Api
 import io.kubernetes.client.openapi.models.{V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
-import io.kubernetes.client.util.{ClientBuilder, Config, KubeConfig}
+import io.kubernetes.client.util.{ClientBuilder, KubeConfig}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter
@@ -75,7 +75,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
             .build()
           ).build(),
         new V1EnvVarBuilder()
-          .withName("MINIO_ACCESS_KEY")
+          .withName("MINIO_SECRET_KEY")
           .withValueFrom(new V1EnvVarSourceBuilder()
             .withSecretKeyRef(new V1SecretKeySelectorBuilder()
               .withName(s"${config.releasePrefix}-minio")
