@@ -1,19 +1,23 @@
 package edu.cdl.iot.integrations.scheduler.kube.repository
 
+import java.io.FileReader
+
 import edu.cdl.iot.integrations.scheduler.core.entity.{TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobDeploymentRepository
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
 import io.kubernetes.client.openapi.Configuration
 import io.kubernetes.client.openapi.apis.BatchV1Api
 import io.kubernetes.client.openapi.models.{V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
-import io.kubernetes.client.util.Config
+import io.kubernetes.client.util.{ClientBuilder, Config, KubeConfig}
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 
 class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends TrainingJobDeploymentRepository {
 
-  private val client = Config.defaultClient
+  private val kubeConfigPath = "/.kube/config"
+  private val client =
+    ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
   Configuration.setDefaultApiClient(client)
 
   def buildPod(trainingJob: TrainingJob): V1Job =
