@@ -2,7 +2,7 @@ package edu.cdl.iot.integrations.scheduler.core.entity
 
 import java.util.UUID
 
-sealed class TrainingJobError(message: String)
+sealed class TrainingJobError(val message: String)
 
 
 case class InvalidCronExpression(cronExpression: String)
@@ -16,3 +16,6 @@ case class TrainingJobNotFound(projectGuid: UUID, jobName: String)
 
 case class KubernetesApiConflict()
   extends TrainingJobError("The kubernetes api has returned an error")
+
+case class TrainingJobNotComplete()
+  extends TrainingJobError("There is an existing training job in flight, new job cannot be scheduled")

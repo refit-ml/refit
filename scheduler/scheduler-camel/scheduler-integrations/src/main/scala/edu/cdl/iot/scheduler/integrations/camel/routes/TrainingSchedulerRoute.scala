@@ -37,29 +37,33 @@ class TrainingSchedulerRoute(trainingJobService: TrainingJobService,
           cronExpression = request.cronExpression,
           createdAt = LocalDateTime.now()
         )
-        trainingJobService.saveTrainingJob(trainingJob)
-        message.setBody("Job scheduled")
+        val result = trainingJobService.saveTrainingJob(trainingJob)
+        val body = result.fold(
+          trainingJob => s"Job Scheduled (${trainingJob.jobName})",
+          trainingJobError => trainingJobError.message
+        )
+        message.setBody(body)
       })
 
-//    rest("/notebook/project")
-//      .consumes("application/json")
-//      .delete(s"/{projectGuid}/scheduled/{jobName}")
-//      .`type`(classOf[TrainingJobRequest])
-//      .outType(classOf[String])
-//      .route()
-//      .process((exchange: Exchange) => {
-//        val message = exchange.getIn
-//        val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
-//        val jobName = message.getHeader("jobName", classOf[String])
-//        val request = message.getBody(classOf[TrainingJobRequest])
-//        logger.info(s"Save training job: $jobName for project $projectGuid")
-//        val trainingJob = new TrainingJob(
-//          projectGuid = projectGuid,
-//          jobName = jobName,
-//          cronExpression = request.cronExpression,
-//          createdAt = LocalDateTime.now()
-//        )
-//        trainingJobService.saveTrainingJob(trainingJob)
-//      })
+    //    rest("/notebook/project")
+    //      .consumes("application/json")
+    //      .delete(s"/{projectGuid}/scheduled/{jobName}")
+    //      .`type`(classOf[TrainingJobRequest])
+    //      .outType(classOf[String])
+    //      .route()
+    //      .process((exchange: Exchange) => {
+    //        val message = exchange.getIn
+    //        val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
+    //        val jobName = message.getHeader("jobName", classOf[String])
+    //        val request = message.getBody(classOf[TrainingJobRequest])
+    //        logger.info(s"Save training job: $jobName for project $projectGuid")
+    //        val trainingJob = new TrainingJob(
+    //          projectGuid = projectGuid,
+    //          jobName = jobName,
+    //          cronExpression = request.cronExpression,
+    //          createdAt = LocalDateTime.now()
+    //        )
+    //        trainingJobService.saveTrainingJob(trainingJob)
+    //      })
   }
 }

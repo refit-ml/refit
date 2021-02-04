@@ -2,12 +2,12 @@ package edu.cdl.iot.integrations.scheduler.kube.repository
 
 import java.io.FileReader
 
-import edu.cdl.iot.integrations.scheduler.core.entity.{KubernetesApiConflict, TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError}
+import edu.cdl.iot.integrations.scheduler.core.entity.{KubernetesApiConflict, TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError, TrainingJobNotComplete}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobDeploymentRepository
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
-import io.kubernetes.client.openapi.{ApiException, Configuration}
+import io.kubernetes.client.openapi.Configuration
 import io.kubernetes.client.openapi.apis.BatchV1Api
-import io.kubernetes.client.openapi.models.{V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
+import io.kubernetes.client.openapi.models.{V1DeleteOptionsBuilder, V1EnvVarBuilder, V1EnvVarSourceBuilder, V1Job, V1JobBuilder, V1SecretKeySelectorBuilder}
 import io.kubernetes.client.util.{ClientBuilder, KubeConfig}
 import org.slf4j.LoggerFactory
 
@@ -23,6 +23,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
   private val logger = LoggerFactory.getLogger(classOf[KubeTrainingJobDeploymentRepository])
 
   Configuration.setDefaultApiClient(client)
+  val api = new BatchV1Api()
 
   def buildPod(trainingJob: TrainingJob): V1Job =
     new V1JobBuilder()
@@ -96,21 +97,47 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       .endSpec()
       .build()
 
+  private def availableToSchedule(trainingJob: TrainingJob): Boolean = {
+    val jobName = s"refit-job-${trainingJob.jobName}"
+    val response = api.readNamespacedJobStatus(jobName, config.namespace, "true")
+
+    if (response != null) {
+      val activeCount = response.getStatus.getActive
+      if (activeCount == 0) {
+        val deleteOptions = new V1DeleteOptionsBuilder()
+          .build()
+        api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
+        true
+      }
+      else {
+        false
+      }
+    }
+    else {
+      true
+    }
+  }
 
   override def create(trainingJob: TrainingJob): Either[TrainingJobDeployment, TrainingJobError] = {
-    val api = new BatchV1Api()
-    val pod = buildPod(trainingJob)
+
+
     try {
-      val result = api.createNamespacedJob(config.namespace, pod, "true", null, null)
-      Left(
-        TrainingJobDeployment(
-          name = trainingJob.jobName,
-          status = TrainingJobDeploymentStatus.withName(result.getStatus.toString)))
+      if (availableToSchedule(trainingJob)) {
+        val pod = buildPod(trainingJob)
+        val result = api.createNamespacedJob(config.namespace, pod, "true", null, null)
+        Left(
+          TrainingJobDeployment(
+            name = trainingJob.jobName,
+            status = TrainingJobDeploymentStatus.withName(result.getStatus.toString)))
+      }
+      else {
+        Right(TrainingJobNotComplete())
+      }
+
     } catch {
-      case e: ApiException => {
+      case e: Exception =>
         logger.error("Error scheduling job", e)
         Right(KubernetesApiConflict())
-      }
     }
   }
 }

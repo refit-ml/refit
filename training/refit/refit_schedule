@@ -17,7 +17,7 @@ directory=$4
 SCRIPT_LOCATION="$project_guid/jobs/$job_name/"
 
 mc alias set refit http://$MINIO_HOST $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
-mc mirror $directory refit/$MINIO_BUCKET_JOBS/$SCRIPT_LOCATION
+mc mirror --overwrite $directory refit/$MINIO_BUCKET_JOBS/$SCRIPT_LOCATION
 
 curl -i \
   -H "Accept: application/json" \
