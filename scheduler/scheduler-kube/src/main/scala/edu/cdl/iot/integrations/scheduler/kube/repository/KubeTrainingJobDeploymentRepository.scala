@@ -36,6 +36,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       .withApiVersion("batch/v1")
       .withKind("Job")
       .withNewSpec()
+      .withTtlSecondsAfterFinished(60)
       .withNewTemplate()
       .withNewSpec()
       .addNewContainer()
