@@ -50,6 +50,10 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
           .withValue(trainingJob.projectGuid.toString)
           .build(),
         new V1EnvVarBuilder()
+          .withName("MINIO_BUCKET")
+          .withValue(config.minioBucket)
+          .build(),
+        new V1EnvVarBuilder()
           .withName("JOB_NAME")
           .withValue(trainingJob.jobName)
           .build(),
@@ -79,6 +83,9 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       .withName("python-training")
       .withImage(s"cdliotprototype/cdl-refit-job:${config.refitVersion}")
       .endContainer()
+      .withNodeSelector(
+        Map("refit" -> "enabled").asJava
+      )
       .withRestartPolicy("Never")
       .endSpec()
       .endTemplate()
