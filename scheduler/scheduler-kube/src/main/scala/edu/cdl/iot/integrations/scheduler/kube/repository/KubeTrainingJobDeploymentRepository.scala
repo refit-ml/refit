@@ -101,7 +101,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
     val api = new BatchV1Api()
     val pod = buildPod(trainingJob)
     try {
-      val result = api.replaceNamespacedJob(s"refit-job-${trainingJob.jobName}", config.namespace, pod, "true", null, null)
+      val result = api.createNamespacedJob(config.namespace, pod, "true", null, null)
       Left(
         TrainingJobDeployment(
           name = trainingJob.jobName,
