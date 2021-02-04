@@ -17,8 +17,8 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
 
   private val kubeConfigPath = "/.kube/config"
   private val client =
-      ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
-//  private val client = ClientBuilder.cluster().build()
+    ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
+
   Configuration.setDefaultApiClient(client)
 
   def buildPod(trainingJob: TrainingJob): V1Job =
@@ -77,7 +77,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
           ).build()
       )
       .withName("python-training")
-      .withImage("cdliotprototype/cdl-refit-job:latest")
+      .withImage(s"cdliotprototype/cdl-refit-job:${config.refitVersion}")
       .endContainer()
       .withRestartPolicy("Never")
       .endSpec()
