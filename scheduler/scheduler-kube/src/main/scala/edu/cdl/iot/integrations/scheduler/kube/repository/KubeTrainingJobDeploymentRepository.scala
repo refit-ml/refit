@@ -119,7 +119,10 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       }
     }
     catch {
-      case e: ApiException => true
+      case e: ApiException => {
+        logger.error("Error deleting previous job", e)
+        true
+      }
     }
   }
 
