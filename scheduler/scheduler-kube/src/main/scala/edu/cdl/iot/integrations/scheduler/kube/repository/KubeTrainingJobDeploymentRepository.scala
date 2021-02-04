@@ -104,6 +104,7 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
 
       if (response != null) {
         val deleteOptions = new V1DeleteOptionsBuilder()
+          .withOrphanDependents(false)
           .build()
         api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
         true
