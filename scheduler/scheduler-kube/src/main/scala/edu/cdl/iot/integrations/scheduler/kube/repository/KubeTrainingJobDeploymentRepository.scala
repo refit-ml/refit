@@ -97,53 +97,36 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
       .endSpec()
       .build()
 
-  private def availableToSchedule(trainingJob: TrainingJob): Boolean = {
+  private def availableToSchedule(trainingJob: TrainingJob) = {
     val jobName = s"refit-job-${trainingJob.jobName}"
     try {
       val response = api.readNamespacedJobStatus(jobName, config.namespace, "true")
 
       if (response != null) {
-        val activeCount = response.getStatus.getActive
-        if (activeCount == 0) {
-          val deleteOptions = new V1DeleteOptionsBuilder()
-            .build()
-          api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
-          true
-        }
-        else {
-          false
-        }
-      }
-      else {
+        val deleteOptions = new V1DeleteOptionsBuilder()
+          .build()
+        api.deleteNamespacedJob(jobName, config.namespace, "true", null, null, false, null, deleteOptions)
         true
       }
     }
     catch {
       case e: ApiException => {
         logger.error("Error deleting previous job", e)
-        true
       }
     }
   }
 
   override def create(trainingJob: TrainingJob): Either[TrainingJobDeployment, TrainingJobError] = {
-
-
     try {
-      if (availableToSchedule(trainingJob)) {
-        val pod = buildPod(trainingJob)
-        val result = api.createNamespacedJob(config.namespace, pod, "true", null, null)
-        Left(
-          TrainingJobDeployment(
-            name = trainingJob.jobName,
-            status = TrainingJobDeploymentStatus.UNKNOWN
-          )
+      availableToSchedule(trainingJob)
+      val pod = buildPod(trainingJob)
+      api.createNamespacedJob(config.namespace, pod, "true", null, null)
+      Left(
+        TrainingJobDeployment(
+          name = trainingJob.jobName,
+          status = TrainingJobDeploymentStatus.UNKNOWN
         )
-      }
-      else {
-        Right(TrainingJobNotComplete())
-      }
-
+      )
     } catch {
       case e: Exception =>
         logger.error("Error scheduling job", e)
