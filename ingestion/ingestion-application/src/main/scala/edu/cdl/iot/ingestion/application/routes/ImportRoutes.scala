@@ -15,15 +15,6 @@ class ImportRoutes(private val kafkaConfig: KafkaConfig,
   private val logger = LoggerFactory.getLogger(classOf[ImportRoutes])
 
   override def configure(): Unit = {
-    restConfiguration.component("netty-http")
-      .enableCORS(true)
-      .corsHeaderProperty("Access-Control-Allow-Origin", "*")
-      .corsHeaderProperty("Access-Control-Allow-Methods", "POST")
-      .corsHeaderProperty("Access-Control-Allow-Headers", "accept, content-type")
-      .port(HttpConstants.PORT)
-      .bindingMode(RestBindingMode.json)
-
-
     from(s"kafka:${kafkaConfig.topics.`import`}?brokers=${kafkaConfig.host}")
       .process((exchange: Exchange) => {
         val body = exchange.getIn.getBody(classOf[Array[Byte]])

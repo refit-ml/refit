@@ -30,6 +30,7 @@ object CamelMain {
     context.addRoutes(dependencies.grafanaRoutes)
     context.addRoutes(dependencies.predictionRoutes)
     context.addRoutes(dependencies.notebookRoutes)
+    context.addRoutes(dependencies.schedulerDependencies.timedRoutesBuilder)
 
     context.start()
 

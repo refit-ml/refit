@@ -7,6 +7,14 @@ cassandra:
   port: 9042
   user: cassandra
   password: cassandra
+
+postgres:
+  host: 127.0.0.1
+  port: 5432
+  username: refit
+  password: refit
+  schema: refit
+
 minio:
   host: "http://127.0.0.1:9000"
   buckets:
@@ -17,9 +25,10 @@ minio:
   secretKey: refit-key
 
 kafka:
-  host: "127.0.0.1:9092"
+  host: "127.0.0.1:19092"
   topics:
     import: "refit.training.import"
     modelPublished: "refit.training.models"
     data: "refit.inference.data"
     predictions: "refit.inference.predictions"
+    trainingJobScheduled: "refit.training.scheduled"

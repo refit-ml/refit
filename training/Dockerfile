@@ -8,7 +8,14 @@ USER root
 
 RUN apt-get dist-upgrade  -y
 RUN apt-get update
-RUN apt-get install default-jre software-properties-common python3 python3-pip git unzip -y
+RUN apt-get install default-jre software-properties-common python3 python3-pip git unzip curl -y
+
+# Install minio client
+# https://docs.min.io/docs/minio-client-quickstart-guide.html
+RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc
+RUN mv mc /bin/mc
+RUN chmod +x /bin/mc
+RUN mc --version
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get install python3.7 -y
@@ -41,6 +48,7 @@ RUN wget -P /libs/flink/lib https://repo.maven.apache.org/maven2/org/apache/flin
 COPY refit/ /libs/refit/
 
 RUN chmod +x /libs/refit/refit_init
+RUN chmod +x /libs/refit/refit_schedule
 
 ENV PATH="/libs/refit/:/libs/flink/bin:${PATH}"
 
@@ -59,6 +67,7 @@ RUN echo '' >> ~/.bashrc
 
 RUN chmod -R 777 /home/jovyan
 RUN chmod -R 777 /libs/flink
+
 
 USER $NB_UID
 

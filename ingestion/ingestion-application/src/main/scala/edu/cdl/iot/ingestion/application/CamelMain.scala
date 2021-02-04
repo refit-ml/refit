@@ -4,6 +4,7 @@ import edu.cdl.iot.common.factories.ConfigFactory
 import edu.cdl.iot.ingestion.application.dependencies.IngestionDependencies
 import org.apache.camel.component.kafka.{KafkaComponent, KafkaConfiguration}
 import org.apache.camel.component.netty.http.NettyHttpComponent
+import org.apache.camel.component.quartz.QuartzComponent
 import org.apache.camel.impl.DefaultCamelContext
 
 object CamelMain {
@@ -13,7 +14,8 @@ object CamelMain {
 
     val context = new DefaultCamelContext
 
-    val ingestionDependencies = new IngestionDependencies(config, context)
+
+    val dependencies = new IngestionDependencies(config, context)
 
     val kafkaComponent = new KafkaComponent()
     val kafkaConfig = new KafkaConfiguration
@@ -24,9 +26,16 @@ object CamelMain {
     kafkaConfig.setKeyDeserializer("org.apache.kafka.common.serialization.ByteArrayDeserializer")
     kafkaComponent.setConfiguration(kafkaConfig)
 
-    context.addComponent("netty-http", new NettyHttpComponent)
+
+    val quartzComponent = new QuartzComponent(context)
+    quartzComponent.setProperties(dependencies.schedulerDependencies.properties)
+
     context.addComponent("kafka", kafkaComponent)
-    context.addRoutes(ingestionDependencies.importRoutes)
+    context.addComponent("quartz", quartzComponent)
+
+    context.addRoutes(dependencies.importRoutes)
+    context.addRoutes(dependencies.schedulerDependencies.routes)
+
 
     context.start()
 

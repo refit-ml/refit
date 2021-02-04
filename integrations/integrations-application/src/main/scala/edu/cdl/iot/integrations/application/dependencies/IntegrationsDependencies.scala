@@ -10,8 +10,9 @@ import edu.cdl.iot.integrations.grafana.camel.dependencies.GrafanaDependencies
 import edu.cdl.iot.integrations.grafana.camel.routes.GrafanaRoutes
 import edu.cdl.iot.integrations.notebook.camel.dependencies.NotebookDependencies
 import edu.cdl.iot.integrations.notebook.camel.routes.NotebookRoutes
-import edu.cdl.iot.integrations.prediction.camel.dependencies.PredictionDependencies
-import edu.cdl.iot.integrations.prediction.camel.routes.PredictionRoutes
+import edu.cdl.iot.prediction.camel.dependencies.PredictionDependencies
+import edu.cdl.iot.prediction.camel.routes.PredictionRoutes
+import edu.cdl.iot.scheduler.integrations.camel.dependencies.SchedulerIntegrationsDependencies
 import javax.crypto.Cipher
 import org.apache.camel.CamelContext
 
@@ -66,6 +67,12 @@ class IntegrationsDependencies(config: RefitConfig,
     cassandraRepository = cassandraRepository,
     camelContext = camelContext,
     encryptionHelperProvider = encryptionHelperProvider
+  )
+
+  val schedulerDependencies = new SchedulerIntegrationsDependencies(
+    config = config,
+    kafkaRepository = kafkaRepository,
+    context = camelContext
   )
 
   val grafanaRoutes: GrafanaRoutes = grafanaDependencies.grafanaRoutes

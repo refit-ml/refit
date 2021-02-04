@@ -2,7 +2,7 @@ package edu.cdl.iot.data.cassandra.repository
 
 import java.sql.Timestamp
 
-import com.datastax.driver.core.{BatchStatement, BoundStatement, PreparedStatement}
+import com.datastax.oss.driver.api.core.cql.{BatchStatement, BatchStatementBuilder, BatchType, BoundStatement, PreparedStatement}
 import edu.cdl.iot.common.domain.Sensor
 import edu.cdl.iot.data.cassandra.CassandraRepository
 
@@ -42,14 +42,14 @@ class CassandraSensorRepository(cassandraRepository: CassandraRepository) {
     Statement.createSensor.bind(
       sensor.projectGuid,
       sensor.sensorId,
-      sensor.createdAt
+      sensor.createdAt.toInstant
     )
 
   def save(sensors: Seq[Sensor]): Unit = {
-    val batchStatement = new BatchStatement()
+    val batchStatement = new BatchStatementBuilder(BatchType.LOGGED)
     sensors.map(save)
-      .foreach(batchStatement.add)
-    cassandraRepository.execute(batchStatement)
+      .foreach(batchStatement.addStatement)
+    cassandraRepository.execute(batchStatement.build())
   }
 
   def findAll(projectGuid: String): List[String] =

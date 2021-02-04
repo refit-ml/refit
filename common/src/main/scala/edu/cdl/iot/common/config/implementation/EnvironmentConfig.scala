@@ -2,7 +2,7 @@ package edu.cdl.iot.common.config.implementation
 
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.common.constants.EnvConstants
-import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig}
+import edu.cdl.iot.common.yaml.{CassandraConfig, KafkaConfig, KafkaTopic, MinioBucket, MinioConfig, PostgresConfig}
 import org.slf4j.LoggerFactory
 
 
@@ -18,7 +18,8 @@ class EnvironmentConfig extends RefitConfig with Serializable {
       predictions = sys.env(EnvConstants.PREDICTIONS_TOPIC),
       `import` = sys.env(EnvConstants.IMPORT_TOPIC),
       rawSensorData = sys.env(EnvConstants.RAW_SENSOR_DATA_TOPIC),
-      sensorData = sys.env(EnvConstants.SENSOR_DATA_TOPIC)
+      sensorData = sys.env(EnvConstants.SENSOR_DATA_TOPIC),
+      trainingJobScheduled = sys.env(EnvConstants.TRAINING_JOB_SCHEDULED_TOPIC)
     )
   )
 
@@ -53,4 +54,11 @@ class EnvironmentConfig extends RefitConfig with Serializable {
       buckets = buckets
     )
   }
+  override val getPostgresConfig: () => PostgresConfig = () => new PostgresConfig(
+    schema = sys.env(EnvConstants.POSTGRES_SCHEMA),
+    host = sys.env(EnvConstants.POSTGRES_HOST),
+    username = sys.env(EnvConstants.POSTGRES_USERNAME),
+    password = sys.env(EnvConstants.POSTGRES_PASSWORD),
+    port = 5432
+  )
 }

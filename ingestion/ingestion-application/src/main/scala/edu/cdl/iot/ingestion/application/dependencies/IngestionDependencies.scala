@@ -1,5 +1,6 @@
 package edu.cdl.iot.ingestion.application.dependencies
 
+import edu.cdl.ingestion.scheduler.camel.dependencies.SchedulerDependencies
 import edu.cdl.iot.common.config.RefitConfig
 import edu.cdl.iot.data.cassandra.CassandraRepository
 import edu.cdl.iot.data.kafka.KafkaRepository
@@ -23,6 +24,10 @@ class IngestionDependencies(config: RefitConfig,
   private val trainingWindowRepository = new IngestionTrainingWindowRepository(cassandraRepository)
 
   private val importFileRepository = new IngestionImportFileRepository(minioRepository)
+  val schedulerDependencies = new SchedulerDependencies(
+    config = config,
+    context = context
+  )
 
 
   private val importService = new ImportService(

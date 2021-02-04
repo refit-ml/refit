@@ -1,4 +1,4 @@
-name: Releases
+name: Release
 
 on:
   release:
@@ -30,6 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Build docker compose
+        run: docker-compose build
+      - name: Run docker-compose
+        run: docker-compose up -d
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -47,11 +51,17 @@ jobs:
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
           path: inference/inference-application
+      - name: Shut down docker-compose
+        run: docker-compose down
 
   ingestion:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Build docker compose
+        run: docker-compose build
+      - name: Run docker-compose
+        run: docker-compose up -d
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -69,11 +79,17 @@ jobs:
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
           path: ingestion/ingestion-application
+      - name: Shut down docker-compose
+        run: docker-compose down
 
   integrations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Build docker compose
+        run: docker-compose build
+      - name: Run docker-compose
+        run: docker-compose up -d
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
@@ -91,6 +107,8 @@ jobs:
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
           path: integrations/integrations-application
+      - name: Shut down docker-compose
+        run: docker-compose down
 
   cassandra:
     runs-on: ubuntu-latest
@@ -106,6 +124,21 @@ jobs:
           repository: cdliotprototype/cdl-refit-cassandra
           tag_with_ref: true
           path: resources/cql
+
+  postgresql:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: cdliotprototype/cdl-refit-postgresql
+          tag_with_ref: true
+          path: resources/pql
 
   notebook:
     runs-on: ubuntu-latest
@@ -136,3 +169,18 @@ jobs:
           repository: cdliotprototype/cdl-refit-flink
           tag_with_ref: true
           path: resources/flink
+
+  job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: cdliotprototype/cdl-refit-job
+          tag_with_ref: true
+          path: resources/job

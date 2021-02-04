@@ -10,6 +10,9 @@ object Settings {
       case PathList("META-INF", "io.netty.versions.properties", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "versions", "9", "javax", "xml", "bind", xs@_*) => MergeStrategy.last
       case PathList("META-INF", "jandex.idx", xs@_*) => MergeStrategy.last
+      case PathList("META-INF", "versions", "9", "module-info.class", xs@_*) => MergeStrategy.last
+      case PathList("io", "sundr", xs@_*) => MergeStrategy.last
+      case PathList("net", "jcip", "annotations" , "GuardedBy.class", xs@_*) => MergeStrategy.last
       case PathList("google", "protobuf", xs@_*) => MergeStrategy.first
       case PathList("commons-configuration", "commons-configuration", xs@_*) => MergeStrategy.first
       case PathList("org", "apache", "avro", "reflect", xs@_*) => MergeStrategy.first

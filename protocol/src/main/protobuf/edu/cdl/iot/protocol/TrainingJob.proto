@@ -1,0 +1,9 @@
+syntax = "proto3";
+package edu.cdl.iot.protocol;
+
+message TrainingJob  {
+  string project_guid = 1;
+  string job_name = 2;
+  string cron_expression = 3;
+  string created_at = 4;
+}
