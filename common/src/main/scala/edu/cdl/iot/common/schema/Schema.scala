@@ -71,6 +71,7 @@ case class Schema(yaml: SchemaYaml) {
 
   def getFeatures(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Feature)
+      .filter(tuple => tuple._2 < row.length)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 
@@ -78,6 +79,7 @@ case class Schema(yaml: SchemaYaml) {
     withFeatureType(
       getClassifications(fields.zipWithIndex, FieldClassification.Feature),
       featureType)
+      .filter(tuple => tuple._2 < row.length)
       .map(tuple => (tuple._1.name.toLowerCase, row(tuple._2)))
       .toMap
 
@@ -91,8 +93,11 @@ case class Schema(yaml: SchemaYaml) {
   def validate(row: Array[String]): Boolean = fields.length == row.length
 
   def getFields: Array[Field] = fields.toArray
+
   def getImportOptions: ImportOptions = importOptions
+
   def getPartitionScheme: String = partitionScheme.toString
+
   def getFeatureType: String = featureType.toString
 }
 
