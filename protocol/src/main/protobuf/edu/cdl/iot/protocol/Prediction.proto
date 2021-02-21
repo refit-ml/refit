@@ -1,5 +1,6 @@
 syntax = "proto3";
 package edu.cdl.iot.protocol;
+import "google/protobuf/timestamp.proto";
 
 message Prediction  {
   string project_guid = 1;
@@ -11,4 +12,5 @@ message Prediction  {
   map<string, int32> integers = 7;
   map<string, string> prediction = 8;
   map<string, string> labels = 9;
+  map<string, google.protobuf.Timestamp> timestamps = 10;
 }
