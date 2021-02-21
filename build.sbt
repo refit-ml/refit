@@ -13,10 +13,10 @@ lazy val `data-minio` = project in file("data/data-minio")
 lazy val `data-kafka` = project in file("data/data-kafka")
 lazy val `data-postgres` = project in file("data/data-postgres")
 
-lazy val `inference-application` = project in file("inference/inference-application")
-lazy val `ingestion-application` = project in file("ingestion/ingestion-application")
-lazy val `integrations-application` = project in file("integrations/integrations-application")
-lazy val `demo-application` = project in file("demo/demo-application")
+lazy val `inference-application` = project in file("applications/inference-application")
+lazy val `ingestion-application` = project in file("applications/ingestion-application")
+lazy val `integrations-application` = project in file("applications/integrations-application")
+lazy val `demo-application` = project in file("applications/demo-application")
 
 
 
