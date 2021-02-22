@@ -10,6 +10,7 @@ import edu.cdl.iot.integrations.notebook.cassandra.repository.{NotebookCassandra
 import edu.cdl.iot.integrations.notebook.core.service.{NotebookImportService, NotebookModelService, NotebookProjectService, NotebookQueryService}
 import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRepository, NotebookKafkaModelRepository}
 import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioFileImportRepository, NotebookMinioSchemaRepository}
+import edu.cdl.iot.notebook.jdbi.dependencies.NotebookJdbiDependencies
 import org.apache.camel.CamelContext
 
 class NotebookDependencies(config: RefitConfig,
@@ -30,6 +31,7 @@ class NotebookDependencies(config: RefitConfig,
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
   private val importFileRepository = new NotebookMinioFileImportRepository(minioRepository)
+  private val jdbiDependencies = new NotebookJdbiDependencies(config.getPostgresConfig())
 
 
   private val importService = new NotebookImportService(
@@ -57,7 +59,8 @@ class NotebookDependencies(config: RefitConfig,
   private val projectService = new NotebookProjectService(
     projectRepository = projectRepository,
     schemaRepository = schemaRepository,
-    organizationRepository = organizationRepository
+    organizationRepository = organizationRepository,
+    dataSourceRepository = jdbiDependencies.dataSourceRepository
   )
 
   val queryRoutes = new NotebookQueryRoutes(camelContext, queryService)
