@@ -9,7 +9,7 @@ import edu.cdl.iot.integrations.application.Constants
 import edu.cdl.iot.integrations.grafana.camel.dependencies.GrafanaDependencies
 import edu.cdl.iot.integrations.grafana.camel.routes.GrafanaRoutes
 import edu.cdl.iot.integrations.notebook.camel.dependencies.NotebookDependencies
-import edu.cdl.iot.integrations.notebook.camel.routes.NotebookRoutes
+import edu.cdl.iot.integrations.notebook.camel.routes.{NotebookImportRoutes, NotebookModelRoutes, NotebookProjectRoutes, NotebookQueryRoutes}
 import edu.cdl.iot.prediction.camel.dependencies.PredictionDependencies
 import edu.cdl.iot.prediction.camel.routes.PredictionRoutes
 import edu.cdl.iot.scheduler.integrations.camel.dependencies.SchedulerIntegrationsDependencies
@@ -55,6 +55,7 @@ class IntegrationsDependencies(config: RefitConfig,
   )
 
   private val notebookDependencies = new NotebookDependencies(
+    config = config,
     cassandraRepository = cassandraRepository,
     kafkaRepository = kafkaRepository,
     minioRepository = minioRepository,
@@ -76,6 +77,9 @@ class IntegrationsDependencies(config: RefitConfig,
   )
 
   val grafanaRoutes: GrafanaRoutes = grafanaDependencies.grafanaRoutes
-  val notebookRoutes: NotebookRoutes = notebookDependencies.notebookRoutes
+  val notebookQueryRoutes: NotebookQueryRoutes = notebookDependencies.queryRoutes
+  val notebookModelRoutes: NotebookModelRoutes = notebookDependencies.modelRoutes
+  val notebookProjectRoutes: NotebookProjectRoutes = notebookDependencies.projectRoutes
+  val notebookImportRoutes: NotebookImportRoutes = notebookDependencies.importRoutes
   val predictionRoutes: PredictionRoutes = predictionDependencies.predictionRoutes
 }

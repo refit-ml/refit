@@ -18,7 +18,7 @@ case class Schema(yaml: SchemaYaml) {
   val name: String = yaml.name
   val projectGuid: UUID = UUID.fromString(yaml.projectGuid)
   val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
-  val dataSets: List[DataSet] = yaml.dataSets.asScala.toList.map(DataSet)
+  val dataSources: List[DataSource] = yaml.dataSources.asScala.toList.map(DataSource)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
   val partitionScheme: PartitionScheme.Value = PartitionScheme.fromString(yaml.partitionScheme)
   val featureType: FeatureType = FieldType.fromString(yaml.featureType)

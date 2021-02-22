@@ -29,7 +29,8 @@ class NotebookDependencies(config: RefitConfig,
     fileRepository = importFileRepository,
     projectRepository = projectRepository,
     sensorDataRepository = sensorDataRepository,
-    trainingWindowRepository = trainingWindowRepository
+    trainingWindowRepository = trainingWindowRepository,
+    importRepository = null
   )
 
   val importRoutes = new NotebookImportRoutes(

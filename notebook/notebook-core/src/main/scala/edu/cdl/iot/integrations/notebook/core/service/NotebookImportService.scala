@@ -3,8 +3,9 @@ package edu.cdl.iot.integrations.notebook.core.service
 import java.util.UUID
 
 import edu.cdl.iot.common.yaml.MinioConfig
+import edu.cdl.iot.integrations.notebook.core.entity.FileImport
 import edu.cdl.iot.integrations.notebook.core.factory.{SensorDataFactory, TrainingWindowFactory}
-import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportFileRepository, NotebookPredictionRepository, NotebookProjectRepository, NotebookSensorDataRepository, NotebookTrainingWindowRepository}
+import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportFileRepository, NotebookImportRepository, NotebookPredictionRepository, NotebookProjectRepository, NotebookSensorDataRepository, NotebookTrainingWindowRepository}
 import edu.cdl.iot.protocol.ImportRequest.ImportRequest
 import org.slf4j.LoggerFactory
 
@@ -12,8 +13,13 @@ class NotebookImportService(minioConfig: MinioConfig,
                             fileRepository: NotebookImportFileRepository,
                             projectRepository: NotebookProjectRepository,
                             sensorDataRepository: NotebookSensorDataRepository,
-                            trainingWindowRepository: NotebookTrainingWindowRepository) {
+                            trainingWindowRepository: NotebookTrainingWindowRepository,
+                            importRepository: NotebookImportRepository) {
   private val logger = LoggerFactory.getLogger(classOf[NotebookImportService])
+
+  def saveImportRequest(projectGuid: UUID, importRequest: FileImport): Unit =
+    importRepository.save(importRequest.envelope(projectGuid))
+
 
   def performSensorDataImport(request: ImportRequest): Unit = {
     val projectGuid = UUID.fromString(request.projectGuid)

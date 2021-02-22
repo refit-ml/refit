@@ -29,7 +29,10 @@ object CamelMain {
     context.addComponent("kafka", kafkaComponent)
     context.addRoutes(dependencies.grafanaRoutes)
     context.addRoutes(dependencies.predictionRoutes)
-    context.addRoutes(dependencies.notebookRoutes)
+    context.addRoutes(dependencies.notebookQueryRoutes)
+    context.addRoutes(dependencies.notebookImportRoutes)
+    context.addRoutes(dependencies.notebookModelRoutes)
+    context.addRoutes(dependencies.notebookProjectRoutes)
     context.addRoutes(dependencies.schedulerDependencies.timedRoutesBuilder)
 
     context.start()
