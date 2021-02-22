@@ -41,6 +41,7 @@ object Libraries {
 
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
   val jdbi = "org.jdbi" % "jdbi3-core" % Versions.jdbi
+  val jdbiJackson = "org.jdbi" % "jdbi3-jackson2" % Versions.jdbi
   val jdbiSqlObject = "org.jdbi" % "jdbi3-sqlobject" % Versions.jdbi
   val jdbiPostgres = "org.jdbi" % "jdbi3-postgres" % Versions.jdbi
 
