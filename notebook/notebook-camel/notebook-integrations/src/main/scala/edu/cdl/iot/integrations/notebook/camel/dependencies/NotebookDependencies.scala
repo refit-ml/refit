@@ -12,11 +12,13 @@ import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRe
 import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioFileImportRepository, NotebookMinioSchemaRepository}
 import edu.cdl.iot.notebook.jdbi.dependencies.NotebookJdbiDependencies
 import org.apache.camel.CamelContext
+import org.jdbi.v3.core.Jdbi
 
 class NotebookDependencies(config: RefitConfig,
                            cassandraRepository: CassandraRepository,
                            kafkaRepository: KafkaRepository,
                            minioRepository: MinioRepository,
+                           jdbi: Jdbi,
                            camelContext: CamelContext,
                            decryptionHelperProvider: String => EncryptionHelper) {
   private val projectRepository = new NotebookCassandraProjectRepository(cassandraRepository)
@@ -33,7 +35,7 @@ class NotebookDependencies(config: RefitConfig,
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
   private val importFileRepository = new NotebookMinioFileImportRepository(minioRepository)
-  private val jdbiDependencies = new NotebookJdbiDependencies(config.getPostgresConfig())
+  private val jdbiDependencies = new NotebookJdbiDependencies(jdbi)
 
 
   private val importService = new NotebookImportService(

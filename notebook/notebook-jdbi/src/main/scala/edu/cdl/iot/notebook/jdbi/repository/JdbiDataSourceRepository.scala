@@ -5,7 +5,6 @@ import java.util.UUID
 import edu.cdl.iot.common.schema.DataSource
 import edu.cdl.iot.integrations.notebook.core.error.NotebookDataSourceError
 import edu.cdl.iot.integrations.notebook.core.repository.NotebookDataSourceRepository
-import edu.cdl.iot.notebook.jdbi.factory.TableNameFactory
 import edu.cdl.iot.notebook.jdbi.factory.TableNameFactory.tableName
 import org.jdbi.v3.core.Jdbi
 

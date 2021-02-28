@@ -18,7 +18,7 @@ object Versions {
   val kubeClient = "10.0.0"
   val self4J = "1.7.30"
   var jackson = "2.11.2"
-  val jdbi = "3.16.0"
+  val jdbi = "3.18.0"
   val gson = "1.7.1"
   val logback = "1.2.3"
 

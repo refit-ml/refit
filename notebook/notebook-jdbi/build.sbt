@@ -5,6 +5,9 @@ Settings.default
 libraryDependencies ++= Dependencies.jackson
 libraryDependencies ++= Dependencies.jdbi
 
+fork in Test := true
+
+
 dependsOn(
   `notebook-core`,
   Shared.`data-postgres`,

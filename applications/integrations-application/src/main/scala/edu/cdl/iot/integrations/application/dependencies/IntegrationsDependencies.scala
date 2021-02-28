@@ -63,6 +63,7 @@ class IntegrationsDependencies(config: RefitConfig,
     cassandraRepository = cassandraRepository,
     kafkaRepository = kafkaRepository,
     minioRepository = minioRepository,
+    jdbi = jdbi,
     camelContext = camelContext,
     decryptionHelperProvider = decryptionHelperProvider
   )

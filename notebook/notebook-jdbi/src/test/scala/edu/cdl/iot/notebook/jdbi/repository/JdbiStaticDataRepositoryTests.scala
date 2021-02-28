@@ -7,6 +7,7 @@ import edu.cdl.iot.common.domain.StaticData
 import edu.cdl.iot.common.factories.ConfigFactory
 import edu.cdl.iot.common.schema.DataSource
 import edu.cdl.iot.common.yaml.DataSourceYaml
+import edu.cdl.iot.data.postgres.factory.JdbiFactory
 import edu.cdl.iot.notebook.jdbi.dependencies.NotebookJdbiDependencies
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.flatspec.AnyFlatSpec
@@ -16,8 +17,8 @@ import scala.collection.JavaConverters.seqAsJavaListConverter
 class JdbiStaticDataRepositoryTests extends AnyFlatSpec with BeforeAndAfterEach {
   private val refitConfig = new ConfigFactory(useEnvironment = false).getConfig
   private val postgresConfig = refitConfig.getPostgresConfig()
-
-  private val dependencies = new NotebookJdbiDependencies(postgresConfig)
+  private val jdbi = new JdbiFactory(postgresConfig).jdbi
+  private val dependencies = new NotebookJdbiDependencies(jdbi)
   private val dataSourceRepository = dependencies.dataSourceRepository
   private val staticDataRepository = dependencies.staticDataRepository
 

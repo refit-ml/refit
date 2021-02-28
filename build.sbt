@@ -19,6 +19,7 @@ lazy val `integrations-application` = project in file("applications/integrations
 lazy val `demo-application` = project in file("applications/demo-application")
 
 
+//libraryDependencies ++= Dependencies.jdbi
 
 
-
+fork in Test := true
