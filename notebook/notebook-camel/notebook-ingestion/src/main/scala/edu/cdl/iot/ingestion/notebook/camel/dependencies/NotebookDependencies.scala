@@ -9,10 +9,13 @@ import edu.cdl.iot.integrations.notebook.cassandra.repository.{NotebookCassandra
 import edu.cdl.iot.integrations.notebook.core.service.NotebookImportService
 import edu.cdl.iot.integrations.notebook.kafka.repository.NotebookKafkaSensorDataRepository
 import edu.cdl.iot.integrations.notebook.minio.repository.NotebookMinioFileImportRepository
+import edu.cdl.iot.notebook.jdbi.repository.JdbiStaticDataRepository
 import org.apache.camel.CamelContext
+import org.jdbi.v3.core.Jdbi
 
 class NotebookDependencies(config: RefitConfig,
                            context: CamelContext,
+                           jdbi: Jdbi,
                            cassandraRepository: CassandraRepository,
                            kafkaRepository: KafkaRepository,
                            minioRepository: MinioRepository) {
@@ -22,7 +25,7 @@ class NotebookDependencies(config: RefitConfig,
   private val trainingWindowRepository = new NotebookCassandraTrainingWindowRepository(cassandraRepository)
 
   private val importFileRepository = new NotebookMinioFileImportRepository(minioRepository)
-
+  private val staticDataRepository = new JdbiStaticDataRepository(jdbi)
 
   private val importService = new NotebookImportService(
     minioConfig = config.getMinioConfig(),
@@ -30,7 +33,10 @@ class NotebookDependencies(config: RefitConfig,
     projectRepository = projectRepository,
     sensorDataRepository = sensorDataRepository,
     trainingWindowRepository = trainingWindowRepository,
-    importRepository = null
+    staticDataRepository = staticDataRepository,
+    importRepository = null,
+    trainingWindowImportRepository = null,
+    staticDataImportRepository = null
   )
 
   val importRoutes = new NotebookImportRoutes(

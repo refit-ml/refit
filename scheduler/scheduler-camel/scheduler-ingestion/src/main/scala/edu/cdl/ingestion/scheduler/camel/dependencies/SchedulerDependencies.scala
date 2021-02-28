@@ -11,10 +11,12 @@ import edu.cdl.iot.integrations.scheduler.jdbi.dependencies.SchedulerJdbiDepende
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
 import edu.cdl.iot.integrations.scheduler.kube.repository.KubeTrainingJobDeploymentRepository
 import org.apache.camel.CamelContext
+import org.jdbi.v3.core.Jdbi
 
 
 class SchedulerDependencies(config: RefitConfig,
-                            context: CamelContext) {
+                            context: CamelContext,
+                           jdbi: Jdbi) {
 
   private def defaultCamelProperties(config: PostgresConfig): Properties = {
     val properties = new Properties()
@@ -35,11 +37,11 @@ class SchedulerDependencies(config: RefitConfig,
     properties
   }
 
-  private val postgresConfig = config.getPostgresConfig()
   private val kakfaConfig = config.getKafkaConfig()
   private val schedulerKubeConfig = SchedulerKubeConfig()
+  private val postgresConfig = config.getPostgresConfig()
 
-  private val jdbiDependencies = new SchedulerJdbiDependencies(postgresConfig)
+  private val jdbiDependencies = new SchedulerJdbiDependencies(jdbi)
   private val trainingJobDeploymentRepository = new KubeTrainingJobDeploymentRepository(schedulerKubeConfig)
   private val trainingJobNotificationRepository = null
 

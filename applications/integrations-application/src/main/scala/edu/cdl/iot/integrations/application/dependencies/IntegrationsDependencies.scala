@@ -5,6 +5,7 @@ import edu.cdl.iot.common.security.EncryptionHelper
 import edu.cdl.iot.data.cassandra.CassandraRepository
 import edu.cdl.iot.data.kafka.KafkaRepository
 import edu.cdl.iot.data.minio.MinioRepository
+import edu.cdl.iot.data.postgres.factory.JdbiFactory
 import edu.cdl.iot.integrations.application.Constants
 import edu.cdl.iot.integrations.grafana.camel.dependencies.GrafanaDependencies
 import edu.cdl.iot.integrations.grafana.camel.routes.GrafanaRoutes
@@ -47,6 +48,9 @@ class IntegrationsDependencies(config: RefitConfig,
   private val cassandraRepository = new CassandraRepository(config.getCassandraConfig())
   private val kafkaRepository = new KafkaRepository(config.getKafkaConfig(), Constants.GROUP_IDENTIFIER)
   private val minioRepository = new MinioRepository(config.getMinioConfig())
+  private val jdbi = new JdbiFactory(config.getPostgresConfig())
+    .jdbi
+
 
   private val grafanaDependencies = new GrafanaDependencies(
     cassandraRepository = cassandraRepository,
@@ -71,7 +75,7 @@ class IntegrationsDependencies(config: RefitConfig,
   )
 
   val schedulerDependencies = new SchedulerIntegrationsDependencies(
-    config = config,
+    jdbi = jdbi,
     kafkaRepository = kafkaRepository,
     context = camelContext
   )

@@ -8,7 +8,7 @@ import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.integrations.notebook.camel.routes.{NotebookImportRoutes, NotebookModelRoutes, NotebookProjectRoutes, NotebookQueryRoutes}
 import edu.cdl.iot.integrations.notebook.cassandra.repository.{NotebookCassandraOrganizationRepository, NotebookCassandraProjectRepository, NotebookCassandraSensorDataRepository, NotebookCassandraSensorRepository, NotebookCassandraTrainingWindowRepository}
 import edu.cdl.iot.integrations.notebook.core.service.{NotebookImportService, NotebookModelService, NotebookProjectService, NotebookQueryService}
-import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRepository, NotebookKafkaModelRepository}
+import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRepository, NotebookKafkaModelRepository, NotebookKafkaStaticDataImportRepository, NotebookKafkaTrainingWindowImportRepository}
 import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioFileImportRepository, NotebookMinioSchemaRepository}
 import edu.cdl.iot.notebook.jdbi.dependencies.NotebookJdbiDependencies
 import org.apache.camel.CamelContext
@@ -28,6 +28,8 @@ class NotebookDependencies(config: RefitConfig,
   )
   private val trainingWindowRepository = new NotebookCassandraTrainingWindowRepository(cassandraRepository)
   private val importRepository = new NotebookKafkaImportRepository(kafkaRepository)
+  private val trainingWindowImportRepository = new NotebookKafkaTrainingWindowImportRepository(kafkaRepository)
+  private val staticDataImportRepository = new NotebookKafkaStaticDataImportRepository(kafkaRepository)
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
   private val importFileRepository = new NotebookMinioFileImportRepository(minioRepository)
@@ -38,9 +40,12 @@ class NotebookDependencies(config: RefitConfig,
     minioConfig = config.getMinioConfig(),
     fileRepository = importFileRepository,
     projectRepository = projectRepository,
-    sensorDataRepository = null,
     trainingWindowRepository = trainingWindowRepository,
-    importRepository = importRepository
+    importRepository = importRepository,
+    trainingWindowImportRepository = trainingWindowImportRepository,
+    staticDataImportRepository = staticDataImportRepository,
+    staticDataRepository = null,
+    sensorDataRepository = null
   )
 
 

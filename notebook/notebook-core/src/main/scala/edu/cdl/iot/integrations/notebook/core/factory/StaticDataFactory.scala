@@ -1,19 +1,19 @@
 package edu.cdl.iot.integrations.notebook.core.factory
 
+import edu.cdl.iot.common.domain.StaticData
 import edu.cdl.iot.common.schema.{DataSource, Schema}
 import edu.cdl.iot.common.schema.enums.FieldType
 import edu.cdl.iot.integrations.notebook.core.util.StringUtilities
-import edu.cdl.iot.protocol.StaticData.StaticData
 
 class StaticDataFactory(val schema: Schema,
                         val dataSource: DataSource) {
 
 
   def fromDelimited(row: Array[String]): StaticData = StaticData(
-    projectGuid = schema.projectGuid.toString,
+    projectGuid = schema.projectGuid,
     key = dataSource.getKey(row),
-    timestamp = Option.apply(StringUtilities
-      .toProtoTimestamp(dataSource.getTimestamp(row))),
+    createdAt = StringUtilities
+      .toInstant(dataSource.getTimestamp(row)),
     doubles = dataSource
       .getFeaturesWithType(row, FieldType.Double)
       .map(x => x._1 -> StringUtilities.toDouble(x._2)),
@@ -24,7 +24,7 @@ class StaticDataFactory(val schema: Schema,
       .map(x => x._1 -> StringUtilities.toInt(x._2)),
     timestamps = dataSource
       .getFeaturesWithType(row, FieldType.DateTime)
-      .map(x => x._1 -> StringUtilities.toProtoTimestamp(x._2))
+      .map(x => x._1 -> StringUtilities.toInstant(x._2))
   )
 
 

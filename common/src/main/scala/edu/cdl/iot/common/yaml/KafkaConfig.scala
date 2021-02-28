@@ -28,11 +28,13 @@ class KafkaTopic(@BeanProperty var modelPublished: String,
                  @BeanProperty var data: String,
                  @BeanProperty var predictions: String,
                  @BeanProperty var `import`: String,
+                 @BeanProperty var trainingWindowImport: String,
+                 @BeanProperty var staticDataImport: String,
                  @BeanProperty var rawSensorData: String,
                  @BeanProperty var sensorData: String,
                  @BeanProperty var trainingJobScheduled: String
                 ) extends Serializable {
   def this() {
-    this(null, null, null, null, null, null, null)
+    this(null, null, null, null, null, null, null, null, null)
   }
 }
