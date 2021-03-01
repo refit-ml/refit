@@ -1,6 +1,7 @@
 package edu.cdl.iot.data.postgres.factory
 
 import edu.cdl.iot.common.yaml.PostgresConfig
+import edu.cdl.iot.data.postgres.mapper.StaticDataMapper
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.jackson2.Jackson2Plugin
 import org.jdbi.v3.postgres.PostgresPlugin
@@ -15,4 +16,5 @@ class JdbiFactory(config: PostgresConfig) {
     ).installPlugin(new PostgresPlugin())
       .installPlugin(new SqlObjectPlugin())
       .installPlugin(new Jackson2Plugin())
+      .registerRowMapper(new StaticDataMapper())
 }

@@ -43,19 +43,18 @@ class JdbiStaticDataRepositoryTests extends AnyFlatSpec with BeforeAndAfterEach 
   }
 
   override def afterEach(): Unit = {
-//    dataSourceRepository.delete(projectGuid, dataSource)
+    //    dataSourceRepository.delete(projectGuid, dataSource)
   }
 
 
   "static data" should "be able to save" in {
-    val result = staticDataRepository.save(projectGuid, dataSource, staticData)
+    staticDataRepository.save(projectGuid, dataSource, staticData)
 
-    assert(result.isLeft)
   }
 
   "static data" should "be able to be retrieved" in {
     staticDataRepository.save(projectGuid, dataSource, staticData)
-    val actual = staticDataRepository.find(projectGuid, dataSource, staticData.key).left.get
+    val actual = staticDataRepository.find(projectGuid, dataSource, staticData.key)
     val expected = staticData.copy(createdAt = actual.createdAt, timestamps = actual.timestamps)
     assert(actual === expected)
   }

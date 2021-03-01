@@ -1,6 +1,7 @@
 
 lazy val `inference-core` = project in file("../../inference/inference-core")
 lazy val `inference-minio` = project in file("../../inference/inference-minio")
+lazy val `inference-jdbi` = project in file("../../inference/inference-jdbi")
 name := "inference-application"
 Settings.assembly
 
@@ -14,6 +15,7 @@ dependsOn(
   Shared.protocol,
   Shared.common,
   `inference-core`,
-  `inference-minio`
+  `inference-minio`,
+  `inference-jdbi`
 )
 

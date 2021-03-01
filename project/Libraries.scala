@@ -18,6 +18,7 @@ object Libraries {
   val flinkScala = "org.apache.flink" %% "flink-scala" % Versions.flink
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
   val flinkClients = "org.apache.flink" %% "flink-clients" % Versions.flink
+  val flinkJdbc = "org.apache.flink" %% "flink-connector-jdbc" % Versions.flink
   val pulsarFlink = "org.apache.pulsar" % "pulsar-flink" % "2.5.2"
 
   val postgres = "org.postgresql" % "postgresql" % Versions.postgres

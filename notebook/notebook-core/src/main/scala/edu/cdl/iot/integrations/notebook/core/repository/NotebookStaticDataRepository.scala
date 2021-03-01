@@ -7,7 +7,7 @@ import edu.cdl.iot.common.schema.DataSource
 import edu.cdl.iot.integrations.notebook.core.error.NotebookStaticDataError
 
 trait NotebookStaticDataRepository {
-  def save(projectGuid: UUID, dataSource: DataSource, staticData: StaticData): Either[Unit, NotebookStaticDataError]
+  def save(projectGuid: UUID, dataSource: DataSource, staticData: StaticData): Unit
 
-  def find(projectGuid: UUID, dataSource: DataSource, key: String): Either[StaticData, NotebookStaticDataError]
+  def find(projectGuid: UUID, dataSource: DataSource, key: String): StaticData
 }

@@ -1,4 +1,4 @@
-package edu.cdl.iot.notebook.jdbi.mapper
+package edu.cdl.iot.data.postgres.mapper
 
 import java.sql.ResultSet
 import java.time.Instant

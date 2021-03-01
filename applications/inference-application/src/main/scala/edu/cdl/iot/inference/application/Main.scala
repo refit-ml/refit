@@ -3,17 +3,16 @@ package edu.cdl.iot.inference.application
 import java.util.Properties
 
 import edu.cdl.iot.common.factories.ConfigFactory
-import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.inference.application.constants.Sources
 import edu.cdl.iot.inference.application.schema.{ModelSchema, PredictionSchema, SensorDataJsonSchema, SensorDataSchema}
-import edu.cdl.iot.inference.application.transform.EvaluationProcessor
-import edu.cdl.iot.inference.minio.InferenceMinioModelFileRepository
+import edu.cdl.iot.inference.application.transform.{EvaluationProcessor, StaticDataMapper}
 import edu.cdl.iot.protocol.Model.Model
 import edu.cdl.iot.protocol.Prediction.Prediction
 import edu.cdl.iot.protocol.SensorData.SensorData
 import org.apache.flink.streaming.api.CheckpointingMode
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer, FlinkKafkaProducer}
+
 
 object Main {
 
@@ -54,6 +53,7 @@ object Main {
     val sensorData = env
       .addSource(sensorDataSource, Sources.sensorData)
       .keyBy((value: SensorData) => value.projectGuid)
+      .map(new StaticDataMapper())
 
 
     val inference = sensorData

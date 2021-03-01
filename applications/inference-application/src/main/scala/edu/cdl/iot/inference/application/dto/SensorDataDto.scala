@@ -12,7 +12,8 @@ case class SensorDataDto(@BeanProperty projectGuid: String,
                          @BeanProperty doubles: String,
                          @BeanProperty strings: String,
                          @BeanProperty integers: String,
-                         @BeanProperty labels: String)
+                         @BeanProperty labels: String,
+                         @BeanProperty dataSources: String)
 
 
 object SensorDataDto {
@@ -28,7 +29,9 @@ object SensorDataDto {
       mapper.writeValueAsString(sensorData.doubles.asJava),
       mapper.writeValueAsString(sensorData.strings.asJava),
       mapper.writeValueAsString(sensorData.integers.asJava),
-      mapper.writeValueAsString(sensorData.labels.asJava))
+      mapper.writeValueAsString(sensorData.labels.asJava),
+      mapper.writeValueAsString(sensorData.dataSources.asJava),
+    )
 
   def toSensorData(dto: SensorDataDto): SensorData =
     new SensorData(dto.projectGuid,
@@ -37,5 +40,8 @@ object SensorDataDto {
       mapper.readValue(dto.doubles, doubleClass).asScala.toMap,
       mapper.readValue(dto.strings, stringClass).asScala.toMap,
       mapper.readValue(dto.integers, integerClass).asScala.toMap,
-      mapper.readValue(dto.labels, stringClass).asScala.toMap)
+      mapper.readValue(dto.labels, stringClass).asScala.toMap,
+      Map(),
+      mapper.readValue(dto.dataSources, stringClass).asScala.toMap
+    )
 }
