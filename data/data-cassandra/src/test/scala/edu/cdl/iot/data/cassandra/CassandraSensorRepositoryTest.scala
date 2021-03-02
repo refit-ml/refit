@@ -18,7 +18,7 @@ class CassandraSensorRepositoryTest extends AnyFlatSpec {
 
   private def randomSensor = Sensor(
     projectGuid = UUID.randomUUID().toString,
-    sensorId = "X-1.mat",
+    sensorId = "X_1.mat",
     createdAt = Timestamp.from(Instant.now())
   )
 

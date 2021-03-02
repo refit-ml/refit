@@ -21,6 +21,7 @@ object Versions {
   val jdbi = "3.18.0"
   val gson = "1.7.1"
   val logback = "1.2.3"
+  val scaffine = "4.0.2"
 
   // test dependencies
   val scalaTest = "3.2.0"

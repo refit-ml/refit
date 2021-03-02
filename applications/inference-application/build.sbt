@@ -8,6 +8,8 @@ Settings.assembly
 libraryDependencies ++= Dependencies.flink
 libraryDependencies ++= Dependencies.gson
 libraryDependencies ++= Dependencies.jackson
+libraryDependencies ++= Dependencies.caching
+
 mainClass in assembly := Some("edu.cdl.iot.inference.application.Main")
 assemblyJarName in assembly := "inference.jar"
 

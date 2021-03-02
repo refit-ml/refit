@@ -49,6 +49,8 @@ object Libraries {
 
   val gson = "com.google.code.gson" % "gson" % Versions.gson
 
+  val scaffine = "com.github.blemale" %% "scaffeine" % Versions.scaffine
+
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
 
