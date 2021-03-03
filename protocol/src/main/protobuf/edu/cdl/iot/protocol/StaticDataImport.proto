@@ -1,0 +1,9 @@
+syntax = "proto3";
+package edu.cdl.iot.protocol;
+
+message StaticDataImport  {
+  string project_guid = 1;
+  string data_source = 2;
+  string file_path = 3;
+  bool delete_when_complete = 4;
+}

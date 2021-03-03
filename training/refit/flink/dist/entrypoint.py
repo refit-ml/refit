@@ -24,11 +24,12 @@ class RefitFeatureEnrichment():
         self.table_env.execute_sql(sink_table)
 
     def run_udf(self):
-        from .functions import doubles, strings, integers, labels
+        from .functions import doubles, strings, integers, labels, datasources
         self.table_env.register_function("doubles", doubles)
         self.table_env.register_function("strings", strings)
         self.table_env.register_function("integers", integers)
         self.table_env.register_function("labels", labels)
+        self.table_env.register_function("datasources", datasources)
 
         self.table_env.from_path('refit_raw_sensor_data') \
             .select("projectGuid, "
@@ -37,14 +38,16 @@ class RefitFeatureEnrichment():
                     "doubles(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as doubles,"
                     "strings(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as strings,"
                     "integers(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as integers,"
-                    "labels(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as labels") \
+                    "labels(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as labels"
+                    "datasources(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as dataSources"
+                    ) \
             .execute_insert('refit_sensor_data')
 
         self.env.execute("CDL IoT - Feature Extraction")
 
     # WIP, currently not working
     def run(self):
-        from .functions import doubles, strings, integers, labels
+        from .functions import doubles
         self.table_env.register_function("doubles", doubles)
 
         df = self.table_env.from_path('refit_raw_sensor_data') \

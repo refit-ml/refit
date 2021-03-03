@@ -18,6 +18,7 @@ object Libraries {
   val flinkScala = "org.apache.flink" %% "flink-scala" % Versions.flink
   val flinkStreaming = "org.apache.flink" %% "flink-streaming-scala" % Versions.flink
   val flinkClients = "org.apache.flink" %% "flink-clients" % Versions.flink
+  val flinkJdbc = "org.apache.flink" %% "flink-connector-jdbc" % Versions.flink
   val pulsarFlink = "org.apache.pulsar" % "pulsar-flink" % "2.5.2"
 
   val postgres = "org.postgresql" % "postgresql" % Versions.postgres
@@ -41,11 +42,14 @@ object Libraries {
 
   val jackson = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
   val jdbi = "org.jdbi" % "jdbi3-core" % Versions.jdbi
+  val jdbiJackson = "org.jdbi" % "jdbi3-jackson2" % Versions.jdbi
   val jdbiSqlObject = "org.jdbi" % "jdbi3-sqlobject" % Versions.jdbi
   val jdbiPostgres = "org.jdbi" % "jdbi3-postgres" % Versions.jdbi
 
 
   val gson = "com.google.code.gson" % "gson" % Versions.gson
+
+  val scaffine = "com.github.blemale" %% "scaffeine" % Versions.scaffine
 
   // test dependencies
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test

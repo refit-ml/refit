@@ -59,4 +59,8 @@ object Dependencies {
     Libraries.minio
   )
 
+  val caching = Seq(
+    Libraries.scaffine
+  )
+
 }

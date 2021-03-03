@@ -1,5 +1,7 @@
 syntax = "proto3";
+
 package edu.cdl.iot.protocol;
+import "google/protobuf/timestamp.proto";
 
 message SensorData  {
   string project_guid = 1;
@@ -9,4 +11,6 @@ message SensorData  {
   map<string, string> strings = 5;
   map<string, int32> integers = 6;
   map<string, string> labels = 7;
+  map<string, google.protobuf.Timestamp> timestamps = 8;
+  map<string, string> data_sources = 9;
 }

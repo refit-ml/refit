@@ -4,7 +4,8 @@ libraryDependencies ++= Seq(
   Libraries.postgres,
   Libraries.jdbiPostgres,
   Libraries.jdbi,
-  Libraries.jdbiSqlObject
+  Libraries.jdbiSqlObject,
+  Libraries.jdbiJackson
 )
 
 dependsOn(Shared.common)

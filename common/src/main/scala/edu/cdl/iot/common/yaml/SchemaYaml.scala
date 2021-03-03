@@ -10,8 +10,9 @@ class SchemaYaml(@BeanProperty var org: String,
                  @BeanProperty var partitionScheme: String,
                  @BeanProperty var featureType: String,
                  @BeanProperty var fields: java.util.List[FieldYaml],
+                 @BeanProperty var dataSources: java.util.List[DataSourceYaml],
                  @BeanProperty var importOptions: ImportOptionsYaml) extends Serializable {
   def this() {
-    this(null, null, null, null, null, null, List().asJava, null)
+    this(null, null, null, null, null, null, List().asJava, List().asJava, null)
   }
 }

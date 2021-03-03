@@ -1,8 +1,4 @@
-
-
-
 class FeatureExtractor():
-
     from pandas import DataFrame
     def __init__(self):
         self.project_guid = '__NONE__'
@@ -25,4 +21,7 @@ class FeatureExtractor():
         df = pd.merge(df, self.extract_strings(df))
         df = pd.merge(df, self.extract_integers(df))
         df = pd.merge(df, self.extract_labels(df))
+        return df
+
+    def extract_datasources(self, df: DataFrame) -> DataFrame:
         return df

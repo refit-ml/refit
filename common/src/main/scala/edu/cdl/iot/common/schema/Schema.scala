@@ -2,8 +2,8 @@ package edu.cdl.iot.common.schema
 
 import java.util.UUID
 
+import edu.cdl.iot.common.schema.Field.{getClassifications, withFeatureType}
 import edu.cdl.iot.common.schema.enums.{FieldClassification, FieldType, PartitionScheme}
-import edu.cdl.iot.common.schema.enums.FieldClassification.FeatureClassification
 import edu.cdl.iot.common.schema.enums.FieldType.FeatureType
 import edu.cdl.iot.common.yaml.SchemaYaml
 import org.joda.time.DateTime
@@ -17,7 +17,8 @@ case class Schema(yaml: SchemaYaml) {
   val orgGuid: UUID = UUID.fromString(yaml.orgGuid)
   val name: String = yaml.name
   val projectGuid: UUID = UUID.fromString(yaml.projectGuid)
-  val fields: List[Field] = yaml.fields.asScala.toList.map(Field)
+  val fields: List[Field] = yaml.fields.asScala.toList.map(x => Field(x))
+  val dataSources: List[DataSource] = yaml.dataSources.asScala.toList.map(DataSource)
   val importOptions: ImportOptions = ImportOptions(yaml.importOptions)
   val partitionScheme: PartitionScheme.Value = PartitionScheme.fromString(yaml.partitionScheme)
   val featureType: FeatureType = FieldType.fromString(yaml.featureType)
@@ -64,10 +65,6 @@ case class Schema(yaml: SchemaYaml) {
       .map(tuple => row(tuple._2))
       .mkString("")
 
-
-  private def getClassifications(lst: List[(Field, Int)], featureClassification: FeatureClassification) = lst.filter(p => p._1.classification == featureClassification)
-
-  private def withFeatureType(lst: List[(Field, Int)], featureType: FeatureType) = lst.filter(p => p._1.`type` == featureType)
 
   def getFeatures(row: Array[String]): Map[String, String] =
     getClassifications(fields.zipWithIndex, FieldClassification.Feature)
