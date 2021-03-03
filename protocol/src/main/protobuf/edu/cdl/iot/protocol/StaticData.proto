@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package edu.cdl.iot.protocol;
+import "google/protobuf/timestamp.proto";
+
+message StaticData  {
+  string project_guid = 1;
+  string key = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  map<string, double> doubles = 4;
+  map<string, string> strings = 5;
+  map<string, int32> integers = 6;
+  map<string, google.protobuf.Timestamp> timestamps = 7;
+}
