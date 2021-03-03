@@ -121,16 +121,6 @@ class Refit:
             raise Exception("Data frame format", df_format, "is not supported.",
                             "Only types 'CSV' and 'API URL' are supported")
 
-    def import_static_data(self,
-                           file_path: str,
-                           object_name: str,
-                           delete_when_complete: bool = True) -> str:
-        path = self.__get_file_path(object_name)
-        if not self.file_repository.upload_file(self._import_bucket, path, file_path):
-            raise Exception("Error Uploading file to bucket")
-
-        return self.notebook_repository.import_file(self.project_guid, path, delete_when_complete)
-
 
     def __import_file(self,
                     file_path: str,
