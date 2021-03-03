@@ -5,6 +5,10 @@ from typing import List
 import onnxmltools
 import pandas as pd
 from pandas import DataFrame
+import io
+import urllib
+import datetime
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 from refit.enums.model_format import ModelFormat
 from refit.flink import submit
@@ -97,28 +101,25 @@ class Refit:
     def __get_file_path(self, object_name: str):
         return f"import/{self.project_guid}/{object_name}"
 
-    def import_df(self,
-                  df_path: str,
-                  object_name: str,
-                  df_format: str) -> str:
+    def import_data(self,
+                    df_path: str,
+                    object_name: str,
+                    df_format: str) -> str:
 
         if df_format == 'CSV':
             return self.__import_file(df_path, object_name)
 
-        elif df_format == 'API':
-            response = urllib.request.urlopen(df_path)
-            data = response.read()
-            df = pd.read_csv(io.BytesIO(data), encoding='utf8')
-            #            if 'TimeStamp' not in df.columns:
-            #                raise Exception("Error file lacks timestamps")
-            #            if 'UniqueID' not in df.columns:
-            #                raise Exception("Error file lacks unique ID's")
-            temp_csv_path = 'temp_csv_path.csv'
-            df.to_csv(temp_csv_path, index = False, header = True )
-            return self.__import_file(temp_csv_path, object_name)
+        elif df_format == 'API URL':
+            temporary_df = pd.read_csv(io.BytesIO(urllib.request.urlopen(df_path).read()), encoding='utf8')
+            for column in temporary_df.columns:
+                if is_datetime(temporary_df[column]):
+                    temporary_df[column] = temporary_df[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
+            temporary_df.to_csv('../data/temporary-df.csv', index = False, header = True )
+            return self.__import_file('../data/temporary-df.csv', object_name)
 
         else:
-            raise Exception("Data frame format", df_format, "is not supported")
+            raise Exception("Data frame format", df_format, "is not supported.",
+                            "Only types 'CSV' and 'API URL' are supported")
 
     def import_static_data(self,
                            file_path: str,
