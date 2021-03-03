@@ -10,6 +10,11 @@ This is a monorepo for the Center for Deep Learning IoT platform, REFIT. REFIT e
 ## Components
 The codebase of REFIT is organized in several bounded contexts. Each bounded context is meant to be independent of one another in its implementation and dependencies. 
 
+- Applications: The deployable JVM applications of REFIT
+    - Inference-Application: The entrypoint of the inference application
+    - Ingestion-Application: The [Apache Camel](https://camel.apache.org/) application that hosts the ingestion service
+    - Integrations-Application: The Apache Camel application that hosts the integrations service
+
 - Core: Shared code among all modules. 
 - Data: The bounded context that contains base implementations of repositories that deal with the core REFIT domain
     - Data-Cassandra: Implementation of base cassandra repositories
@@ -18,26 +23,22 @@ The codebase of REFIT is organized in several bounded contexts. Each bounded con
     - Data-Postgres: Implementation of base PostgreSql repositories
 - Demo: The bounded context that contains the demo-application runner
 - Inference: The bounded context that contains the scala project for the [Flink](https://flink.apache.org/) streaming application. This project contains the implementation of the inference engine
-    - Inference-Application: The entrypoint of the inference application
     - Inference-Core: The core module of the inference application. This contains the logic to perform model evaluation
     - Inference-[Minio](https://min.io/): The BLOB-Store repository implementation. 
 - Ingestion: The bounded context that contains the ingestion service as shown in the architecture diagram.
-    - Ingestion-Application: The [Apache Camel](https://camel.apache.org/) application that hosts the ingestion service
     - Ingestion-Cassandra: Implementation of cassandra-specific repositories for the ingestion service
     - Ingestion-Core: Core business logic for the ingestion service
     - Ingestion-Kafka: Implementation of kafka-specific repositories for the ingestion service
     - Ingestion-MinIO: Implementation of MinIO-Specific repositories for the ingestion service
-- Integrations: The bounded context that contains the integrations service
-    - Integrations-Application: The Apache Camel application that hosts the integrations service
-    - Integrations-Grafana: The bounded context that contains the grafana integration
-        - Grafana-Camel: The Apache Camel specific module of the grafana implementation
-        - Grafana-Cassandra: The Apache Cassandra repositories for the grafana integration
-        - Grafana-Core: The core grafana module, containing business logic
-    - Integrations-Notebook: The bounded context that contains the Jupyter-Notebook Integration
-        - Notebook-Camel: The Apache Camel specific module of the [Jupyter Notebook](https://jupyter.org/) integration
-        - Notebook-Cassandra: The Apache Cassandra repositories for the notebook integration
-        - Notebook-Kafka: The Apache Kafka repositories for the notebook integration
-        - Notebook-MinIO: The MinIO repositories for the notebook integration
+- Grafana: The bounded context that contains the grafana integration
+    - Grafana-Camel: The Apache Camel specific modules of the grafana implementation
+    - Grafana-Cassandra: The Apache Cassandra repositories for the grafana integration
+    - Grafana-Core: The core grafana module, containing business logic
+- Notebook: The bounded context that contains the Jupyter-Notebook Integration
+    - Notebook-Camel: The Apache Camel specific modules of the [Jupyter Notebook](https://jupyter.org/) integration
+    - Notebook-Cassandra: The Apache Cassandra repositories for the notebook integration
+    - Notebook-Kafka: The Apache Kafka repositories for the notebook integration
+    - Notebook-MinIO: The MinIO repositories for the notebook integration
 - Prediction: The bounded context that contains the implementation of the prediction domain
     - Prediction-Camel: The Apache Camel specific module that is used to define routes for persisting predictions
     - Prediction-Cassandra: The Apache Cassandra repositories for the prediction context
