@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-demo
           tag_with_ref: true
-          path: demo/demo-application
+          path: applications/demo-application
   inference:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-inference
           tag_with_ref: true
-          path: inference/inference-application
+          path: applications/inference-application
       - name: Shut down docker-compose
         run: docker-compose down
 
@@ -78,7 +78,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-ingestion
           tag_with_ref: true
-          path: ingestion/ingestion-application
+          path: applications/ingestion-application
       - name: Shut down docker-compose
         run: docker-compose down
 
@@ -106,7 +106,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: cdliotprototype/cdl-refit-integrations
           tag_with_ref: true
-          path: integrations/integrations-application
+          path: applications/integrations-application
       - name: Shut down docker-compose
         run: docker-compose down
 

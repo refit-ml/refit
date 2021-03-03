@@ -7,7 +7,8 @@ create table refit_sensor_data
     doubles     STRING,
     strings     STRING,
     integers    STRING,
-    labels      STRING
+    labels      STRING,
+    dataSources STRING
 ) with ( 'connector' = 'kafka',
       'topic' = 'refit.inference.sensor.data',
       'properties.bootstrap.servers' = 'refit-kafka:9092',

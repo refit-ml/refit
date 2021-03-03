@@ -1,3 +1,4 @@
+import itertools
 import json
 from typing import List
 
@@ -5,7 +6,7 @@ import pandas as pd
 from pandas import Series, DataFrame
 from pyflink.table import DataTypes
 from pyflink.table.udf import udf
-import itertools
+
 from .feature_extractor import FeatureExtractor
 
 _expand_columns = ['doubles', 'strings', 'integers', 'labels']
@@ -106,6 +107,21 @@ def labels(project_guid: Series,
     return _labels(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
 
 
+@udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
+                  DataTypes.STRING(), DataTypes.STRING(),
+                  DataTypes.STRING(), DataTypes.STRING(),
+                  DataTypes.STRING()],
+     result_type=DataTypes.STRING(), udf_type='pandas')
+def datasources(project_guid: Series,
+                sensor_id: Series,
+                timestamp: Series,
+                doubles: Series,
+                strings: Series,
+                integers: Series,
+                labels: Series) -> DataFrame:
+    return _datasources(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+
+
 def _doubles(project_guid: Series,
              sensor_id: Series,
              timestamp: Series,
@@ -180,6 +196,25 @@ def _labels(project_guid: Series,
                        'integers': integers,
                        'labels': labels})
     return _extract_features(df, key, feature_extractor.extract_labels)
+
+
+def _datasources(project_guid: Series,
+                 sensor_id: Series,
+                 timestamp: Series,
+                 doubles: Series,
+                 strings: Series,
+                 integers: Series,
+                 labels: Series,
+                 feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
+    key = 'datasources'
+    df = pd.DataFrame({'project_guid': project_guid,
+                       'sensor_id': sensor_id,
+                       'timestamp': timestamp,
+                       'doubles': doubles,
+                       'strings': strings,
+                       'integers': integers,
+                       'labels': labels})
+    return _extract_features(df, key, feature_extractor.extract_datasources)
 
 
 def _extract_features(df: DataFrame, key: str, extract_func):

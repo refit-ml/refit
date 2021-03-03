@@ -17,3 +17,6 @@ class FeatureExtractor():
 
     def extract_labels(self, df: DataFrame) -> DataFrame:
         return df
+
+    def extract_datasources(self, df: DataFrame) -> DataFrame:
+        return df

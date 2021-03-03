@@ -1,9 +1,0 @@
-syntax = "proto3";
-package edu.cdl.iot.protocol;
-
-message ImportRequest  {
-  string project_guid = 1;
-  string file_path = 2;
-  bool delete_when_complete = 3;
-  bool import_training_window = 4;
-}

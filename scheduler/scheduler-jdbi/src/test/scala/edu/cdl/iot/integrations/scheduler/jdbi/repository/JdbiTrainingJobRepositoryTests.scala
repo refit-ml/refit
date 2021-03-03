@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import edu.cdl.iot.common.factories.ConfigFactory
+import edu.cdl.iot.data.postgres.factory.JdbiFactory
 import edu.cdl.iot.integrations.scheduler.core.entity.TrainingJob
 import edu.cdl.iot.integrations.scheduler.jdbi.dependencies.SchedulerJdbiDependencies
 import org.scalatest.BeforeAndAfterEach
@@ -12,7 +13,9 @@ import org.scalatest.flatspec.AnyFlatSpec
 class JdbiTrainingJobRepositoryTests extends AnyFlatSpec with BeforeAndAfterEach {
   private val refitConfig = new ConfigFactory(useEnvironment = false).getConfig
   private val postgresConfig = refitConfig.getPostgresConfig()
-  private val repository = new SchedulerJdbiDependencies(postgresConfig)
+  private val jdbi = new JdbiFactory(postgresConfig)
+    .jdbi
+  private val repository = new SchedulerJdbiDependencies(jdbi)
     .trainingJobRepository
 
   private var trainingJob: TrainingJob = _

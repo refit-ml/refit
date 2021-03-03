@@ -24,3 +24,6 @@ class RefitFeatureExtractor():
         df = pd.merge(df, self.extract_integers(df))
         df = pd.merge(df, self.extract_labels(df))
         return df
+
+    def extract_datasources(self, df: DataFrame) -> DataFrame:
+        return df
