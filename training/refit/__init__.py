@@ -105,18 +105,17 @@ class Refit:
         if not self.file_repository.upload_file(self._import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
 
-        return self.notebook_repository.import_file(self.project_guid, path, delete_when_complete)
+        return self.notebook_repository.import_sensor_data(self.project_guid, path, delete_when_complete)
 
     def import_training_window(self, file_path: str, object_name: str, delete_when_complete: bool = True):
         path = self.__get_file_path(object_name)
         if not self.file_repository.upload_file(self._import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
 
-        return self.notebook_repository.import_file(
+        return self.notebook_repository.import_training_window(
             project_guid=self.project_guid,
             path=path,
-            delete_when_complete=delete_when_complete,
-            import_type='training_window'
+            delete_when_complete=delete_when_complete
         )
 
 

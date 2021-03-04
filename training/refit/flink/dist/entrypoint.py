@@ -38,7 +38,7 @@ class RefitFeatureEnrichment():
                     "doubles(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as doubles,"
                     "strings(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as strings,"
                     "integers(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as integers,"
-                    "labels(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as labels"
+                    "labels(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as labels,"
                     "datasources(projectGuid, sensorId, timestamp, doubles, strings, integers, labels) as dataSources"
                     ) \
             .execute_insert('refit_sensor_data')
