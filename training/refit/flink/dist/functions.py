@@ -9,7 +9,7 @@ from pyflink.table.udf import udf
 
 from .feature_extractor import FeatureExtractor
 
-_expand_columns = ['doubles', 'strings', 'integers', 'labels']
+_expand_columns = ['doubles', 'strings', 'integers', 'labels', 'datasources']
 _feature_extractor = FeatureExtractor()
 
 
@@ -50,7 +50,7 @@ def _expand(df: DataFrame, columns: List[str]) -> DataFrame:
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
-                  DataTypes.STRING()],
+                  DataTypes.STRING(), DataTypes.STRING()],
      result_type=DataTypes.STRING(), udf_type='pandas')
 def doubles(project_guid: Series,
             sensor_id: Series,
@@ -58,14 +58,15 @@ def doubles(project_guid: Series,
             doubles: Series,
             strings: Series,
             integers: Series,
-            labels: Series) -> DataFrame:
-    return _doubles(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+            labels: Series,
+            datasources: Series) -> DataFrame:
+    return _doubles(project_guid, sensor_id, timestamp, doubles, strings, integers, labels, datasources)
 
 
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
-                  DataTypes.STRING()],
+                  DataTypes.STRING(), DataTypes.STRING()],
      result_type=DataTypes.STRING(), udf_type='pandas')
 def strings(project_guid: Series,
             sensor_id: Series,
@@ -73,14 +74,15 @@ def strings(project_guid: Series,
             doubles: Series,
             strings: Series,
             integers: Series,
-            labels: Series) -> DataFrame:
-    return _strings(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+            labels: Series,
+            datasources: Series) -> DataFrame:
+    return _strings(project_guid, sensor_id, timestamp, doubles, strings, integers, labels, datasources)
 
 
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
-                  DataTypes.STRING()],
+                  DataTypes.STRING(), DataTypes.STRING()],
      result_type=DataTypes.STRING(), udf_type='pandas')
 def integers(project_guid: Series,
              sensor_id: Series,
@@ -88,14 +90,15 @@ def integers(project_guid: Series,
              doubles: Series,
              strings: Series,
              integers: Series,
-             labels: Series) -> DataFrame:
-    return _integers(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+             labels: Series,
+             datasources: Series) -> DataFrame:
+    return _integers(project_guid, sensor_id, timestamp, doubles, strings, integers, labels, datasources)
 
 
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
-                  DataTypes.STRING()],
+                  DataTypes.STRING(), DataTypes.STRING()],
      result_type=DataTypes.STRING(), udf_type='pandas')
 def labels(project_guid: Series,
            sensor_id: Series,
@@ -103,14 +106,15 @@ def labels(project_guid: Series,
            doubles: Series,
            strings: Series,
            integers: Series,
-           labels: Series) -> DataFrame:
-    return _labels(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+           labels: Series,
+           datasources: Series) -> DataFrame:
+    return _labels(project_guid, sensor_id, timestamp, doubles, strings, integers, labels, datasources)
 
 
 @udf(input_types=[DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
                   DataTypes.STRING(), DataTypes.STRING(),
-                  DataTypes.STRING()],
+                  DataTypes.STRING(), DataTypes.STRING()],
      result_type=DataTypes.STRING(), udf_type='pandas')
 def datasources(project_guid: Series,
                 sensor_id: Series,
@@ -118,8 +122,9 @@ def datasources(project_guid: Series,
                 doubles: Series,
                 strings: Series,
                 integers: Series,
-                labels: Series) -> DataFrame:
-    return _datasources(project_guid, sensor_id, timestamp, doubles, strings, integers, labels)
+                labels: Series,
+                datasources: Series) -> DataFrame:
+    return _datasources(project_guid, sensor_id, timestamp, doubles, strings, integers, labels, datasources)
 
 
 def _doubles(project_guid: Series,
@@ -129,6 +134,7 @@ def _doubles(project_guid: Series,
              strings: Series,
              integers: Series,
              labels: Series,
+             datasources: Series,
              feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
     key = 'doubles'
     df = pd.DataFrame({'project_guid': project_guid,
@@ -137,7 +143,8 @@ def _doubles(project_guid: Series,
                        'doubles': doubles,
                        'strings': strings,
                        'integers': integers,
-                       'labels': labels})
+                       'labels': labels,
+                       'datasources': datasources})
     return _extract_features(df, key, feature_extractor.extract_doubles)
 
 
@@ -148,6 +155,7 @@ def _integers(project_guid: Series,
               strings: Series,
               integers: Series,
               labels: Series,
+              datasources: Series,
               feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
     key = 'integers'
     df = pd.DataFrame({'project_guid': project_guid,
@@ -156,7 +164,8 @@ def _integers(project_guid: Series,
                        'doubles': doubles,
                        'strings': strings,
                        'integers': integers,
-                       'labels': labels})
+                       'labels': labels,
+                       'datasources': datasources})
     return _extract_features(df, key, feature_extractor.extract_integers)
 
 
@@ -167,6 +176,7 @@ def _strings(project_guid: Series,
              strings: Series,
              integers: Series,
              labels: Series,
+             datasources: Series,
              feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
     key = 'strings'
     df = pd.DataFrame({'project_guid': project_guid,
@@ -175,7 +185,8 @@ def _strings(project_guid: Series,
                        'doubles': doubles,
                        'strings': strings,
                        'integers': integers,
-                       'labels': labels})
+                       'labels': labels,
+                       'datasources': datasources})
     return _extract_features(df, key, feature_extractor.extract_strings)
 
 
@@ -186,6 +197,7 @@ def _labels(project_guid: Series,
             strings: Series,
             integers: Series,
             labels: Series,
+            datasources: Series,
             feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
     key = 'labels'
     df = pd.DataFrame({'project_guid': project_guid,
@@ -194,7 +206,8 @@ def _labels(project_guid: Series,
                        'doubles': doubles,
                        'strings': strings,
                        'integers': integers,
-                       'labels': labels})
+                       'labels': labels,
+                       'datasources': datasources})
     return _extract_features(df, key, feature_extractor.extract_labels)
 
 
@@ -205,6 +218,7 @@ def _datasources(project_guid: Series,
                  strings: Series,
                  integers: Series,
                  labels: Series,
+                 datasources: Series,
                  feature_extractor: FeatureExtractor = _feature_extractor) -> DataFrame:
     key = 'datasources'
     df = pd.DataFrame({'project_guid': project_guid,
@@ -213,7 +227,8 @@ def _datasources(project_guid: Series,
                        'doubles': doubles,
                        'strings': strings,
                        'integers': integers,
-                       'labels': labels})
+                       'labels': labels,
+                       'datasources': datasources})
     return _extract_features(df, key, feature_extractor.extract_datasources)
 
 
