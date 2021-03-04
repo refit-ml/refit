@@ -102,24 +102,19 @@ class Refit:
         return f"import/{self.project_guid}/{object_name}"
 
     def import_data(self,
-                    df_path: str,
-                    object_name: str,
-                    df_format: str) -> str:
+                    dataframe: pd.DataFrame(),
+                    object_name: str) -> str:
 
-        if df_format == 'CSV':
-            return self.__import_file(df_path, object_name)
-
-        elif df_format == 'API URL':
-            temporary_df = pd.read_csv(io.BytesIO(urllib.request.urlopen(df_path).read()), encoding='utf8')
-            for column in temporary_df.columns:
-                if is_datetime(temporary_df[column]):
-                    temporary_df[column] = temporary_df[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
-            temporary_df.to_csv('../data/temporary-df.csv', index = False, header = True )
+        if isinstance(dataframe, pd.DataFrame):
+            for column in dataframe.columns:
+                if is_datetime(dataframe[column]):
+                    dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
+            dataframe.to_csv('../data/temporary-df.csv', index = False, header = True )
             return self.__import_file('../data/temporary-df.csv', object_name)
 
         else:
-            raise Exception("Data frame format", df_format, "is not supported.",
-                            "Only types 'CSV' and 'API URL' are supported")
+            raise Exception("Error: Must import as data frame")
+
 
 
     def __import_file(self,
