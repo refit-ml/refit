@@ -12,6 +12,7 @@ df['doubles'] = df.sensor_id.apply(lambda _: json.dumps({'test_double': 0.1}))
 df['integers'] = df.sensor_id.apply(lambda _: json.dumps({'test_integer': 1}))
 df['strings'] = df.sensor_id.apply(lambda _: json.dumps({'test_string': "asdf"}))
 df['labels'] = df.sensor_id.apply(lambda _: json.dumps({'test_label': "some_label"}))
+df['datasources'] = df.sensor_id.apply(lambda _: json.dumps({}))
 
 
 class MockFeatureExtractor(FeatureExtractor):
@@ -34,6 +35,10 @@ class MockFeatureExtractor(FeatureExtractor):
         df['mock_label'] = df.sensor_id.apply(lambda _: 'mock_label')
         return df
 
+    def extract_datasources(self, df: DataFrame) -> DataFrame:
+        df['mock_ds'] = df.sensor_id.apply(lambda _: 'ds')
+        return df
+
 
 project_guid = df.project_guid
 sensor_id = df.sensor_id
@@ -42,6 +47,7 @@ doubles = df.doubles
 strings = df.strings
 integers = df.integers
 labels = df.labels
+datasources = df.datasources
 
 
 def test_fetch_labels():
@@ -53,6 +59,7 @@ def test_fetch_labels():
         strings=strings,
         integers=integers,
         labels=labels,
+        datasources=datasources,
         feature_extractor=MockFeatureExtractor()
     )
     enriched = [json.loads(item) for item in enriched]
@@ -69,6 +76,7 @@ def test_fetch_integers():
         strings=strings,
         integers=integers,
         labels=labels,
+        datasources=datasources,
         feature_extractor=MockFeatureExtractor()
     )
     enriched = [json.loads(item) for item in enriched]
@@ -85,6 +93,7 @@ def test_fetch_strings():
         strings=strings,
         integers=integers,
         labels=labels,
+        datasources=datasources,
         feature_extractor=MockFeatureExtractor()
     )
     enriched = [json.loads(item) for item in enriched]
@@ -101,8 +110,26 @@ def test_fetch_doubles():
         strings=strings,
         integers=integers,
         labels=labels,
+        datasources=datasources,
         feature_extractor=MockFeatureExtractor()
     )
     enriched = [json.loads(item) for item in enriched]
     assert all(['mock_double' in item.keys() and item['mock_double'] == 0.5 for item in enriched])
+    assert len(enriched) > 0
+
+
+def test_fetch_datasources():
+    enriched = functions._datasources(
+        project_guid=project_guid,
+        sensor_id=sensor_id,
+        timestamp=timestamp,
+        doubles=doubles,
+        strings=strings,
+        integers=integers,
+        labels=labels,
+        datasources=datasources,
+        feature_extractor=MockFeatureExtractor()
+    )
+    enriched = [json.loads(item) for item in enriched]
+    assert all(['mock_ds' in item.keys() and item['mock_ds'] == 'ds' for item in enriched])
     assert len(enriched) > 0

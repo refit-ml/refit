@@ -17,7 +17,7 @@ class NotebookKafkaTrainingWindowImportRepository(kafkaRepository: KafkaReposito
   extends NotebookTrainingWindowImportRepository {
 
   def save(importRequest: Import): Unit =
-    kafkaRepository.send(kafkaRepository.topics.`import`, importRequest.toByteArray)
+    kafkaRepository.send(kafkaRepository.topics.trainingWindowImport, importRequest.toByteArray)
 }
 
 
@@ -25,5 +25,5 @@ class NotebookKafkaStaticDataImportRepository(kafkaRepository: KafkaRepository)
   extends NotebookStaticDataImportRepository {
 
   def save(importRequest: StaticDataImport): Unit =
-    kafkaRepository.send(kafkaRepository.topics.`import`, importRequest.toByteArray)
+    kafkaRepository.send(kafkaRepository.topics.staticDataImport, importRequest.toByteArray)
 }

@@ -41,11 +41,11 @@ class NotebookImportRoutes(private val context: CamelContext,
       .process((exchange: Exchange) => {
         val message = exchange.getIn()
         val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
-        logger.info("Import request received")
+        logger.info("Training window import request received")
         val request = exchange.getIn.getBody(classOf[Import])
         importService.saveTrainingWindowImportRequest(projectGuid, request)
-        logger.info("Import Request Queued")
-        message.setBody("Import queued")
+        logger.info("Training window import Request Queued")
+        message.setBody("Training window import queued")
       })
 
 
