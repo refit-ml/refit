@@ -81,16 +81,26 @@ class NotebookRepository:
         else:
             return response.text
 
-    def import_file(self,
-                    project_guid: str,
-                    path: str,
-                    delete_when_complete: bool,
-                    import_type: str = 'sensor_data'):
+    def import_sensor_data(self,
+                           project_guid: str,
+                           path: str,
+                           delete_when_complete: bool):
         url = self.url(f"project/{project_guid}/import")
         payload = json.dumps({
             "filePath": path,
-            "deleteWhenComplete": delete_when_complete,
-            "importType": import_type
+            "deleteWhenComplete": delete_when_complete
+        })
+        response = requests.put(url, payload)
+        return response.text
+
+    def import_training_window(self,
+                               project_guid: str,
+                               path: str,
+                               delete_when_complete: bool):
+        url = self.url(f"project/{project_guid}/import/training-window")
+        payload = json.dumps({
+            "filePath": path,
+            "deleteWhenComplete": delete_when_complete
         })
         response = requests.put(url, payload)
         return response.text
