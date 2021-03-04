@@ -5,9 +5,8 @@ from typing import List
 import onnxmltools
 import pandas as pd
 from pandas import DataFrame
-import json
-import urllib
-import io
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
+
 
 
 from refit.enums.model_format import ModelFormat
@@ -101,39 +100,21 @@ class Refit:
     def __get_file_path(self, object_name: str):
         return f"import/{self.project_guid}/{object_name}"
 
-    def import_df(self,
-                  df_path: str,
-                  object_name: str,
-                  df_format: str) -> str:
 
-        if df_format == 'CSV':
-            return self.__import_file(df_path, object_name)
 
-        elif df_format == 'API':
-            response = urllib.request.urlopen(df_path)
-            data = response.read()
-            df = pd.read_csv(io.BytesIO(data), encoding='utf8')
-            #            if 'TimeStamp' not in df.columns:
-            #                raise Exception("Error file lacks timestamps")
-            #            if 'UniqueID' not in df.columns:
-            #                raise Exception("Error file lacks unique ID's")
-            temp_csv_path = 'temp_csv_path.csv'
-            df.to_csv(temp_csv_path, index = False, header = True )
-            return self.__import_file(temp_csv_path, object_name)
+    def import_data(self,
+                dataframe: pd.DataFrame(),
+                object_name: str) -> str:
+
+        if isinstance(dataframe, pd.DataFrame):
+            for column in dataframe.columns:
+                if is_datetime(dataframe[column]):
+                    dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
+            dataframe.to_csv('../data/temporary-df.csv', index = False, header = True )
+            return self.__import_file('../data/temporary-df.csv', object_name)
 
         else:
-            raise Exception("Data frame format", df_format, "is not supported")
-
-    def import_static_data(self,
-                           file_path: str,
-                           object_name: str,
-                           delete_when_complete: bool = True) -> str:
-        path = self.__get_file_path(object_name)
-        if not self.file_repository.upload_file(self._import_bucket, path, file_path):
-            raise Exception("Error Uploading file to bucket")
-
-        return self.notebook_repository.import_sensor_data(self.project_guid, path, delete_when_complete)
-
+            raise Exception("Error: Must import as data frame")
 
     def __import_file(self,
                       file_path: str,
