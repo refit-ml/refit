@@ -97,7 +97,7 @@ class Refit:
 
     def __get_file_path(self, object_name: str):
         return f"import/{self.project_guid}/{object_name}"
-    
+
     def import_data(self,
                 dataframe: pd.DataFrame(),
                 object_name: str) -> str:
@@ -112,7 +112,7 @@ class Refit:
         else:
             raise Exception("Error: Must import as data frame")
 
-    def import_file(self,
+    def __import_file(self,
                     file_path: str,
                     object_name: str,
                     delete_when_complete: bool = True, ) -> str:
