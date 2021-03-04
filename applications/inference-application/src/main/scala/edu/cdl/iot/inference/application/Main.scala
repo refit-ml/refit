@@ -52,8 +52,8 @@ object Main {
 
     val sensorData = env
       .addSource(sensorDataSource, Sources.sensorData)
-      .keyBy((value: SensorData) => value.projectGuid)
       .map(new StaticDataMapper())
+      .keyBy((value: SensorData) => value.projectGuid)
 
 
     val inference = sensorData
