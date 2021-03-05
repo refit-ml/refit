@@ -6,6 +6,7 @@ import onnxmltools
 import pandas as pd
 from pandas import DataFrame
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
+import uuid
 
 from refit.enums.model_format import ModelFormat
 from refit.flink import submit
@@ -99,14 +100,15 @@ class Refit:
         return f"import/{self.project_guid}/{object_name}"
 
     def import_data(self,
-                dataframe: pd.DataFrame(),
-                object_name: str) -> str:
+                dataframe: pd.DataFrame) -> str:
 
         if isinstance(dataframe, pd.DataFrame):
             for column in dataframe.columns:
                 if is_datetime(dataframe[column]):
                     dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
             dataframe.to_csv('../data/temporary-df.csv', index = False, header = True )
+            import_guid = str(uuid.uuid4())
+            object_name = f"notebook-imports/{import_guid}/import.csv"
             return self.__import_file('../data/temporary-df.csv', object_name)
 
         else:
