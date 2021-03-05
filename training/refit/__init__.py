@@ -99,8 +99,7 @@ class Refit:
         return f"import/{self.project_guid}/{object_name}"
 
     def import_data(self,
-                dataframe: pd.DataFrame(),
-                object_name: str) -> str:
+                dataframe: pd.DataFrame) -> str:
 
         if isinstance(dataframe, pd.DataFrame):
             for column in dataframe.columns:
