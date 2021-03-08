@@ -5,6 +5,8 @@ from typing import List
 import onnxmltools
 import pandas as pd
 from pandas import DataFrame
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
+import uuid
 
 from refit.enums.model_format import ModelFormat
 from refit.flink import submit
@@ -97,7 +99,22 @@ class Refit:
     def __get_file_path(self, object_name: str):
         return f"import/{self.project_guid}/{object_name}"
 
-    def import_file(self,
+    def import_data(self,
+                dataframe: pd.DataFrame) -> str:
+
+        if isinstance(dataframe, pd.DataFrame):
+            for column in dataframe.columns:
+                if is_datetime(dataframe[column]):
+                    dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
+            dataframe.to_csv('../data/temporary-df.csv', index = False, header = True )
+            import_guid = str(uuid.uuid4())
+            object_name = f"notebook-imports/{import_guid}/import.csv"
+            return self.__import_file('../data/temporary-df.csv', object_name)
+
+        else:
+            raise Exception("Error: Must import as data frame")
+
+    def __import_file(self,
                     file_path: str,
                     object_name: str,
                     delete_when_complete: bool = True, ) -> str:
