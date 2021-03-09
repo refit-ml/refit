@@ -28,4 +28,15 @@ fields:
   - name: output_label
     type: Double
     classification: Label
-
+dataSources:
+  - name: foo-datasource
+    fields:
+      - name: key
+        type: Integer
+        classification: Key
+      - name: x
+        type: Double
+        classification: Feature
+      - name: y
+        type: Double
+        classification: Feature

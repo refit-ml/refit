@@ -104,3 +104,16 @@ class NotebookRepository:
         })
         response = requests.put(url, payload)
         return response.text
+
+    def import_static_data(self,
+                           project_guid: str,
+                           name: str,
+                           path: str,
+                           delete_when_complete: bool):
+        url = self.url(f"project/{project_guid}/import/{name}")
+        payload = json.dumps({
+            "filePath": path,
+            "deleteWhenComplete": delete_when_complete
+        })
+        response = requests.put(url, payload)
+        return response.text
