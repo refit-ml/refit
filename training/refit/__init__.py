@@ -6,7 +6,7 @@ import onnxmltools
 import pandas as pd
 from pandas import DataFrame
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
-
+import os
 from refit.enums.model_format import ModelFormat
 from refit.flink import submit
 from refit.flink.refit_feature_extractor import RefitFeatureExtractor
@@ -102,13 +102,16 @@ class Refit:
                     dataframe: pd.DataFrame) -> str:
 
         if isinstance(dataframe, pd.DataFrame):
+            if not os.path.exists('./.data'):
+                os.makedirs('./.data')
+
             for column in dataframe.columns:
                 if is_datetime(dataframe[column]):
                     dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
-            dataframe.to_csv('../data/temporary-df.csv', index=False, header=True)
+            dataframe.to_csv('./.data/temporary-df.csv', index=False, header=True)
             import_guid = str(uuid.uuid4())
             object_name = f"notebook-imports/{import_guid}/import.csv"
-            return self.__import_file('../data/temporary-df.csv', object_name)
+            return self.__import_file('./.data/temporary-df.csv', object_name)
 
         else:
             raise Exception("Error: Must import as data frame")
@@ -118,14 +121,16 @@ class Refit:
                            dataframe: pd.DataFrame) -> str:
 
         if isinstance(dataframe, pd.DataFrame):
+            if not os.path.exists('.data'):
+                os.makedirs('./.data')
             for column in dataframe.columns:
                 if is_datetime(dataframe[column]):
                     dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
-            dataframe.to_csv('../data/temporary-df.csv', index=False, header=True)
+            dataframe.to_csv('./.data/temporary-df.csv', index=False, header=True)
             import_guid = str(uuid.uuid4())
             object_name = f"notebook-imports/{import_guid}/import.csv"
             path = self.__get_file_path(object_name)
-            if not self.file_repository.upload_file(self._import_bucket, path, '../data/temporary-df.csv'):
+            if not self.file_repository.upload_file(self._import_bucket, path, './.data/temporary-df.csv'):
                 raise Exception("Error Uploading file to bucket")
             return self.notebook_repository.import_static_data(
                 project_guid=self.project_guid,
