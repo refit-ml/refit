@@ -2,6 +2,8 @@ package edu.cdl.iot.integrations.scheduler.kube.repository
 
 import java.io.FileReader
 
+import edu.cdl.iot.common.config.RefitConfig
+import edu.cdl.iot.common.constants.EnvConstants
 import edu.cdl.iot.integrations.scheduler.core.entity.{KubernetesApiConflict, TrainingJob, TrainingJobDeployment, TrainingJobDeploymentStatus, TrainingJobError, TrainingJobNotComplete}
 import edu.cdl.iot.integrations.scheduler.core.repository.TrainingJobDeploymentRepository
 import edu.cdl.iot.integrations.scheduler.kube.config.SchedulerKubeConfig
@@ -14,9 +16,11 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 
-class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends TrainingJobDeploymentRepository {
+class KubeTrainingJobDeploymentRepository(refitConfig: RefitConfig,
+                                           config: SchedulerKubeConfig) extends TrainingJobDeploymentRepository {
 
   private val kubeConfigPath = "/.kube/config"
+  private val minioConfig = refitConfig.getMinioConfig()
   private val client =
     ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build()
 
@@ -83,7 +87,23 @@ class KubeTrainingJobDeploymentRepository(config: SchedulerKubeConfig) extends T
               .withKey("secretkey")
               .build())
             .build()
-          ).build()
+          ).build(),
+        new V1EnvVarBuilder()
+          .withName(EnvConstants.MINIO_BUCKET_IMPORT)
+          .withValue(minioConfig.buckets.`import`)
+          .build(),
+        new V1EnvVarBuilder()
+          .withName(EnvConstants.MINIO_BUCKET_MODELS)
+          .withValue(minioConfig.buckets.models)
+          .build(),
+        new V1EnvVarBuilder()
+          .withName(EnvConstants.MINIO_BUCKET_SCHEMA)
+          .withValue(minioConfig.buckets.schema)
+          .build(),
+        new V1EnvVarBuilder()
+          .withName("INTEGRATIONS_HOST")
+          .withValue(s"${config.releasePrefix}-integrations")
+          .build()
       )
       .withName("python-training")
       .withImage(s"cdliotprototype/cdl-refit-job:${config.refitVersion}")
