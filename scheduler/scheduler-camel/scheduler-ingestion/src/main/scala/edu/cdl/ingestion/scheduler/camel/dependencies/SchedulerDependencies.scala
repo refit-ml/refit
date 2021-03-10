@@ -16,7 +16,7 @@ import org.jdbi.v3.core.Jdbi
 
 class SchedulerDependencies(config: RefitConfig,
                             context: CamelContext,
-                           jdbi: Jdbi) {
+                            jdbi: Jdbi) {
 
   private def defaultCamelProperties(config: PostgresConfig): Properties = {
     val properties = new Properties()
@@ -42,7 +42,7 @@ class SchedulerDependencies(config: RefitConfig,
   private val postgresConfig = config.getPostgresConfig()
 
   private val jdbiDependencies = new SchedulerJdbiDependencies(jdbi)
-  private val trainingJobDeploymentRepository = new KubeTrainingJobDeploymentRepository(schedulerKubeConfig)
+  private val trainingJobDeploymentRepository = new KubeTrainingJobDeploymentRepository(config, schedulerKubeConfig)
   private val trainingJobNotificationRepository = null
 
 
