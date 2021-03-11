@@ -6,7 +6,6 @@ import onnxmltools
 import pandas as pd
 import numpy as np
 from pandas import DataFrame
-import ruamel.yaml
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 import os
 from refit.enums.model_format import ModelFormat
@@ -25,15 +24,13 @@ def submit_job(feature_extractor=None):
 
 
 def feature_mapper(dataframe: pd.DataFrame,
-                   yaml_path: str) -> pd.DataFrame:
-    with open(yaml_path, 'r') as stream:
-        out = ruamel.yaml.safe_load(stream)
+                   schema_feature: List[str]) -> pd.DataFrame:
     df = pd.DataFrame()
-    for i in range(0, len(out['fields'])):
-        if out['fields'][i]['name'] in dataframe.columns:
-            df[out['fields'][i]['name']] = dataframe[out['fields'][i]['name']]
+    for name in schema_feature:
+        if name in dataframe.columns:
+            df[name] = dataframe[name]
         else:
-            df[out['fields'][i]['name']] = [np.nan]*len(dataframe)
+            df[name] = [np.nan]*len(dataframe)
     return df
 
 class Refit:
@@ -113,8 +110,7 @@ class Refit:
         return f"import/{self.project_guid}/{object_name}"
 
     def import_data(self,
-                    dataframe: pd.DataFrame,
-                    yaml_path: str) -> str:
+                    dataframe: pd.DataFrame) -> str:
 
         if isinstance(dataframe, pd.DataFrame):
             if not os.path.exists('./.data'):
@@ -123,7 +119,9 @@ class Refit:
             for column in dataframe.columns:
                 if is_datetime(dataframe[column]):
                     dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
-            mapped_dataframe = feature_mapper(dataframe, yaml_path)
+
+            schema_features = self.notebook_repository.schema_feature_names(self.project_guid)
+            mapped_dataframe = feature_mapper(dataframe, schema_features)
             mapped_dataframe.to_csv('./.data/temporary-df.csv', index=False, header=True)
             import_guid = str(uuid.uuid4())
             object_name = f"notebook-imports/{import_guid}/import.csv"

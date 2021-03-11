@@ -22,6 +22,15 @@ class NotebookRepository:
         schema = Schema(project_dict)
         return schema
 
+    def schema_feature_names(self, project_guid) -> List[str]:
+        path = f"project/{project_guid}"
+        response = requests.get(self.url(path))
+        project_dict = response.json()
+        feature_names = list()
+        for feature in project_dict['schema']['fields']:
+            feature_names.append(feature['name'])
+        return feature_names
+
     def sensor_data(self,
                     project_guid: str,
                     start: datetime,
