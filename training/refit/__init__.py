@@ -4,6 +4,7 @@ from typing import List
 
 import onnxmltools
 import pandas as pd
+import numpy as np
 from pandas import DataFrame
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 import os
@@ -21,6 +22,16 @@ def submit_job(feature_extractor=None):
     submit.clear_jobs()
     submit.submit_python(feature_extractor)
 
+
+def feature_mapper(dataframe: pd.DataFrame,
+                   schema_feature: List[str]) -> pd.DataFrame:
+    df = pd.DataFrame()
+    for name in schema_feature:
+        if name in dataframe.columns:
+            df[name] = dataframe[name]
+        else:
+            df[name] = [np.nan]*len(dataframe)
+    return df
 
 class Refit:
     def __init__(self,
@@ -108,7 +119,10 @@ class Refit:
             for column in dataframe.columns:
                 if is_datetime(dataframe[column]):
                     dataframe[column] = dataframe[column].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S.%f"))
-            dataframe.to_csv('./.data/temporary-df.csv', index=False, header=True)
+
+            schema_features = self.notebook_repository.schema_feature_names(self.project_guid)
+            mapped_dataframe = feature_mapper(dataframe, schema_features)
+            mapped_dataframe.to_csv('./.data/temporary-df.csv', index=False, header=True)
             import_guid = str(uuid.uuid4())
             object_name = f"notebook-imports/{import_guid}/import.csv"
             return self.__import_file('./.data/temporary-df.csv', object_name)
@@ -143,9 +157,9 @@ class Refit:
             raise Exception("Error: Must import as data frame")
 
     def __import_file(self,
-                      file_path: str,
-                      object_name: str,
-                      delete_when_complete: bool = True, ) -> str:
+                    file_path: str,
+                    object_name: str,
+                    delete_when_complete: bool = True, ) -> str:
         path = self.__get_file_path(object_name)
         if not self.file_repository.upload_file(self._import_bucket, path, file_path):
             raise Exception("Error Uploading file to bucket")
@@ -178,3 +192,4 @@ def create_project(file_path: str, project_guid: str = None) -> dict:
         raise Exception("Error Uploading file to bucket")
 
     return notebook_repository.create_project(path)
+
