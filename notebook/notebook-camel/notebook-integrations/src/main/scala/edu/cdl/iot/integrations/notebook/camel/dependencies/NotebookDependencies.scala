@@ -7,9 +7,9 @@ import edu.cdl.iot.data.kafka.KafkaRepository
 import edu.cdl.iot.data.minio.MinioRepository
 import edu.cdl.iot.integrations.notebook.camel.routes.{NotebookImportRoutes, NotebookModelRoutes, NotebookProjectRoutes, NotebookQueryRoutes}
 import edu.cdl.iot.integrations.notebook.cassandra.repository.{NotebookCassandraOrganizationRepository, NotebookCassandraProjectRepository, NotebookCassandraSensorDataRepository, NotebookCassandraSensorRepository, NotebookCassandraTrainingWindowRepository}
-import edu.cdl.iot.integrations.notebook.core.service.{NotebookImportService, NotebookModelService, NotebookProjectService, NotebookQueryService}
+import edu.cdl.iot.integrations.notebook.core.service.{NotebookImportService, NotebookModelService, NotebookProjectService, NotebookQueryService, NotebookUploadService}
 import edu.cdl.iot.integrations.notebook.kafka.repository.{NotebookKafkaImportRepository, NotebookKafkaModelRepository, NotebookKafkaStaticDataImportRepository, NotebookKafkaTrainingWindowImportRepository}
-import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioFileImportRepository, NotebookMinioSchemaRepository}
+import edu.cdl.iot.integrations.notebook.minio.repository.{NotebookMinioFileImportRepository, NotebookMinioFileUploadRepository, NotebookMinioSchemaRepository}
 import edu.cdl.iot.notebook.jdbi.dependencies.NotebookJdbiDependencies
 import org.apache.camel.CamelContext
 import org.jdbi.v3.core.Jdbi
@@ -35,6 +35,7 @@ class NotebookDependencies(config: RefitConfig,
   private val schemaRepository = new NotebookMinioSchemaRepository(minioRepository)
   private val modelRepository = new NotebookKafkaModelRepository(kafkaRepository)
   private val importFileRepository = new NotebookMinioFileImportRepository(minioRepository)
+  private val uploadFileRepository = new NotebookMinioFileUploadRepository(minioRepository)
   private val jdbiDependencies = new NotebookJdbiDependencies(jdbi)
 
 
@@ -50,12 +51,16 @@ class NotebookDependencies(config: RefitConfig,
     sensorDataRepository = null
   )
 
+  private val uploadService = new NotebookUploadService(
+    fileRepository = uploadFileRepository
+  )
 
   private val queryService = new NotebookQueryService(
     projectRepository = projectRepository,
     sensorRepository = sensorRepository,
     sensorDataRepository = sensorDataRepository,
-    trainingWindowRepository = trainingWindowRepository
+    trainingWindowRepository = trainingWindowRepository,
+    uploadService = uploadService
   )
 
   private val modelService = new NotebookModelService(

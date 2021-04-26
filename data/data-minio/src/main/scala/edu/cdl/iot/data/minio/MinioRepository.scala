@@ -1,9 +1,9 @@
 package edu.cdl.iot.data.minio
 
-import java.io.InputStream
-
 import edu.cdl.iot.common.yaml.{MinioBucket, MinioConfig}
-import io.minio.{GetObjectArgs, MinioClient, RemoveObjectArgs}
+import io.minio._
+
+import java.io.InputStream
 
 class MinioRepository(config: MinioConfig) extends Serializable {
 
@@ -21,6 +21,22 @@ class MinioRepository(config: MinioConfig) extends Serializable {
         .bucket(bucketName)
         .`object`(filePath)
         .build())
+
+  def uploadFileObject(bucketName: String, fileName: String, filePath: String) {
+    minioClient
+      .uploadObject(UploadObjectArgs.builder()
+        .bucket(bucketName)
+        .`object`(fileName)
+        .filename(filePath)
+        .build())
+  }
+
+  def uploadFileStatus(bucketName: String, fileName: String){
+    minioClient
+      .statObject(StatObjectArgs.builder.bucket(bucketName)
+        .`object`(fileName)
+        .build())
+  }
 
   def getBytes(bucketName: String, filePath: String): Array[Byte] = {
     val inputStream = getInputStream(bucketName, filePath)
