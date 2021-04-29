@@ -1,0 +1,34 @@
+project: test
+encryptionKey: keyboard_cat
+demo: true
+cassandra:
+  keyspace: cdl_refit
+  host: 127.0.0.1
+  port: 9042
+  user: cassandra
+  password: cassandra
+
+postgres:
+  host: 127.0.0.1
+  port: 5432
+  username: refit
+  password: refit
+  schema: refit
+
+minio:
+  host: "http://127.0.0.1:9000"
+  buckets:
+    import: refit-import
+    models: refit-models
+    schema: refit-schema
+  accessKey: refit
+  secretKey: refit-key
+
+kafka:
+  host: "127.0.0.1:9092"
+  topics:
+    import: "refit.training.import"
+    modelPublished: "refit.training.models"
+    data: "refit.inference.data"
+    predictions: "refit.inference.predictions"
+    trainingJobScheduled: "refit.training.job.scheduled"
