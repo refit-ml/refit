@@ -7,12 +7,11 @@ import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 
 
-
 class NotebookQueryService(projectRepository: NotebookProjectRepository,
                            sensorRepository: NotebookSensorRepository,
                            sensorDataRepository: NotebookPredictionRepository,
-                           trainingWindowRepository: NotebookTrainingWindowRepository
-                           ) {
+                           trainingWindowRepository: NotebookTrainingWindowRepository) {
+
   private val logger = LoggerFactory.getLogger(classOf[NotebookQueryService])
 
   private def getSensors(sensors: List[String]): List[String] =
@@ -25,14 +24,13 @@ class NotebookQueryService(projectRepository: NotebookProjectRepository,
             sensors: List[String]): List[Map[String, String]] = {
     val schema = projectRepository.find(projectGuid).schema
     val partitions = schema.getPartitionsInRange(from, to)
-    val dataObject = getSensors(sensors).flatMap(
+    getSensors(sensors).flatMap(
       sensor => sensorDataRepository.find(
         projectGuid = projectGuid.toString,
         sensorId = sensor,
         partitions = partitions
       )
     )
-    dataObject
   }
 
   def trainingWindow(projectGuid: UUID,
