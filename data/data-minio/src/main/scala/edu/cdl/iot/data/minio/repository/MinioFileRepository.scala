@@ -6,13 +6,13 @@ class MinioFileRepository(minioRepository: MinioRepository){
 
   def uploadFile(fileName: String, filePath: String){
     minioRepository.uploadFileObject(
-      bucketName = minioRepository.buckets.models,
+      bucketName = minioRepository.buckets.`import`,
       fileName, filePath)
   }
 
   def uploadFileStatus(fileName: String){
     minioRepository.uploadFileStatus(
-      bucketName = minioRepository.buckets.models,
+      bucketName = minioRepository.buckets.`import`,
       fileName)
   }
 }

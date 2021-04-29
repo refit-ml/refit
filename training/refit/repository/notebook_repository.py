@@ -3,12 +3,20 @@ from datetime import datetime
 from typing import List
 
 import requests
-
+import time
 from refit.util.schema import Schema
 
 
+from refit.util.refit_config import RefitConfig
+
 class NotebookRepository:
-    def __init__(self, host=None, port=None):
+    def __init__(self,
+                 host=None,
+                 port=None,
+                 config: RefitConfig = None,
+                 file_repository=None):
+        self._import_bucket = config.minio_bucket_import
+        self.file_repository = file_repository
         self.host = host or "localhost"
         self.port = port or 3000
 
@@ -27,6 +35,7 @@ class NotebookRepository:
                     start: datetime,
                     end: datetime,
                     sensors: List[str]) -> List[dict]:
+
         start = start.strftime("%Y-%m-%d %H:%M:%S")
         end = end.strftime("%Y-%m-%d %H:%M:%S")
         headers = dict()
@@ -35,8 +44,41 @@ class NotebookRepository:
             headers['sensors'] = ",".join(sensors)
 
         path = f"project/{project_guid}/sensor-data?from={start}&to={end}"
-        response = requests.get(self.url(path), headers=headers)
-        return response.json()
+        transaction_id = requests.get(self.url(path), headers=headers)
+
+        data_available = self.__check_data_upload(project_guid, transaction_id)
+
+        if data_available:
+            response = self.__download_data(transaction_id)
+        else:
+            response = 'Error' #Change error output
+
+        return response
+
+    def __check_data_upload(self,
+                            project_guid: str,
+                            transactionID: str):
+
+        path = f"project/{project_guid}/transactionID/{transactionID}"
+        available = False
+
+        for i in range(0, 1000):
+            available = requests.get(self.url(path))
+            if available:
+                return available
+            time.sleep(3)
+
+        return available
+
+    def __download_data(self,
+                        transaction_id : str):
+
+        bucket_name = self._import_bucket
+        object_name = f"{transaction_id}.json"
+
+        file = self.file_repository.download_file(bucket_name, object_name)
+        return file
+
 
     def training_window(self,
                         project_guid: str,
