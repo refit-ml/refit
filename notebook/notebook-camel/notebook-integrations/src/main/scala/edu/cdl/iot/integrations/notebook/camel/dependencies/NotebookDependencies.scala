@@ -59,8 +59,7 @@ class NotebookDependencies(config: RefitConfig,
     projectRepository = projectRepository,
     sensorRepository = sensorRepository,
     sensorDataRepository = sensorDataRepository,
-    trainingWindowRepository = trainingWindowRepository,
-    uploadService = uploadService
+    trainingWindowRepository = trainingWindowRepository
   )
 
   private val modelService = new NotebookModelService(
@@ -75,7 +74,7 @@ class NotebookDependencies(config: RefitConfig,
     dataSourceRepository = jdbiDependencies.dataSourceRepository
   )
 
-  val queryRoutes = new NotebookQueryRoutes(camelContext, queryService)
+  val queryRoutes =new NotebookQueryRoutes(camelContext, uploadService, queryService)
   val importRoutes = new NotebookImportRoutes(camelContext, importService)
   val projectRoutes = new NotebookProjectRoutes(camelContext, projectService)
   val modelRoutes = new NotebookModelRoutes(camelContext, modelService)

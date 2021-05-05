@@ -2,16 +2,18 @@ package edu.cdl.iot.integrations.notebook.camel.routes
 
 import java.net.URLDecoder
 import java.util.UUID
-
 import edu.cdl.iot.common.domain.TrainingWindow
 import edu.cdl.iot.common.util.TimestampHelper
-import edu.cdl.iot.integrations.notebook.core.service.NotebookQueryService
+import edu.cdl.iot.integrations.notebook.core.service.{NotebookQueryService, NotebookUploadService}
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestParamType
 import org.apache.camel.{CamelContext, Exchange, Message}
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters.mapAsJavaMapConverter
+
 class NotebookQueryRoutes(private val context: CamelContext,
+                          private val uploadService: NotebookUploadService,
                           private val queryService: NotebookQueryService) extends RouteBuilder(context) {
   private val logger = LoggerFactory.getLogger(classOf[NotebookQueryRoutes])
 
@@ -37,8 +39,12 @@ class NotebookQueryRoutes(private val context: CamelContext,
         val from = TimestampHelper.parseDate(URLDecoder.decode(message.getHeader("from", classOf[String])))
         val to = TimestampHelper.parseDate(URLDecoder.decode(message.getHeader("to", classOf[String])))
         val sensors = getOptionalHeader(message, "sensors")
-        val response = queryService.query(projectGuid, from, to, sensors)
+        val dataObject = queryService.query(projectGuid, from, to, sensors)
+          .map(x => x.asJava)
+          .toArray
 
+        val response = uploadService.uploadFileObject(dataObject)
+        logger.info(s"Transaction id created and returned to client:${response}")
         message.setBody(response)
         logger.info("Sensor Data Fetched and uploaded on minio")
       })
@@ -52,7 +58,7 @@ class NotebookQueryRoutes(private val context: CamelContext,
       .process((exchange: Exchange) => {
         val message = exchange.getIn()
         val transactionID = message.getHeader("transactionID", classOf[String])
-        val response = queryService.uploadStatus(transactionID)
+        val response = uploadService.uploadStatus(transactionID)
         message.setBody(response)
         logger.info("File Upload status on minio sent")
       })
