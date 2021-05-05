@@ -29,3 +29,15 @@ class FileRepository:
             print("Error putting file")
             print(err)
         return True
+
+
+    def download_file(self, bucket_name: str, object_name: str):
+        try:
+            response = self._minio.get_object(bucket_name, object_name)
+
+        finally:
+            response.close()
+            response.release_conn()
+
+
+        return response

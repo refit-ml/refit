@@ -1,6 +1,5 @@
 package edu.cdl.iot.integrations.notebook.core.service
 
-
 import java.util.UUID
 import edu.cdl.iot.common.domain.{Project, Sensor, TrainingWindow}
 import edu.cdl.iot.common.factories.SchemaFactory
@@ -62,5 +61,5 @@ class NotebookQueryServiceTests extends AnyFlatSpec with should.Matchers with Be
     //val expected: List[TrainingWindow]= List(train1)
     actual shouldBe a [List[_]]
   }
-
+  
 }
