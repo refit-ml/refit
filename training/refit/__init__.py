@@ -116,6 +116,11 @@ class Refit:
         else:
             raise Exception("Error: Must import as data frame")
 
+    # direct import without minio
+    def stream_data(self,
+                    data: str):
+        return self.notebook_repository.stream_sensor_data(self.project_guid, data)
+
     def import_static_data(self,
                            name: str,
                            dataframe: pd.DataFrame) -> str:

@@ -12,6 +12,7 @@ import org.yaml.snakeyaml.Yaml
 import collection.JavaConverters._
 import scala.collection.mutable
 
+// create schema class
 case class Schema(yaml: SchemaYaml) {
   val org: String = yaml.org
   val orgGuid: UUID = UUID.fromString(yaml.orgGuid)
