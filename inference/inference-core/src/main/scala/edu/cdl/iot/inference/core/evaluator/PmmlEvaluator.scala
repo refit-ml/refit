@@ -27,7 +27,11 @@ class PmmlEvaluator(private val model: Model,
         FieldName.create(x) -> FieldValueUtil.create(d)
     }).++(v.integers.map({
       case (x, d) =>
-        FieldName.create(x) -> FieldValueUtil.create(d)
+        if (x=="isOutlier"){
+
+        }else{
+          FieldName.create(x) -> FieldValueUtil.create(d)
+        }
     })).++(v.strings.map({
       case (x, d) =>
         FieldName.create(x) -> FieldValueUtil.create(d)
