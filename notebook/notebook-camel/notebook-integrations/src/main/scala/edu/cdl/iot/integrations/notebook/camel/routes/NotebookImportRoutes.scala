@@ -79,7 +79,7 @@ class NotebookImportRoutes(private val context: CamelContext,
         val message = exchange.getIn()
         val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
         logger.info("Stream request received")
-        val data = exchange.getIn.getBody(classOf[DirectImport]).getData()
+        val data = exchange.getIn.getBody(classOf[DirectImport])
         importService.performDirectSensorDataImport(projectGuid, data)
         logger.info("Stream Request Queued")
         message.setBody("data queued")
