@@ -1,12 +1,11 @@
 package edu.cdl.iot.integrations.notebook.core.service
 
 import java.util.UUID
-
 import edu.cdl.iot.common.yaml.MinioConfig
 import edu.cdl.iot.integrations.notebook.core.factory.{SensorDataFactory, StaticDataFactory, TrainingWindowFactory}
 import edu.cdl.iot.integrations.notebook.core.repository.{NotebookImportFileRepository, NotebookImportRepository, NotebookProjectRepository, NotebookSensorDataRepository, NotebookStaticDataImportRepository, NotebookStaticDataRepository, NotebookTrainingWindowImportRepository, NotebookTrainingWindowRepository}
 import edu.cdl.iot.protocol.Import.Import
-import edu.cdl.iot.integrations.notebook.core.entity.{Import => FileImport}
+import edu.cdl.iot.integrations.notebook.core.entity.{DirectImport, Import => FileImport}
 import edu.cdl.iot.protocol.StaticDataImport.StaticDataImport
 import org.slf4j.LoggerFactory
 
@@ -88,4 +87,14 @@ class NotebookImportService(minioConfig: MinioConfig,
       fileRepository.deleteFile(minioConfig.buckets.`import`, request.filePath)
     }
   }
+
+  // perform data import directly, takes in an array of string following the schema.
+  def performDirectSensorDataImport(projectGuid: UUID, data: DirectImport): Unit = {
+    logger.info("Start sensor data import (no minio)")
+    val schema = projectRepository.find(projectGuid).schema
+    val sensorDataFactory = new SensorDataFactory(schema)
+    val sensorData = sensorDataFactory.fromCsv(data.getData)
+    sensorDataRepository.createSensorData(sensorData)
+  }
+
 }

@@ -3,6 +3,7 @@ package edu.cdl.iot.integrations.notebook.camel.routes
 import java.util.UUID
 
 import edu.cdl.iot.integrations.notebook.core.entity.Import
+import edu.cdl.iot.integrations.notebook.core.entity.DirectImport
 import edu.cdl.iot.integrations.notebook.core.service.NotebookImportService
 import org.apache.camel.builder.RouteBuilder
 import org.apache.camel.model.rest.RestParamType
@@ -65,6 +66,23 @@ class NotebookImportRoutes(private val context: CamelContext,
         importService.saveStaticDataImportRequest(projectGuid, dataSet, request)
         logger.info("Static Data Import Request Queued")
         message.setBody("Static Data Import Queued")
+      })
+
+    // new endpoint that accepts data directly from client side.
+    rest("/notebook/project")
+      .put("/{projectGuid}/data")
+      .`type`(classOf[DirectImport])
+      .outType(classOf[String])
+      .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
+      .route()
+      .process((exchange: Exchange) => {
+        val message = exchange.getIn()
+        val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
+        logger.info("Stream request received")
+        val data = exchange.getIn.getBody(classOf[DirectImport])
+        importService.performDirectSensorDataImport(projectGuid, data)
+        logger.info("Stream Request Queued")
+        message.setBody("data queued")
       })
 
 

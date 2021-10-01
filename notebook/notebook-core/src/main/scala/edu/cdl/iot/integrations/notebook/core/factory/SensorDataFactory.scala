@@ -7,6 +7,7 @@ import edu.cdl.iot.protocol.SensorData.SensorData
 
 class SensorDataFactory(val schema: Schema) {
 
+  // convert an array of string to sensor data object
   def fromDelimited(row: Array[String]): SensorData = {
     val key = schema.getKey(row)
     val timestampParts = schema.getTimestamp(row).split("\t")
