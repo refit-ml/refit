@@ -43,6 +43,7 @@ def _expand_row(row, columns: List[str]):
 
 def _expand(df: DataFrame, columns: List[str]) -> DataFrame:
     expanded_df: DataFrame = df.apply(lambda row: _expand_row(row, columns), axis=1)
+    # drop original raw data mapping ; why?
     expanded_df.drop(_expand_columns, axis=1)
     return expanded_df
 
@@ -236,10 +237,12 @@ def _extract_features(df: DataFrame, key: str, extract_func):
     parsed_df = _parse_df(df, _expand_columns)
     expanded_df = _expand(parsed_df, _expand_columns)
     enriched_df = extract_func(expanded_df.copy(deep=False))
+    # select newly added features.
     columns = [column for column in enriched_df.columns if column not in expanded_df.columns]
 
     for column in columns:
         expanded_df[column] = enriched_df[column]
+    # eg. "doubles" only contains newly added features.
     enriched_df = enriched_df.apply(lambda row: _append_columns(row, key, columns), axis=1)
     enriched_df[key] = enriched_df[key].apply(lambda dictionary: json.dumps(dictionary))
     return enriched_df[key]

@@ -20,6 +20,7 @@ class PmmlEvaluator(private val model: Model,
     .build()
 
 
+  // for integers, ignore the field "isOutlier)   v.integers("isOutlier") == 0,1,2
   private val getPmmlVector: (SensorData) => Map[FieldName, FieldValue] =
     (v: SensorData) => v.doubles.map({
       case (x, d) =>

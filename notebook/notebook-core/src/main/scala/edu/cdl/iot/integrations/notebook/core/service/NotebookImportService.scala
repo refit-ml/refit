@@ -21,17 +21,21 @@ class NotebookImportService(minioConfig: MinioConfig,
                             staticDataRepository: NotebookStaticDataRepository) {
   private val logger = LoggerFactory.getLogger(classOf[NotebookImportService])
 
+  // kafka topic "import"
   def saveImportRequest(projectGuid: UUID, importRequest: FileImport): Unit =
     importRepository.save(importRequest.toProto(projectGuid))
 
 
+  //kafka topic "trainingWindowImport"
   def saveTrainingWindowImportRequest(projectGuid: UUID, importRequest: FileImport): Unit =
     trainingWindowImportRepository.save(importRequest.toProto(projectGuid))
 
 
+  //kafka topic "staticDataImport"
   def saveStaticDataImportRequest(projectGuid: UUID, dataSource: String, importRequest: FileImport): Unit =
     staticDataImportRepository.save(importRequest.toStaticImportProto(projectGuid, dataSource))
 
+  // to postgres
   def performStaticDataImport(request: StaticDataImport): Unit = {
     logger.info("Start static data import")
     val projectGuid = UUID.fromString(request.projectGuid)
@@ -51,6 +55,7 @@ class NotebookImportService(minioConfig: MinioConfig,
 
   }
 
+  // to cassandra
   def performTrainingWindowImport(request: Import): Unit = {
     logger.info("Start training window import")
     val projectGuid = UUID.fromString(request.projectGuid)
@@ -70,6 +75,7 @@ class NotebookImportService(minioConfig: MinioConfig,
 
   }
 
+  //to kafka topic "data"
   def performSensorDataImport(request: Import): Unit = {
     logger.info("Start sensor data import")
     val projectGuid = UUID.fromString(request.projectGuid)
