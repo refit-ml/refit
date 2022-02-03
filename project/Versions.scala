@@ -10,7 +10,7 @@ object Versions {
   val joda = "2.10.6"
   val cassandra = "4.10.0"
   val jaxb = "2.3.2"
-  val onnx = "1.4.0"
+  val onnx = "1.9.0"
   val snakeYaml = "1.26"
   val codec = "1.14"
   val minio = "7.1.2"
