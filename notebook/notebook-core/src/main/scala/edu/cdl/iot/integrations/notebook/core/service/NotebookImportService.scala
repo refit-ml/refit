@@ -89,11 +89,12 @@ class NotebookImportService(minioConfig: MinioConfig,
   }
 
   // perform data import directly, takes in an array of string following the schema.
-  def performDirectSensorDataImport(projectGuid: UUID, data: DirectImport): Unit = {
+  def performDirectSensorDataImport(projectGuid: UUID, data: String): Unit = {
     logger.info("Start sensor data import (no minio)")
     val schema = projectRepository.find(projectGuid).schema
     val sensorDataFactory = new SensorDataFactory(schema)
-    val sensorData = sensorDataFactory.fromCsv(data.getData)
+    val sensorData = sensorDataFactory.fromCsv(data)
+    logger.info("sensorData: {}",sensorData)
     sensorDataRepository.createSensorData(sensorData)
   }
 

@@ -71,7 +71,7 @@ class NotebookImportRoutes(private val context: CamelContext,
     // new endpoint that accepts data directly from client side.
     rest("/notebook/project")
       .put("/{projectGuid}/data")
-      .`type`(classOf[DirectImport])
+      .`type`(classOf[String])
       .outType(classOf[String])
       .param.name("projectGuid").`type`(RestParamType.path).required(true).endParam()
       .route()
@@ -79,7 +79,8 @@ class NotebookImportRoutes(private val context: CamelContext,
         val message = exchange.getIn()
         val projectGuid = UUID.fromString(message.getHeader("projectGuid", classOf[String]))
         logger.info("Stream request received")
-        val data = exchange.getIn.getBody(classOf[DirectImport])
+        val data = exchange.getIn.getBody(classOf[String])
+        logger.info("data is: {}",data)
         importService.performDirectSensorDataImport(projectGuid, data)
         logger.info("Stream Request Queued")
         message.setBody("data queued")
