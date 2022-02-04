@@ -98,10 +98,7 @@ class NotebookRepository:
                            project_guid: str,
                            data: str):
         url = self.url(f"project/{project_guid}/data")
-        payload = json.dumps({
-            "data": data
-        })
-        response = requests.put(url, payload)
+        response = requests.put(url, data)
         return response.text
 
     def import_training_window(self,
