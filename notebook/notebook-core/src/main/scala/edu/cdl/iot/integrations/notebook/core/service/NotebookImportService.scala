@@ -88,6 +88,7 @@ class NotebookImportService(minioConfig: MinioConfig,
     }
   }
 
+
   // perform data import directly, takes in a single line string following the schema.
   def performDirectSensorDataImport(projectGuid: UUID, data: FileImport): Unit = {
     logger.info("Start sensor data import (no minio)")
