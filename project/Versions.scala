@@ -14,7 +14,7 @@ object Versions {
   val snakeYaml = "1.26"
   val codec = "1.14"
   val minio = "7.1.2"
-  val kafka = "2.1.0"
+  val kafka = "3.1.0"
   val kubeClient = "10.0.0"
   val self4J = "1.7.30"
   var jackson = "2.11.2"
