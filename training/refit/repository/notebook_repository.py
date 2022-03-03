@@ -94,12 +94,14 @@ class NotebookRepository:
         return response.text
 
     #direct data import with no minio
+    # the filepath in this case is the actual single line data
     def stream_sensor_data(self,
                            project_guid: str,
                            data: str):
         url = self.url(f"project/{project_guid}/data")
         payload = json.dumps({
-            "data": data
+            "filePath": data,
+            "deleteWhenComplete": True
         })
         response = requests.put(url, payload)
         return response.text

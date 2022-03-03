@@ -88,12 +88,15 @@ class NotebookImportService(minioConfig: MinioConfig,
     }
   }
 
-  // perform data import directly, takes in an array of string following the schema.
-  def performDirectSensorDataImport(projectGuid: UUID, data: DirectImport): Unit = {
+
+  // perform data import directly, takes in a single line string following the schema.
+  def performDirectSensorDataImport(projectGuid: UUID, data: FileImport): Unit = {
     logger.info("Start sensor data import (no minio)")
     val schema = projectRepository.find(projectGuid).schema
     val sensorDataFactory = new SensorDataFactory(schema)
-    val sensorData = sensorDataFactory.fromCsv(data.getData)
+    // in this case the filepath contains the single line data string
+    val sensorData = sensorDataFactory.fromCsv(data.toProto(projectGuid).filePath)
+    logger.info("sensorData before sending to kafka: {}",sensorData)
     sensorDataRepository.createSensorData(sensorData)
   }
 
