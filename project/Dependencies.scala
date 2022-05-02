@@ -12,7 +12,7 @@ object Dependencies {
   )
 
   val kafka = Seq(
-    Libraries.kakfaCamel
+    Libraries.kakfa
   )
 
   val flink = Seq(
