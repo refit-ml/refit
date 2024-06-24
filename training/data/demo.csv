@@ -1,4 +1,4 @@
-id,sensor_id,timestamp,temperature,pressure,wind
+id,SensorID,Timestamp,Temperature,Pressure,Wind
 0,5163,2020-06-28 00:48:32,60,1107,38
 1,5163,2020-06-28 00:48:37,43,1152,14
 2,5163,2020-06-28 00:48:42,68,1028,64
