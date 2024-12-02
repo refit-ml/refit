@@ -12,7 +12,7 @@ keras2onnx==1.6.0
 Keras==2.2.5
 protobuf==3.17.3
 onnxmltools==1.10.0
-pyyaml==5.3.1
+pyyaml==5.4
 minio==6.0.0
 pyarrow
 fastavro
